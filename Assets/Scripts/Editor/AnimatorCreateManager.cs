@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEditor.Animations;
 using UnityEngine;
 
-public class AnimatorManager : MonoBehaviour
+public class AnimatorCreateManager : MonoBehaviour
 {
     [System.Serializable]
     public class TransitionCondition
@@ -12,7 +12,6 @@ public class AnimatorManager : MonoBehaviour
         public string parameterName; // 参数名称
         public string conditionMode; // 条件模式 ("Greater", "Less", "Equals", "NotEquals")
         public float threshold; // 阈值
-        public string targetStateName; // 目标状态名称
     }
 
     [System.Serializable]
@@ -22,7 +21,14 @@ public class AnimatorManager : MonoBehaviour
         public string animationClipPath; // 动画剪辑路径
         public bool hasExitTime; // 是否有退出时间
         public float exitTime; // 退出时间
-        public List<TransitionCondition> transitions; // 切换条件
+        public List<Transition> transitions; // 切换条件列表
+
+        [System.Serializable]
+        public class Transition
+        {
+            public string targetStateName; // 目标状态名称
+            public List<TransitionCondition> conditions; // 条件列表
+        }
     }
 
     [System.Serializable]
@@ -58,11 +64,14 @@ public class AnimatorManager : MonoBehaviour
         {
             foreach (var transitionConfig in stateConfig.transitions)
             {
-                if (!addedParameters.Contains(transitionConfig.parameterName))
+                foreach (var condition in transitionConfig.conditions)
                 {
-                    // 添加参数到动画控制器
-                    animatorController.AddParameter(transitionConfig.parameterName, AnimatorControllerParameterType.Float);
-                    addedParameters.Add(transitionConfig.parameterName);
+                    if (!addedParameters.Contains(condition.parameterName))
+                    {
+                        // 添加参数到动画控制器
+                        animatorController.AddParameter(condition.parameterName, AnimatorControllerParameterType.Float);
+                        addedParameters.Add(condition.parameterName);
+                    }
                 }
             }
         }
@@ -109,12 +118,15 @@ public class AnimatorManager : MonoBehaviour
                 transition.hasExitTime = stateConfig.hasExitTime;
                 transition.exitTime = stateConfig.exitTime;
 
-                // 添加条件
-                transition.AddCondition(
-                    ParseConditionMode(transitionConfig.conditionMode), // 条件模式
-                    transitionConfig.threshold,                        // 阈值
-                    transitionConfig.parameterName                     // 参数名称
-                );
+                // 添加多个条件
+                foreach (var condition in transitionConfig.conditions)
+                {
+                    transition.AddCondition(
+                        ParseConditionMode(condition.conditionMode), // 条件模式
+                        condition.threshold,                        // 阈值
+                        condition.parameterName                     // 参数名称
+                    );
+                }
             }
         }
 

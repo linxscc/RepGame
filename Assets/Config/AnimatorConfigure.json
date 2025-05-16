@@ -8,10 +8,18 @@
             "exitTime": 0.75,
             "transitions": [
                 {
-                    "parameterName": "isWalking",
-                    "conditionMode": "Greater",
-                    "threshold": 0.5,
-                    "targetStateName": "Walk"
+                    "targetStateName": "Walk",
+                    "conditions": [
+                               {
+                                 "parameterName": "isWalking",
+                                 "conditionMode": "Greater",
+                                 "threshold": 0.5
+                               },
+                               {
+                                 "parameterName": "isIdle",
+                                 "conditionMode": "Less",
+                                 "threshold": 0.5
+                               }]
                 }
             ]
         },
@@ -22,10 +30,73 @@
             "exitTime": 0,
             "transitions": [
                 {
-                    "parameterName": "isWalking",
-                    "conditionMode": "Less",
-                    "threshold": 0.5,
-                    "targetStateName": "Idle"
+                    "targetStateName": "Idle",
+                    "conditions": [
+                               {
+                                 "parameterName": "isWalking",
+                                 "conditionMode": "Less",
+                                 "threshold": 0.5
+                               },
+                               {
+                                 "parameterName": "isIdle",
+                                 "conditionMode": "Greater",
+                                 "threshold": 0.5
+                               }]
+                },
+                {
+                    "targetStateName": "Run",
+                    "conditions": [
+                               {
+                                 "parameterName": "isWalking",
+                                 "conditionMode": "Less",
+                                 "threshold": 0.5
+                               },
+                               {
+                                 "parameterName": "isRunning",
+                                 "conditionMode": "Greater",
+                                 "threshold": 0.5
+                               }]
+                }
+            ]
+        },
+        {
+            "stateName": "Run",
+            "animationClipPath": "Assets/Animators/PolyartAnimation/Run_gunMiddle_AR___preview__Take 001.anim",
+            "hasExitTime": false,
+            "exitTime": 0,
+            "transitions": [
+                {
+                    "targetStateName": "Idle",
+                    "conditions": [
+                               {
+                                 "parameterName": "isWalking",
+                                 "conditionMode": "Less",
+                                 "threshold": 0.5
+                               },
+                               {
+                                 "parameterName": "isRunning",
+                                 "conditionMode": "Less",
+                                 "threshold": 0.5
+                               },
+                               {
+                                 "parameterName": "isIdle",
+                                 "conditionMode": "Greater",
+                                 "threshold": 0.5
+                               }]
+                },
+                {
+                    "targetStateName": "Walk",
+                    "conditions": [
+                               {
+                                 "parameterName": "isWalking",
+                                 "conditionMode": "Greater",
+                                 "threshold": 0.5
+                               },
+                               {
+                                 "parameterName": "isRunning",
+                                 "conditionMode": "Less",
+                                 "threshold": 0.5
+                               }]
                 }
             ]
         }
