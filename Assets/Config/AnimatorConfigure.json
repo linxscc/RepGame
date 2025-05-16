@@ -1,0 +1,33 @@
+{
+    "animatorControllerPath": "Assets/Animators/Polyart.controller",
+    "states": [
+        {
+            "stateName": "Idle",
+            "animationClipPath": "Assets/Animators/PolyartAnimation/Idle_Ducking_ar___preview__Take 001.anim",
+            "hasExitTime": true,
+            "exitTime": 0.75,
+            "transitions": [
+                {
+                    "parameterName": "isWalking",
+                    "conditionMode": "Greater",
+                    "threshold": 0.5,
+                    "targetStateName": "Walk"
+                }
+            ]
+        },
+        {
+            "stateName": "Walk",
+            "animationClipPath": "Assets/Animators/PolyartAnimation/WalkFront_Shoot_ar___preview__Take 001.anim",
+            "hasExitTime": false,
+            "exitTime": 0,
+            "transitions": [
+                {
+                    "parameterName": "isWalking",
+                    "conditionMode": "Less",
+                    "threshold": 0.5,
+                    "targetStateName": "Idle"
+                }
+            ]
+        }
+    ]
+}

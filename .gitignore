@@ -1,0 +1,46 @@
+# Ignore build and temp folders
+Library/
+Logs/
+Packages/
+ProjectSettings/
+Temp/
+.vscode/
+# Ignore all DS_Store files
+.DS_Store
+UserSettings/
+# Ignore all sln files
+*.sln
+*.userprefs
+*.csproj
+*.unityproj
+*.pidb
+*.suo
+*.user
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.tps
+*.tmp
+*.vsconfig
+*.meta
+
+
+# Ignore all log files
+*.log
+
+
+/secret.txt
+
+# Ignore all obj and tmp files
+*.obj
+*.tmp
+
+# Ignore cache and output folders
+cache/
+output/
+
+# Ignore all files in the config directory, except keepme.txt
+config/*
+!config/keepme.txt
