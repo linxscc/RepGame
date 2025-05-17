@@ -2,17 +2,15 @@
 using System.Net.Sockets;
 using UnityEngine;
 using LiteNetLib;
+using LiteNetLib.Utils;
+using System.Collections.Generic;
 
 public class GameClient : MonoBehaviour, INetEventListener
 {
     private NetManager _netClient;
+    private Dictionary<int, GameObject> players = new Dictionary<int, GameObject>(); // 存储玩家对象
 
-    [SerializeField] private GameObject _clientBall;
-    [SerializeField] private GameObject _clientBallInterpolated;
-
-    private float _newBallPosX;
-    private float _oldBallPosX;
-    private float _lerpTime;
+    [SerializeField] private GameObject playerPrefab; // 玩家预制体
 
     private void Start()
     {
@@ -20,6 +18,7 @@ public class GameClient : MonoBehaviour, INetEventListener
         _netClient.UnconnectedMessagesEnabled = true;
         _netClient.UpdateTime = 15;
         _netClient.Start();
+        _netClient.Connect("127.0.0.1", 9050, "sample_app");
     }
 
     private void Update()
@@ -29,13 +28,10 @@ public class GameClient : MonoBehaviour, INetEventListener
         var peer = _netClient.FirstPeer;
         if (peer != null && peer.ConnectionState == ConnectionState.Connected)
         {
-            //Fixed delta set to 0.05
-            var pos = _clientBallInterpolated.transform.position;
-            pos.x = Mathf.Lerp(_oldBallPosX, _newBallPosX, _lerpTime);
-            _clientBallInterpolated.transform.position = pos;
-
-            //Basic lerp
-            _lerpTime += Time.deltaTime / Time.fixedDeltaTime;
+            // 向服务器请求客户端位置
+            var writer = new NetDataWriter();
+            writer.Put("RequestClientPositions");
+            peer.Send(writer, DeliveryMethod.ReliableOrdered);
         }
         else
         {
@@ -49,31 +45,53 @@ public class GameClient : MonoBehaviour, INetEventListener
             _netClient.Stop();
     }
 
-    void INetEventListener.OnPeerConnected(NetPeer peer)
+    public void OnPeerConnected(NetPeer peer)
     {
-        Debug.Log("[CLIENT] We connected to " + peer);
+        Debug.Log("[CLIENT] Connected to server!");
     }
 
-    void INetEventListener.OnNetworkError(IPEndPoint endPoint, SocketError socketErrorCode)
+    public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
     {
-        Debug.Log("[CLIENT] We received error " + socketErrorCode);
+        Debug.Log($"[CLIENT] Disconnected from server: {disconnectInfo.Reason}");
     }
 
-    void INetEventListener.OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
+    public void OnNetworkError(IPEndPoint endPoint, SocketError socketErrorCode)
     {
-        _newBallPosX = reader.GetFloat();
-
-        var pos = _clientBall.transform.position;
-
-        _oldBallPosX = pos.x;
-        pos.x = _newBallPosX;
-
-        _clientBall.transform.position = pos;
-
-        _lerpTime = 0f;
+        Debug.LogError($"[CLIENT] Network error: {socketErrorCode}");
     }
 
-    void INetEventListener.OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
+    public void OnNetworkReceive(NetPeer peer, NetPacketReader reader,byte channelNumber, DeliveryMethod deliveryMethod)
+    {
+        string responseType = reader.GetString();
+
+        if (responseType == "ClientPositions")
+        {
+            int clientCount = reader.GetInt();
+            for (int i = 0; i < clientCount; i++)
+            {
+                int clientId = reader.GetInt();
+                float posX = reader.GetFloat();
+                float posY = reader.GetFloat();
+                float posZ = reader.GetFloat();
+
+                Vector3 position = new Vector3(posX, posY, posZ);
+
+                if (!players.ContainsKey(clientId))
+                {
+                    // 实例化新的玩家对象
+                    GameObject player = Instantiate(playerPrefab, position, Quaternion.identity);
+                    players[clientId] = player;
+                }
+                else
+                {
+                    // 更新已有玩家的位置
+                    players[clientId].transform.position = position;
+                }
+            }
+        }
+    }
+
+    public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
     {
         if (messageType == UnconnectedMessageType.BasicMessage && _netClient.ConnectedPeersCount == 0 && reader.GetInt() == 1)
         {
@@ -82,18 +100,13 @@ public class GameClient : MonoBehaviour, INetEventListener
         }
     }
 
-    void INetEventListener.OnNetworkLatencyUpdate(NetPeer peer, int latency)
+    public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
     {
 
     }
 
-    void INetEventListener.OnConnectionRequest(ConnectionRequest request)
+    public void OnConnectionRequest(ConnectionRequest request)
     {
 
-    }
-
-    void INetEventListener.OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
-    {
-        Debug.Log("[CLIENT] We disconnected because " + disconnectInfo.Reason);
     }
 }
