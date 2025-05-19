@@ -17,7 +17,7 @@ public class GameClient : MonoBehaviour, INetEventListener
         _netClient = new NetManager(this);
         _netClient.UnconnectedMessagesEnabled = true;
         _netClient.UpdateTime = 15;
-        _netClient.Start();
+        _netClient.Start(0);
         _netClient.Connect("127.0.0.1", 9050, "demo");
 
         // _playerManager = FindFirstObjectByType<PlayerManager>();
