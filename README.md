@@ -4,3 +4,6 @@ Through the creation of a small game, try to realize an automated process, inclu
 When you use Network Service in local test,Maybe you will need this command
   net stop winnat
   net start winnat
+
+Color choose
+https://peiseka.com/index-index-peise-id-2244.html

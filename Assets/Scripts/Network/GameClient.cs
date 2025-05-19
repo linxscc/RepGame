@@ -4,13 +4,13 @@ using UnityEngine;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using System.Collections.Generic;
+using RepGameModels;
+using RepGame.Core;
 
 public class GameClient : MonoBehaviour, INetEventListener
 {
     private NetManager _netClient;
-    private Dictionary<int, GameObject> players = new Dictionary<int, GameObject>(); // 存储玩家对象
-
-    [SerializeField] private GameObject playerPrefab; // 玩家预制体
+    private PlayerManager _playerManager;
 
     private void Start()
     {
@@ -18,7 +18,24 @@ public class GameClient : MonoBehaviour, INetEventListener
         _netClient.UnconnectedMessagesEnabled = true;
         _netClient.UpdateTime = 15;
         _netClient.Start();
-        _netClient.Connect("127.0.0.1", 9050, "sample_app");
+        _netClient.Connect("127.0.0.1", 9050, "demo");
+
+        _playerManager = FindFirstObjectByType<PlayerManager>();
+        if (_playerManager == null)
+        {
+            Debug.LogError("PlayerManager not found in the scene!");
+        }
+    }
+    private void OnEnable()
+    {
+        // Subscribe to the "StartCardGame" event
+        EventManager.Subscribe("StartCardGame", SendStartCardGameRequest);
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe from the event to prevent memory leaks
+        EventManager.Unsubscribe("StartCardGame", SendStartCardGameRequest);
     }
 
     private void Update()
@@ -28,14 +45,10 @@ public class GameClient : MonoBehaviour, INetEventListener
         var peer = _netClient.FirstPeer;
         if (peer != null && peer.ConnectionState == ConnectionState.Connected)
         {
-            // 向服务器请求客户端位置
-            var writer = new NetDataWriter();
-            writer.Put("RequestClientPositions");
-            peer.Send(writer, DeliveryMethod.ReliableOrdered);
-        }
-        else
-        {
-            _netClient.SendBroadcast(new byte[] {1}, 5000);
+            // 向服务器发送客户端位置
+            // var writer = new NetDataWriter();
+            // writer.Put("SendClientPositions");
+            // peer.Send(writer, DeliveryMethod.ReliableOrdered);
         }
     }
 
@@ -60,53 +73,65 @@ public class GameClient : MonoBehaviour, INetEventListener
         Debug.LogError($"[CLIENT] Network error: {socketErrorCode}");
     }
 
-    public void OnNetworkReceive(NetPeer peer, NetPacketReader reader,byte channelNumber, DeliveryMethod deliveryMethod)
+    public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
     {
+        // string responseType = reader.GetString();
+
+        // if (responseType == "ClientPositions")
+        // {
+        //     // 接收 JSON 数据
+        //     string json = reader.GetString();
+
+        //     // 反序列化为 ClientPositionModel 列表
+        //     List<ClientPositionModel> positions = ClientPositionModel.DeserializeList(json);
+
+        //     // 更新玩家对象
+        //     foreach (var positionModel in positions)
+        //     {
+        //         _playerManager.UpdatePlayer(positionModel.ClientId, positionModel.GetPosition());
+        //     }
+        // }
+        // else if (responseType == "RemovePlayer")
+        // {
+        //     int clientId = reader.GetInt();
+        //     _playerManager.RemovePlayer(clientId);
+        // }
         string responseType = reader.GetString();
 
-        if (responseType == "ClientPositions")
+        if (responseType == "InitPlayerCards")
         {
-            int clientCount = reader.GetInt();
-            for (int i = 0; i < clientCount; i++)
-            {
-                int clientId = reader.GetInt();
-                float posX = reader.GetFloat();
-                float posY = reader.GetFloat();
-                float posZ = reader.GetFloat();
+            Debug.Log("Received InitPlayerCards message from server.");
+            // 接收 JSON 数据
+            string json = reader.GetString();
 
-                Vector3 position = new Vector3(posX, posY, posZ);
-
-                if (!players.ContainsKey(clientId))
-                {
-                    // 实例化新的玩家对象
-                    GameObject player = Instantiate(playerPrefab, position, Quaternion.identity);
-                    players[clientId] = player;
-                }
-                else
-                {
-                    // 更新已有玩家的位置
-                    players[clientId].transform.position = position;
-                }
-            }
+            // 反序列化为 ClientPositionModel 列表
+            List<CardModel> positions = CardModel.DeserializeList(json);
+            Debug.Log($"Received InitPlayerCards {positions}.");
         }
     }
 
     public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
     {
-        if (messageType == UnconnectedMessageType.BasicMessage && _netClient.ConnectedPeersCount == 0 && reader.GetInt() == 1)
-        {
-            Debug.Log("[CLIENT] Received discovery response. Connecting to: " + remoteEndPoint);
-            _netClient.Connect(remoteEndPoint, "sample_app");
-        }
     }
 
     public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
     {
-
     }
 
     public void OnConnectionRequest(ConnectionRequest request)
     {
+    }
+    
+    public void SendStartCardGameRequest()
+    {
+        if (_netClient == null)
+        {
+            Debug.LogError("NetManager is not initialized!");
+            return;
+        }
 
+        NetDataWriter writer = new NetDataWriter();
+        writer.Put("StartCardGame");
+        _netClient.SendToAll(writer, DeliveryMethod.ReliableOrdered);
     }
 }

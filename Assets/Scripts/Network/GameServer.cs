@@ -5,133 +5,230 @@ using UnityEngine;
 using LiteNetLib;
 using LiteNetLib.Utils;
 using System.Collections.Generic;
+using RepGamebackModels;
+using GameLogic; // Correct namespace for CardManager
+using Network;
 
-public class GameServer : MonoBehaviour, INetEventListener, INetLogger
+
+public class GameServer : MonoBehaviour, INetEventListener
 {
     private NetManager _netServer;
-    private NetDataWriter _dataWriter;
     private Dictionary<int, Vector3> clientPositions = new Dictionary<int, Vector3>(); // 客户端ID和位置映射
+    private List<int> connectedPlayers = new List<int>();
+    private CardManager cardManager = new CardManager();
+    private ClientPositionHandler clientPositionHandler = new ClientPositionHandler();
+
+    private Dictionary<int, List<int>> rooms = new Dictionary<int, List<int>>(); // Room ID to list of player IDs
+    private int nextRoomId = 1; // Incremental room ID tracker
+
+    private Queue<(NetPeer peer, string requestType)> requestQueue = new Queue<(NetPeer, string)>();
+    private const int MaxRequestsPerFrame = 10; // Limit the number of requests processed per frame
+    private const int RequiredPlayersToStart = 2; // Number of players required to start a card game
+    private HashSet<int> readyPlayers = new HashSet<int>(); // Track players ready to start the game
+    private const int MaxRequestsBeforeMultithreading = 20; // Threshold for enabling multithreading
 
     private void Start()
     {
-        NetDebug.Logger = this;
-        _dataWriter = new NetDataWriter();
         _netServer = new NetManager(this);
-        _netServer.Start(5000);
-        _netServer.BroadcastReceiveEnabled = true;
-        _netServer.UpdateTime = 15;
-        Debug.Log("[SERVER] Server started on port 5000");
+        _netServer.Start(9050);
+        Debug.Log("[SERVER] Server started on port 9050");
     }
 
     private void Update()
     {
         _netServer.PollEvents();
+
+        if (requestQueue.Count > MaxRequestsBeforeMultithreading)
+        {
+            // Process requests in a separate thread
+            System.Threading.ThreadPool.QueueUserWorkItem(ProcessRequestsInBackground);
+        }
+        else
+        {
+            // Process requests in the main thread
+            ProcessRequestsInMainThread();
+        }
     }
 
     private void OnDestroy()
     {
-        NetDebug.Logger = null;
         if (_netServer != null)
             _netServer.Stop();
     }
 
-    void INetEventListener.OnPeerConnected(NetPeer peer)
+    public void OnPeerConnected(NetPeer peer)
     {
         Debug.Log($"[SERVER] New peer connected: {peer.Id}");
 
-        // 为新连接的客户端分配随机位置
-        if (!clientPositions.ContainsKey(peer.Id))
+        // Add the connected player to the list
+        if (!connectedPlayers.Contains(peer.Id))
         {
-            Vector3 randomPosition = new Vector3(UnityEngine.Random.Range(-10f, 10f), 0, UnityEngine.Random.Range(-10f, 10f));
-            clientPositions[peer.Id] = randomPosition;
+            connectedPlayers.Add(peer.Id);
         }
 
+        // 为新连接的客户端分配随机位置
+        // if (!clientPositions.ContainsKey(peer.Id))
+        // {
+        //     Vector3 randomPosition = new Vector3(UnityEngine.Random.Range(40f, 50f), 1.5f, UnityEngine.Random.Range(5, 10f));
+        //     clientPositions[peer.Id] = randomPosition;
+        // }
+
         // 广播所有客户端的位置信息
-        BroadcastClientPositions();
+        // clientPositionHandler.BroadcastClientPositions(_netServer, clientPositions);
     }
 
-    void INetEventListener.OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
+    public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
     {
-        Debug.Log($"[SERVER] Peer disconnected: {peer.Id}, Reason: {disconnectInfo.Reason}");
-        clientPositions.Remove(peer.Id); // 移除断开连接的客户端
-        BroadcastClientPositions(); // 更新其他客户端
+        Debug.Log($"[SERVER] Peer disconnected: {peer.Id}");
+
+        // Remove the player from connected players and their room
+        clientPositions.Remove(peer.Id);
+        connectedPlayers.Remove(peer.Id);
+
+        foreach (var room in rooms)
+        {
+            if (room.Value.Contains(peer.Id))
+            {
+                room.Value.Remove(peer.Id);
+                Debug.Log($"[SERVER] Player {peer.Id} removed from room {room.Key}.");
+
+                if (room.Value.Count == 0)
+                {
+                    rooms.Remove(room.Key);
+                    Debug.Log($"[SERVER] Room {room.Key} deleted as it is empty.");
+                }
+                break;
+            }
+        }
+
+        // 通知其他客户端移除该玩家
+        // clientPositionHandler.BroadcastPlayerRemoval(peer.Id);
     }
 
-    void INetEventListener.OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
+    public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
     {
         string requestType = reader.GetString();
 
+        // Enqueue the request for processing
+        requestQueue.Enqueue((peer, requestType));
+    }
+
+    private void HandleRequest(NetPeer peer, string requestType)
+    {
         if (requestType == "RequestClientPositions")
         {
             Debug.Log($"[SERVER] Received position request from client {peer.Id}");
-            SendClientPositions(peer);
+            clientPositionHandler.SendClientPositions(peer, clientPositions);
         }
-    }
-
-    private void BroadcastClientPositions()
-    {
-        _dataWriter.Reset();
-        _dataWriter.Put("ClientPositions");
-        _dataWriter.Put(clientPositions.Count);
-
-        foreach (var kvp in clientPositions)
+        else if (requestType == "StartCardGame")
         {
-            _dataWriter.Put(kvp.Key); // 客户端ID
-            _dataWriter.Put(kvp.Value.x);
-            _dataWriter.Put(kvp.Value.y);
-            _dataWriter.Put(kvp.Value.z);
-        }
+            Debug.Log($"[SERVER] Player {peer.Id} is ready to start the card game.");
+            readyPlayers.Add(peer.Id);
 
-        foreach (var peer in _netServer.ConnectedPeerList)
+            // Check if enough players are ready to start the game
+            if (readyPlayers.Count >= RequiredPlayersToStart)
+            {
+                CreateRoomAndInitializeCards();
+            }
+        }
+        else if (requestType == "SurrenderCardGame")
         {
-            peer.Send(_dataWriter, DeliveryMethod.ReliableOrdered);
+            Debug.Log($"[SERVER] Player {peer.Id} has surrendered the card game.");
+            RemovePlayerFromRoom(peer.Id);
         }
     }
 
-    private void SendClientPositions(NetPeer peer)
+    private void RemovePlayerFromRoom(int playerId)
     {
-        _dataWriter.Reset();
-        _dataWriter.Put("ClientPositions");
-        _dataWriter.Put(clientPositions.Count);
-
-        foreach (var kvp in clientPositions)
+        foreach (var room in rooms)
         {
-            _dataWriter.Put(kvp.Key); // 客户端ID
-            _dataWriter.Put(kvp.Value.x);
-            _dataWriter.Put(kvp.Value.y);
-            _dataWriter.Put(kvp.Value.z);
+            if (room.Value.Contains(playerId))
+            {
+                room.Value.Remove(playerId);
+                Debug.Log($"[SERVER] Player {playerId} removed from room {room.Key}.");
+
+                // If the room is empty, remove the room
+                if (room.Value.Count == 0)
+                {
+                    rooms.Remove(room.Key);
+                    Debug.Log($"[SERVER] Room {room.Key} deleted as it is empty.");
+                }
+                break;
+            }
         }
-
-        peer.Send(_dataWriter, DeliveryMethod.ReliableOrdered);
     }
 
-    void INetEventListener.OnNetworkError(IPEndPoint endPoint, SocketError socketErrorCode)
+    private void CreateRoomAndInitializeCards()
     {
-        Debug.Log($"[SERVER] Network error: {socketErrorCode}");
-    }
+        int roomId = nextRoomId++;
+        List<int> roomPlayerIds = new List<int>(readyPlayers);
+        rooms[roomId] = roomPlayerIds;
 
-    void INetEventListener.OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
-    {
-        if (messageType == UnconnectedMessageType.Broadcast)
+        Debug.Log($"[SERVER] Room {roomId} created with players {string.Join(", ", roomPlayerIds)}.");
+
+        // Collect NetPeer instances for the room
+        List<NetPeer> roomPeers = new List<NetPeer>();
+        foreach (int playerId in roomPlayerIds)
         {
-            Debug.Log("[SERVER] Received discovery request. Sending discovery response.");
-            NetDataWriter resp = new NetDataWriter();
-            resp.Put(1);
-            _netServer.SendUnconnectedMessage(resp, remoteEndPoint);
+            NetPeer roomPeer = _netServer.GetPeerById(playerId);
+            if (roomPeer != null)
+            {
+                roomPeers.Add(roomPeer);
+            }
+        }
+
+        // Initialize cards for the room
+        try
+        {
+            cardManager.InitializeCardsForPlayers(roomPeers);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"[SERVER] Error initializing cards for room {roomId}: {ex.Message}");
+        }
+
+        // Clear the ready players list after creating the room
+        readyPlayers.Clear();
+    }
+
+    private void ProcessRequestsInMainThread()
+    {
+        int processedRequests = 0;
+        while (requestQueue.Count > 0 && processedRequests < MaxRequestsPerFrame)
+        {
+            var (peer, requestType) = requestQueue.Dequeue();
+            HandleRequest(peer, requestType);
+            processedRequests++;
         }
     }
 
-    void INetEventListener.OnNetworkLatencyUpdate(NetPeer peer, int latency)
+    private void ProcessRequestsInBackground(object state)
     {
+        while (requestQueue.Count > 0)
+        {
+            var (peer, requestType) = requestQueue.Dequeue();
+            HandleRequest(peer, requestType);
+        }
     }
 
-    void INetEventListener.OnConnectionRequest(ConnectionRequest request)
+    public void OnNetworkError(IPEndPoint endPoint, SocketError socketError)
     {
-        request.AcceptIfKey("sample_app");
+        Debug.LogError($"[SERVER] Network error: {socketError}");
     }
 
-    void INetLogger.WriteNet(NetLogLevel level, string str, params object[] args)
+    public void OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
     {
-        Debug.LogFormat(str, args);
+        // 处理未连接的消息
+        Debug.Log($"[SERVER] Unconnected message received from {remoteEndPoint}");
     }
+    public void OnNetworkLatencyUpdate(NetPeer peer, int latency)
+    {
+        Debug.Log($"[SERVER] Latency updated for peer {peer.Id}: {latency} ms");
+    }
+    public void OnConnectionRequest(ConnectionRequest request)
+    {
+        Debug.Log("[SERVER] Connection request received");
+        request.AcceptIfKey("demo"); // 验证连接密钥
+    }
+
 }
