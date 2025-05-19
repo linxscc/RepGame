@@ -20,11 +20,11 @@ public class GameClient : MonoBehaviour, INetEventListener
         _netClient.Start();
         _netClient.Connect("127.0.0.1", 9050, "demo");
 
-        _playerManager = FindFirstObjectByType<PlayerManager>();
-        if (_playerManager == null)
-        {
-            Debug.LogError("PlayerManager not found in the scene!");
-        }
+        // _playerManager = FindFirstObjectByType<PlayerManager>();
+        // if (_playerManager == null)
+        // {
+        //     Debug.LogError("PlayerManager not found in the scene!");
+        // }
     }
     private void OnEnable()
     {
@@ -60,6 +60,7 @@ public class GameClient : MonoBehaviour, INetEventListener
 
     public void OnPeerConnected(NetPeer peer)
     {
+        EventManager.TriggerEvent("initialServer", "Connected to server");
         Debug.Log("[CLIENT] Connected to server!");
     }
 

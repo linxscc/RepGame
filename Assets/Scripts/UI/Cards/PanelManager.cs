@@ -34,17 +34,42 @@ namespace RepGame.UI
             startGameButton.onClick.AddListener(OnStartGameClicked);
             exitGameButton.onClick.AddListener(OnExitGameClicked);
         }
+        
+        private void OnEnable()
+        {
+            // Subscribe to the "StartCardGame" event
+            EventManager.Subscribe<string>("initialServer", GetinfoAboutServerConnection);
+        }
+    
+        private void OnDisable()
+        {
+            // Unsubscribe from the event to prevent memory leaks
+            EventManager.Unsubscribe<string>("initialServer", GetinfoAboutServerConnection);
+        }
 
         public void OnStartGameClicked()
         {
             // Trigger the "StartCardGame" event
             EventManager.TriggerEvent("StartCardGame");
-            
+
 
             // Transition to Main Panel
             panelStart.SetActive(false);
             panelMain.SetActive(true);
         }
+
+        private void GetinfoAboutServerConnection(string message)
+        {
+            // Handle the server connection information
+            Debug.Log("Server connection info: " + message);
+            serverStatusText.text += message;
+
+            // Transition to Main Panel
+            panelStart.SetActive(true);
+            panelServer.SetActive(false);
+
+        }
+
 
         private void OnExitGameClicked()
         {

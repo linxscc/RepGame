@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using RepGamebackModels;
 
@@ -7,18 +8,37 @@ namespace GameLogic
 {
     public class CardInitializer
     {
+        private string jsonFilePath;
+
+        public CardInitializer()
+        {
+            // 设置 JSON 文件路径
+            jsonFilePath = Path.Combine(Application.streamingAssetsPath, "Config/CardDeck.json");
+        }
+
         public Dictionary<string, int> LoadCardDeckFromJson()
         {
-            TextAsset jsonFile = Resources.Load<TextAsset>("Config/CardDeck"); // Load from Resources folder
-            if (jsonFile != null)
+            if (File.Exists(jsonFilePath))
             {
-                CardDeckWrapper wrapper = JsonUtility.FromJson<CardDeckWrapper>(jsonFile.text);
-                return wrapper.ToDictionary();
+                try
+                {
+                    // 读取 JSON 文件内容
+                    string jsonContent = File.ReadAllText(jsonFilePath);
+
+                    // 使用 JsonUtility 解析 JSON 数据
+                    CardDeckWrapper wrapper = JsonUtility.FromJson<CardDeckWrapper>(jsonContent);
+                    return wrapper.ToDictionary();
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"Error reading or parsing JSON file: {ex.Message}");
+                    return new Dictionary<string, int>(); // 返回空字典作为回退
+                }
             }
             else
             {
-                Debug.LogError("CardDeck.json not found in Resources/Config.");
-                return new Dictionary<string, int>(); // Fallback to an empty deck
+                Debug.LogError($"JSON file not found at path: {jsonFilePath}");
+                return new Dictionary<string, int>(); // 返回空字典作为回退
             }
         }
 
@@ -67,4 +87,5 @@ namespace GameLogic
             }
         }
     }
+
 }
