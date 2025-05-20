@@ -106,8 +106,8 @@ public class GameClient : MonoBehaviour, INetEventListener
             string json = reader.GetString();
 
             // 反序列化为 ClientPositionModel 列表
-            List<CardModel> positions = CardModel.DeserializeList(json);
-            Debug.Log($"Received InitPlayerCards {positions}.");
+            List<CardModel> cards = CardModel.DeserializeList(json);
+            EventManager.TriggerEvent("InitPlayerCards", cards);
         }
     }
 

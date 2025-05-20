@@ -6,6 +6,8 @@ using TMPro;
 using LiteNetLib;
 using RepGame;
 using RepGame.Core;
+using System.Collections.Generic;
+using RepGameModels;
 
 namespace RepGame.UI
 {
@@ -25,12 +27,22 @@ namespace RepGame.UI
 
         void Start()
         {
+            // 使用 Transform.Find 查找子路径下的对象
+            panelServer = transform.Find("Panel_Server").gameObject;
+            panelStart = transform.Find("Panel_Start").gameObject;
+            panelMain = transform.Find("Panel_Main").gameObject;
+
             // Initialize panels
             panelServer.SetActive(true);
             panelStart.SetActive(false);
             panelMain.SetActive(false);
 
-            // Add button listeners
+            // 查找按钮并添加监听器
+            startGameButton = transform.Find("Panel_Start/Start").GetComponent<Button>();
+            exitGameButton = transform.Find("Panel_Start/Quit").GetComponent<Button>();
+
+            serverStatusText = transform.Find("Panel_Server/ServerStatus").GetComponent<TextMeshProUGUI>();
+
             startGameButton.onClick.AddListener(OnStartGameClicked);
             exitGameButton.onClick.AddListener(OnExitGameClicked);
         }
@@ -38,13 +50,13 @@ namespace RepGame.UI
         private void OnEnable()
         {
             // Subscribe to the "StartCardGame" event
-            EventManager.Subscribe<string>("initialServer", GetinfoAboutServerConnection);
+            EventManager.Subscribe<List<CardModel>>("InitPlayerCards", InitPlayerCards);
         }
     
         private void OnDisable()
         {
             // Unsubscribe from the event to prevent memory leaks
-            EventManager.Unsubscribe<string>("initialServer", GetinfoAboutServerConnection);
+            EventManager.Unsubscribe<List<CardModel>>("InitPlayerCards", InitPlayerCards);
         }
 
         public void OnStartGameClicked()
@@ -58,12 +70,8 @@ namespace RepGame.UI
             panelMain.SetActive(true);
         }
 
-        private void GetinfoAboutServerConnection(string message)
+        private void InitPlayerCards(List<CardModel> cardModels)
         {
-            // Handle the server connection information
-            Debug.Log("Server connection info: " + message);
-            serverStatusText.text += message;
-
             // Transition to Main Panel
             panelStart.SetActive(true);
             panelServer.SetActive(false);

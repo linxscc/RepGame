@@ -1,13 +1,16 @@
 
 using System;
+using UnityEngine;
+using System.Collections.Generic;
 
 namespace RepGamebackModels
 {
     // Define the CardModel class
+    [Serializable]
     public class CardModel
     {
-        public string CardID { get; set; }
-        public CardType Type { get; set; }
+        public string CardID;
+        public CardType Type;
 
         public CardType GetCardType(string cardName)
         {
@@ -16,6 +19,17 @@ namespace RepGamebackModels
                 return cardType;
             }
             return CardType.木匠学徒; // Default to a valid type if parsing fails
+        }
+
+        public static string SerializeList(List<CardModel> list)
+        {
+            return JsonUtility.ToJson(new Serialization<List<CardModel>> { Items = list });
+        }
+
+        [System.Serializable]
+        private class Serialization<T>
+        {
+            public T Items;
         }
     }
 

@@ -6,10 +6,11 @@ using UnityEngine;
 namespace RepGameModels
 {
     // Define the CardModel class
+    [Serializable]
     public class CardModel
     {
-        public string CardID { get; set; }
-        public CardType Type { get; set; }
+        public string CardID;
+        public CardType Type;
 
         public CardType GetCardType(string cardName)
         {
@@ -23,13 +24,13 @@ namespace RepGameModels
         // 反序列化多个对象
         public static List<CardModel> DeserializeList(string json)
         {
-            return JsonUtility.FromJson<CardsList>(json).Cards;
+            return JsonUtility.FromJson<CardsList>(json).Items;
         }
 
         [Serializable]
         private class CardsList
         {
-            public List<CardModel> Cards; // 字段名改为 Items，确保与 JSON 数据一致
+            public List<CardModel> Items;
         }
     }
 

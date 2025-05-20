@@ -129,6 +129,7 @@ public class GameServer : MonoBehaviour, INetEventListener
             if (readyPlayers.Count >= RequiredPlayersToStart)
             {
                 CreateRoomAndInitializeCards();
+                
             }
         }
         else if (requestType == "SurrenderCardGame")

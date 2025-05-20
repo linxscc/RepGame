@@ -50,9 +50,11 @@ namespace GameLogic
                     Type = GetCardType(cardName)
                 });
             }
+            Debug.Log($"cardModels: {cardModels}");
 
             // Serialize the card models to JSON
-            string json = JsonUtility.ToJson(new { Cards = cardModels });
+            string json = CardModel.SerializeList(cardModels);
+            Debug.Log($"json: {json}");
 
             // Send the JSON to the player
             var writer = new NetDataWriter();

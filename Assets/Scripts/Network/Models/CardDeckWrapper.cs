@@ -5,19 +5,25 @@ using System.Collections.Generic;
 namespace RepGamebackModels
 {
         [System.Serializable]
+        public class Card
+        {
+            public string name;
+            public int value;
+        }
+
+        [System.Serializable]
         public class CardDeckWrapper
         {
-            public List<string> keys;
-            public List<int> values;
+            public List<Card> cards;
 
             public Dictionary<string, int> ToDictionary()
             {
-                Dictionary<string, int> dict = new Dictionary<string, int>();
-                for (int i = 0; i < keys.Count; i++)
+                Dictionary<string, int> cardDict = new Dictionary<string, int>();
+                foreach (var card in cards)
                 {
-                    dict[keys[i]] = values[i];
+                    cardDict[card.name] = card.value;
                 }
-                return dict;
+                return cardDict;
             }
         }
 }
