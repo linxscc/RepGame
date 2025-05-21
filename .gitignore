@@ -8,6 +8,7 @@ Temp/
 Resources/
 Prefabs/
 Prefab/
+Debug/
 # Ignore all DS_Store files
 .DS_Store
 UserSettings/

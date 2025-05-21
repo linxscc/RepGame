@@ -60,7 +60,7 @@ public class GameClient : MonoBehaviour, INetEventListener
 
     public void OnPeerConnected(NetPeer peer)
     {
-        EventManager.TriggerEvent("initialServer", "Connected to server");
+        EventManager.TriggerEvent("ConnectedToServer","[CLIENT] Connected to server!");
         Debug.Log("[CLIENT] Connected to server!");
     }
 
