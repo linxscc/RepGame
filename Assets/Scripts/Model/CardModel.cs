@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,6 +10,7 @@ namespace RepGameModels
     {
         public string CardID;
         public CardType Type;
+        public float Damage; // New Damage property
 
         public CardType GetCardType(string cardName)
         {
@@ -25,6 +25,12 @@ namespace RepGameModels
         public static List<CardModel> DeserializeList(string json)
         {
             return JsonUtility.FromJson<CardsList>(json).Items;
+        }
+
+        // 序列化卡牌列表
+        public static string SerializeList(List<CardModel> list)
+        {
+            return JsonUtility.ToJson(new CardsList { Items = list });
         }
 
         [Serializable]
@@ -61,4 +67,4 @@ namespace RepGameModels
         和尚,
     }
 
-}  
+}

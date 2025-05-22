@@ -1,4 +1,3 @@
-
 using System;
 using UnityEngine;
 using System.Collections.Generic;
@@ -11,6 +10,7 @@ namespace RepGamebackModels
     {
         public string CardID;
         public CardType Type;
+        public float Damage; // New Damage property
 
         public CardType GetCardType(string cardName)
         {
@@ -60,4 +60,4 @@ namespace RepGamebackModels
         和尚,
     }
 
-}  
+}

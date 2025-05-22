@@ -7,7 +7,7 @@ using RepGame.Core;
 
 namespace RepGame.UI
 {
-    public class CardItem : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public class CardItem : MonoBehaviour, IPointerClickHandler
     {
         public string CardID { get; set; }
         public CardType Type { get; set; }
@@ -19,6 +19,9 @@ namespace RepGame.UI
         private Material glowMaterial;
         
         private const float MOVE_DISTANCE_RATIO = 0.5f; // 移动自身长度的一半
+        
+        private int originalSiblingIndex; // 记录卡牌的原始索引位置
+        private Transform originalParent; // 记录卡牌的原始父对象
         
         void Awake()
         {
@@ -61,34 +64,57 @@ namespace RepGame.UI
             // }
         }
         
-        public void OnPointerDown(PointerEventData eventData)
+        public void OnPointerClick(PointerEventData eventData)
         {
-            isSelected = true;
-            
-            // 发光效果
-            ApplyGlowEffect(true);
-            
-            // 向前移动
-            MoveForward();
-            
-            // 发送选中卡牌的消息
-            EventManager.TriggerEvent("CardSelected", new CardSelectionData { CardID = CardID, Type = Type });
+            SetSelectionState(!IsSelected);
         }
         
-        public void OnPointerUp(PointerEventData eventData)
+        private void SetSelectionState(bool selected)
         {
-            isSelected = false;
-            
-            // 取消发光效果
-            ApplyGlowEffect(false);
-            
-            // 恢复位置
-            transform.position = originalPosition;
-            
-            // 发送取消选中卡牌的消息
-            EventManager.TriggerEvent("CardDeselected", new CardSelectionData { CardID = CardID, Type = Type });
+            IsSelected = selected;
+
+            if (selected)
+            {
+                // 记录原始父对象和索引
+                originalParent = transform.parent;
+                originalSiblingIndex = transform.GetSiblingIndex();
+
+                // 将卡牌从 GridLayoutGroup 中移除
+                transform.SetParent(originalParent.parent);
+
+                // 发光效果
+                ApplyGlowEffect(true);
+
+                // 向前移动
+                MoveForward();
+
+                // 发送选中卡牌的消息
+                EventManager.TriggerEvent("CardSelected", new CardSelectionData { CardID = CardID, Type = Type });
+            }
+            else
+            {
+                // 取消发光效果
+                ApplyGlowEffect(false);
+
+                // 恢复到原始父对象和索引
+                if (originalParent != null)
+                {
+                    transform.SetParent(originalParent);
+                    transform.SetSiblingIndex(originalSiblingIndex);
+                }
+
+                // 发送取消选中卡牌的消息
+                EventManager.TriggerEvent("CardDeselected", new CardSelectionData { CardID = CardID, Type = Type });
+            }
         }
-        
+
+        public bool IsSelected { get; private set; } // 用于获取卡牌是否被选中
+
+        public void Deselect()
+        {
+            SetSelectionState(false);
+        }
+
         private void ApplyGlowEffect(bool glow)
         {
             if (cardImage != null)
@@ -104,11 +130,11 @@ namespace RepGame.UI
             }
             else
             {
-                // 如果没有设置发光材质，可以通过改变颜色来模拟选中效果
+                // 如果没有设置发光材质，通过改变颜色来模拟选中效果
                 Image image = GetComponent<Image>();
                 if (image != null)
                 {
-                    image.color = glow ? new Color(1.2f, 1.2f, 1.2f) : Color.white;
+                    image.color = glow ? new Color(0.8f, 0.6f, 1.0f) : Color.white; // 浅紫色
                 }
             }
         }
@@ -118,11 +144,11 @@ namespace RepGame.UI
             RectTransform rectTransform = GetComponent<RectTransform>();
             if (rectTransform != null)
             {
-                // 计算向前移动的距离（卡牌高度的一半）
-                float moveDistance = rectTransform.rect.height * MOVE_DISTANCE_RATIO;
-                
-                // 向上移动（在UI坐标系中，向上为正Y方向）
-                transform.position = originalPosition + new Vector3(0, moveDistance, 0);
+                // 计算向前移动的距离（卡牌高度）
+                float moveDistance = rectTransform.rect.height*1.2f;
+
+                // 向上移动（在本地坐标系中，向上为正Y方向）
+                transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y + moveDistance, transform.localPosition.z);
             }
         }
     }

@@ -11,6 +11,7 @@ using RepGameModels;
 using System;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using RepGame.UI;
 
 namespace RepGame.UI
 {
@@ -31,10 +32,15 @@ namespace RepGame.UI
         
         [Header("Card Management")]
         private Transform cardContainer; // 卡牌容器
-        private List<GameObject> instantiatedCards = new List<GameObject>(); // 已实例化的卡牌列表
-        private Dictionary<string, GameObject> cardItemsById = new Dictionary<string, GameObject>(); // 通过ID查找卡牌
+
+        private CardUIManager cardManager;
         
-        void Start()
+        [Header("Main Panel Buttons")]
+        private Button playButton;
+        private Button clrButton;
+        private Button compButton;
+
+        private void Start()
         {
             // 查找面板
             panelServer = FindGameObject("Panel_Server");
@@ -50,28 +56,27 @@ namespace RepGame.UI
             
             // 查找卡牌容器
             cardContainer = FindGameObject("Panel_Main/CardContainer")?.transform;
-            if (cardContainer == null)
-            {
-                // 如果卡牌容器不存在，创建一个
-                GameObject container = new GameObject("CardContainer");
-                container.transform.SetParent(panelMain.transform, false);
-                
-                // 添加布局组件
-                GridLayoutGroup layout = container.AddComponent<GridLayoutGroup>();
-                layout.cellSize = new Vector2(100, 150); // 卡牌大小
-                layout.spacing = new Vector2(10, 10); // 卡牌间距
-                layout.startCorner = GridLayoutGroup.Corner.UpperLeft;
-                layout.startAxis = GridLayoutGroup.Axis.Horizontal;
-                layout.childAlignment = TextAnchor.MiddleCenter;
-                
-                // 记录卡牌容器
-                cardContainer = container.transform;
-            }
+
+            // 查找新按钮
+            playButton = FindButton("Panel_Main/Play", OnPlayButtonClicked);
+            clrButton = FindButton("Panel_Main/CLR", OnClrButtonClicked);
+            compButton = FindButton("Panel_Main/COMP", OnCompButtonClicked);
 
             // 初始化面板
             panelServer.SetActive(true);
             panelStart.SetActive(false);
             panelMain.SetActive(false);
+
+            // 初始化 CardManager
+            cardManager = new CardUIManager(cardContainer);
+
+            // 初始化COMP按钮为不可选
+            compButton.interactable = false;
+
+            // 隐藏按钮
+            playButton.gameObject.SetActive(false);
+            clrButton.gameObject.SetActive(false);
+            compButton.gameObject.SetActive(false);
         }
         
         private void OnEnable()
@@ -81,6 +86,7 @@ namespace RepGame.UI
             EventManager.Subscribe<List<CardModel>>("InitPlayerCards", InitPlayerCards);
             EventManager.Subscribe<CardSelectionData>("CardSelected", OnCardSelected);
             EventManager.Subscribe<CardSelectionData>("CardDeselected", OnCardDeselected);
+            EventManager.Subscribe<RepGameModels.DamageResult>("CardDamageResult", OnCardDamageResult);
         }
     
         private void OnDisable()
@@ -90,6 +96,7 @@ namespace RepGame.UI
             EventManager.Unsubscribe<List<CardModel>>("InitPlayerCards", InitPlayerCards);
             EventManager.Unsubscribe<CardSelectionData>("CardSelected", OnCardSelected);
             EventManager.Unsubscribe<CardSelectionData>("CardDeselected", OnCardDeselected);
+            EventManager.Unsubscribe<RepGameModels.DamageResult>("CardDamageResult", OnCardDamageResult);
         }
 
         public void OnServerConnected(string serverStatus)
@@ -114,147 +121,29 @@ namespace RepGame.UI
 
         private void InitPlayerCards(List<CardModel> cardModels)
         {
-            Debug.Log($"初始化玩家卡牌，数量：{cardModels.Count}");
-            
-            // 清空现有卡牌
-            ClearCards();
-            
-            // 确保卡牌容器存在
-            if (cardContainer == null)
-            {
-                Debug.LogError("卡牌容器不存在");
-                return;
-            }
-            
-            // 初始化卡牌面板
-            panelStart.SetActive(false);
-            panelServer.SetActive(false);
-            panelMain.SetActive(true);
-            
-            // 遍历卡牌模型，为每个卡牌实例化预制体
-            foreach (var cardModel in cardModels)
-            {
-                InstantiateCardItem(cardModel);
-            }
-            
-            Debug.Log($"卡牌实例化完成，共{instantiatedCards.Count}张卡牌");
+            cardManager.InitPlayerCards(cardModels);
         }
         
-        private void InstantiateCardItem(CardModel cardModel)
+        private void UpdateButtonVisibility()
         {
-            try
-            {
-                // 使用Addressables加载卡牌预制体
-                string address = $"Assets/Prefabs/Cards/{cardModel.Type}.prefab";
-                Addressables.LoadAssetAsync<GameObject>(address).Completed += (AsyncOperationHandle<GameObject> handle) =>
-                {
-                    if (handle.Status == AsyncOperationStatus.Succeeded)
-                    {
-                        GameObject cardPrefab = handle.Result;
-                        if (cardPrefab == null)
-                        {
-                            Debug.LogError($"找不到卡牌预制体：{address}");
-                            return;
-                        }
+            int selectedCardCount = cardManager.GetSelectedCards().Count;
+            bool hasSelectedCards = selectedCardCount > 0;
 
-                        // 实例化卡牌
-                        GameObject cardObject = Instantiate(cardPrefab, cardContainer);
-                        cardObject.name = $"Card_{cardModel.Type}_{cardModel.CardID.Substring(0, 8)}";
-
-                        // 确保卡牌有Button组件
-                        Button cardButton = cardObject.GetComponent<Button>();
-                        if (cardButton == null)
-                        {
-                            cardButton = cardObject.AddComponent<Button>();
-                        }
-
-                        // 添加自定义卡牌脚本组件
-                        MonoBehaviour cardComponent = cardObject.GetComponent(typeof(MonoBehaviour)) as MonoBehaviour;
-                        if (cardComponent == null || cardComponent.GetType().Name != "CardItem")
-                        {
-                            // 动态添加CardItem脚本
-                            Type cardItemType = Type.GetType("RepGame.UI.CardItem, Assembly-CSharp");
-                            if (cardItemType != null)
-                            {
-                                cardComponent = cardObject.AddComponent(cardItemType) as MonoBehaviour;
-                            }
-                            else
-                            {
-                                Debug.LogError("无法找到CardItem类型");
-                            }
-                        }
-
-                        // 反射设置卡牌属性
-                        if (cardComponent != null)
-                        {
-                            // 获取CardID属性并设置
-                            var cardIDProperty = cardComponent.GetType().GetProperty("CardID");
-                            if (cardIDProperty != null)
-                            {
-                                cardIDProperty.SetValue(cardComponent, cardModel.CardID);
-                            }
-
-                            // 获取Type属性并设置
-                            var typeProperty = cardComponent.GetType().GetProperty("Type");
-                            if (typeProperty != null)
-                            {
-                                typeProperty.SetValue(cardComponent, cardModel.Type);
-                            }
-
-                            // 调用Init方法
-                            var initMethod = cardComponent.GetType().GetMethod("Init");
-                            if (initMethod != null)
-                            {
-                                initMethod.Invoke(cardComponent, new object[] { cardModel.CardID, cardModel.Type });
-                            }
-                        }
-
-                        // 将卡牌添加到列表和字典中
-                        instantiatedCards.Add(cardObject);
-                        cardItemsById[cardModel.CardID] = cardObject;
-                    }
-                    else
-                    {
-                        Debug.LogError($"Failed to load Addressable asset: {address}");
-                    }
-                };
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"实例化卡牌时出错: {ex.Message}\n{ex.StackTrace}");
-            }
-        }
-        
-        private void ClearCards()
-        {
-            // 销毁所有卡牌
-            foreach (var cardObject in instantiatedCards)
-            {
-                if (cardObject != null)
-                {
-                    Destroy(cardObject);
-                }
-            }
-            
-            // 清空列表和字典
-            instantiatedCards.Clear();
-            cardItemsById.Clear();
+            playButton.gameObject.SetActive(hasSelectedCards);
+            clrButton.gameObject.SetActive(hasSelectedCards);
+            compButton.gameObject.SetActive(hasSelectedCards);
         }
         
         private void OnCardSelected(CardSelectionData data)
         {
-            Debug.Log($"卡牌选中：ID={data.CardID}, 类型={data.Type}");
-            
-            // 在这里处理卡牌选中逻辑
-            // 例如高亮显示可用的目标、更新UI状态等
+            cardManager.HandleCardSelected(data);
+            UpdateButtonVisibility();
         }
         
         private void OnCardDeselected(CardSelectionData data)
         {
-            Debug.Log($"卡牌取消选中：ID={data.CardID}, 类型={data.Type}");
-            
-            // 在这里处理卡牌取消选中逻辑
-            // 例如清除高亮显示、重置UI状态等
+            cardManager.HandleCardDeselected(data);
+            UpdateButtonVisibility();
         }
 
         private void OnExitGameClicked()
@@ -262,6 +151,33 @@ namespace RepGame.UI
             // 退出游戏
             Debug.Log("退出游戏...");
             Application.Quit();
+        }        private void OnPlayButtonClicked()
+        {
+            // 使用 CardUIManager 处理卡牌逻辑
+            // CardUIManager.PlaySelectedCards() 会触发 PlayCards 事件，由 GameClient 处理并发送到服务器
+            cardManager.PlaySelectedCards();
+        }
+
+        private void OnClrButtonClicked()
+        {
+            cardManager.ClearCardSelection();
+        }
+
+        private void OnCompButtonClicked()
+        {
+            cardManager.CompSelectedCards();
+        }
+
+        // 处理伤害结果
+        private void OnCardDamageResult(DamageResult damageResult)
+        {
+            Debug.Log($"收到伤害结果：总伤害 {damageResult.TotalDamage}，处理卡牌数量 {damageResult.ProcessedCards.Count}");
+            
+            // 这里可以添加UI显示或其他处理逻辑
+            // 例如：显示伤害动画，更新UI等
+            
+            // 如果需要将伤害信息显示在UI上，可以添加相应代码
+            // damageText.text = $"伤害: {damageResult.TotalDamage}";
         }
     }
 }

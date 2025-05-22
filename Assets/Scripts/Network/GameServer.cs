@@ -6,7 +6,7 @@ using LiteNetLib;
 using LiteNetLib.Utils;
 using System.Collections.Generic;
 using RepGamebackModels;
-using GameLogic; // Correct namespace for CardManager
+using GameLogic; // Correct namespace for CardManager and DamageCalculator
 using Network;
 
 
@@ -26,6 +26,8 @@ public class GameServer : MonoBehaviour, INetEventListener
     private const int RequiredPlayersToStart = 2; // Number of players required to start a card game
     private HashSet<int> readyPlayers = new HashSet<int>(); // Track players ready to start the game
     private const int MaxRequestsBeforeMultithreading = 20; // Threshold for enabling multithreading
+
+    private Dictionary<NetPeer, string> pendingCardData = new Dictionary<NetPeer, string>();
 
     private void Start()
     {
@@ -108,6 +110,13 @@ public class GameServer : MonoBehaviour, INetEventListener
     public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
     {
         string requestType = reader.GetString();
+        
+        if (requestType == "PlayCards")
+        {
+            // 存储卡牌数据以供后续处理
+            string cardData = reader.GetString();
+            pendingCardData[peer] = cardData;
+        }
 
         // Enqueue the request for processing
         requestQueue.Enqueue((peer, requestType));
@@ -120,16 +129,42 @@ public class GameServer : MonoBehaviour, INetEventListener
             Debug.Log($"[SERVER] Received position request from client {peer.Id}");
             clientPositionHandler.SendClientPositions(peer, clientPositions);
         }
+        else if (requestType == "PlayCards" && pendingCardData.ContainsKey(peer))
+        {
+            try
+            {
+                string cardsJson = pendingCardData[peer];
+                pendingCardData.Remove(peer); // 清理已处理的数据
+                  // 反序列化卡牌列表
+                var playedCards = JsonUtility.FromJson<List<CardModel>>(cardsJson);
+                
+                // 使用DamageCalculator计算伤害
+                var damageResult = DamageCalculator.CalculateDamage(playedCards);
+                
+                // 序列化结果
+                string resultJson = DamageResult.Serialize(damageResult);
+                
+                // 发送结果给客户端
+                var writer = new NetDataWriter();
+                writer.Put("DamageResult");
+                writer.Put(resultJson);
+                peer.Send(writer, DeliveryMethod.ReliableOrdered);
+                
+                Debug.Log($"[SERVER] Processed cards from player {peer.Id}, total damage: {damageResult.TotalDamage}");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[SERVER] Error processing PlayCards request: {ex.Message}");
+            }
+        }
         else if (requestType == "StartCardGame")
         {
             Debug.Log($"[SERVER] Player {peer.Id} is ready to start the card game.");
             readyPlayers.Add(peer.Id);
 
-            // Check if enough players are ready to start the game
             if (readyPlayers.Count >= RequiredPlayersToStart)
             {
                 CreateRoomAndInitializeCards();
-                
             }
         }
         else if (requestType == "SurrenderCardGame")
@@ -137,6 +172,12 @@ public class GameServer : MonoBehaviour, INetEventListener
             Debug.Log($"[SERVER] Player {peer.Id} has surrendered the card game.");
             RemovePlayerFromRoom(peer.Id);
         }
+    }
+    
+    [Serializable]
+    private class Serialization<T>
+    {
+        public T Items;
     }
 
     private void RemovePlayerFromRoom(int playerId)
