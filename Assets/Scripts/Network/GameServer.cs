@@ -111,16 +111,21 @@ public class GameServer : MonoBehaviour, INetEventListener
                 break;
             }
         }
-        } 
-
-    public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
+        }     public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
     {
         string requestType = reader.GetString();
 
         if (requestType == "PlayCards")
         {
             // 存储卡牌数据以供后续处理并传递给请求处理器
-            string cardData = reader.GetString(); handleNetworkRequest.StorePendingCardData(peer, cardData);
+            string cardData = reader.GetString(); 
+            handleNetworkRequest.StorePendingCardData(peer, cardData);
+        }
+        else if (requestType == "CompCards")
+        {
+            // 直接读取并存储合成卡牌数据
+            string compData = reader.GetString();
+            handleNetworkRequest.StorePendingCardData(peer, compData);
         }
 
         // Enqueue the request for processing

@@ -1,18 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
-using NUnit.Framework.Internal;
 using TMPro;
-using LiteNetLib;
-using RepGame;
 using RepGame.Core;
 using System.Collections.Generic;
 using RepGameModels;
-using System;
-using UnityEngine.AddressableAssets;
-using UnityEngine.ResourceManagement.AsyncOperations;
-using RepGame.UI;
-using DG.Tweening; // 添加DOTween命名空间引用
+
 
 namespace RepGame.UI
 {
@@ -96,28 +88,34 @@ namespace RepGame.UI
             compButton.gameObject.SetActive(false);
         }        private void OnEnable()
         {
-            // 订阅事件
+            // 订阅事件            
             EventManager.Subscribe<string>("ConnectedToServer", OnServerConnected);
             EventManager.Subscribe<List<CardModel>>("InitPlayerCards", InitPlayerCards);
             EventManager.Subscribe<CardSelectionData>("CardSelected", OnCardSelected);
             EventManager.Subscribe<CardSelectionData>("CardDeselected", OnCardDeselected);
-            EventManager.Subscribe<RepGameModels.DamageResult>("CardDamageResult", OnCardDamageResult);
+            EventManager.Subscribe<DamageResult>("CardDamageResult", OnCardDamageResult);
             EventManager.Subscribe<string>("CardDamageError", OnCardDamageError);
             EventManager.Subscribe<string>("TurnStarted", OnTurnStarted);
             EventManager.Subscribe<string>("TurnWaiting", OnTurnWaiting);
+            EventManager.Subscribe<string>("ForcePlayCards", OnForcePlayCards);
+            EventManager.Subscribe<CompResult>("CompResult", OnCompResult);
+            EventManager.Subscribe<string>("CompError", OnCompError);
         }
     
         private void OnDisable()
         {
             // 取消订阅事件
-             EventManager.Unsubscribe<string>("ConnectedToServer", OnServerConnected);
+            EventManager.Unsubscribe<string>("ConnectedToServer", OnServerConnected);
             EventManager.Unsubscribe<List<CardModel>>("InitPlayerCards", InitPlayerCards);
             EventManager.Unsubscribe<CardSelectionData>("CardSelected", OnCardSelected);
             EventManager.Unsubscribe<CardSelectionData>("CardDeselected", OnCardDeselected);
-            EventManager.Unsubscribe<RepGameModels.DamageResult>("CardDamageResult", OnCardDamageResult);
+            EventManager.Unsubscribe<DamageResult>("CardDamageResult", OnCardDamageResult);
             EventManager.Unsubscribe<string>("CardDamageError", OnCardDamageError);
             EventManager.Unsubscribe<string>("TurnStarted", OnTurnStarted);
             EventManager.Unsubscribe<string>("TurnWaiting", OnTurnWaiting);
+            EventManager.Unsubscribe<string>("ForcePlayCards", OnForcePlayCards);
+            EventManager.Unsubscribe<CompResult>("CompResult", OnCompResult);
+            EventManager.Unsubscribe<string>("CompError", OnCompError);
         }
 
         public void OnServerConnected(string serverStatus)
@@ -198,19 +196,20 @@ namespace RepGame.UI
         private void OnCompButtonClicked()
         {
             cardManager.CompSelectedCards();
-        }             
+        }
         private void OnCardDamageResult(DamageResult damageResult)
         {
             Debug.Log($"收到伤害结果：总伤害 {damageResult.TotalDamage}，处理卡牌数量 {damageResult.ProcessedCards.Count}，伤害类型：{damageResult.Type}");
 
             cardManager.HandleDamageResult(damageResult);
         }
+        
         private void OnCardDamageError(string errorMessage)
         {
             Debug.LogError($"出牌处理错误: {errorMessage}");
             
-            // 这里可以添加错误提示UI，例如弹出对话框
-            // ShowErrorDialog(errorMessage);
+            // 调用CardUIManager处理出牌错误
+            cardManager.HandleDamageError(errorMessage);
         }
         // 处理自己回合开始通知
         private void OnTurnStarted(string message)
@@ -225,5 +224,34 @@ namespace RepGame.UI
             // 委托给CardUIManager处理等待回合通知
             cardManager.HandleTurnWaiting(message);
         }
+
+        // 处理强制出牌请求
+        private void OnForcePlayCards(string message)
+        {
+            Debug.Log($"收到强制出牌请求: {message}");
+            
+            // 调用CardUIManager自动出牌方法
+            cardManager.AutoPlayFirstCard();
+        }
+        // 处理合成结果
+        private void OnCompResult(CompResult compResult)
+        {
+            Debug.Log($"收到合成结果: 成功={compResult.Success}, 新卡牌数量={compResult.NewCards?.Count ?? 0}, 类型={compResult.ComposeType}");
+            cardManager.HandleCompResult(compResult);
+        }
+        
+        // 处理合成错误
+        private void OnCompError(string errorMessage)
+        {
+            Debug.LogError($"合成处理错误: {errorMessage}");
+            cardManager.HandleDamageError(errorMessage);
+        }
+        
+        // 延迟执行操作的协程
+        private System.Collections.IEnumerator DelayAction(float delay, System.Action action)
+        {
+            yield return new WaitForSeconds(delay);
+            action?.Invoke();
+        }// 处理COMP按钮状态更新
     }
 }

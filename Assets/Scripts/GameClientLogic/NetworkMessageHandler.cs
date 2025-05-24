@@ -11,8 +11,7 @@ namespace RepGame.Network.GameClientLogic
     public class NetworkMessageHandler
     {
         // 成功状态码
-        private const int SUCCESS_CODE = 200;
-        public void HandleNetworkMessage(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
+        private const int SUCCESS_CODE = 200;        public void HandleNetworkMessage(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
         {
             string responseType = reader.GetString();
 
@@ -27,12 +26,18 @@ namespace RepGame.Network.GameClientLogic
                 case "TurnNotification":
                     HandleTurnNotification(reader);
                     break;
+                case "ForcePlayRequest":
+                    HandleForcePlayRequest(reader);
+                    break;
+                case "CompResult":
+                    HandleCompResult(reader);
+                    break;
                 // 可以在这里添加更多消息类型的处理
                 default:
                     Debug.LogWarning($"未处理的消息类型: {responseType}");
                     break;
             }
-        }        private void HandleInitPlayerCards(NetPacketReader reader)
+        }private void HandleInitPlayerCards(NetPacketReader reader)
         {
             string requestType = "InitPlayerCards";
             Debug.Log($"Received {requestType} message from server.");
@@ -80,7 +85,8 @@ namespace RepGame.Network.GameClientLogic
             string json = reader.GetString();
 
             try
-            {                // 尝试使用新的客户端 ApiResponse 格式
+            {
+                // 尝试使用新的客户端 ApiResponse 格式
                 ApiResponse<DamageResult> apiResponse = ApiResponse<DamageResult>.Deserialize(json);
 
                 // 检查请求是否成功
@@ -95,6 +101,8 @@ namespace RepGame.Network.GameClientLogic
                 }
                 else
                 {
+                    // 通过事件系统广播伤害结果
+                    EventManager.TriggerEvent("CardDamageError", "处理错误: " + apiResponse.Message);
                     // 处理错误，抛出异常
                     throw new NetworkResponseException(
                         apiResponse.Message,
@@ -180,6 +188,43 @@ namespace RepGame.Network.GameClientLogic
                 // 处理一般异常
                 ExceptionHandler.HandleGeneralException(innerEx, requestType);
 
+            }
+        }
+        private void HandleForcePlayRequest(NetPacketReader reader)
+        {
+            try
+            {
+                var message = reader.GetString();
+                Debug.Log($"收到强制出牌请求: {message}");
+                
+                // 通知游戏逻辑强制出牌
+                EventManager.TriggerEvent("ForcePlay", message);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"处理强制出牌请求时出错: {ex.Message}");
+            }
+        }
+        
+        private void HandleCompResult(NetPacketReader reader)
+        {
+            try
+            {
+                string jsonData = reader.GetString();
+                Debug.Log($"收到合成结果: {jsonData}");
+                
+                // 解析合成结果
+                CompResult compResult = CompResult.Deserialize(jsonData);
+                
+                // 通知UI更新
+                EventManager.TriggerEvent("CompResult", compResult);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"处理合成结果时出错: {ex.Message}");
+                
+                // 通知UI处理错误
+                EventManager.TriggerEvent("CompError", "服务器响应解析失败");
             }
         }
 

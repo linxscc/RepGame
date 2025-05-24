@@ -37,6 +37,7 @@ public class GameClient : MonoBehaviour, INetEventListener
         // Subscribe to the "StartCardGame" event
         EventManager.Subscribe("StartCardGame", SendStartCardGameRequest);
         EventManager.Subscribe<List<CardModel>>("PlayCards", SendPlayCardsRequest);
+        EventManager.Subscribe<List<GameObject>>("CompCard", SendCompCardRequest); // 添加合成卡牌事件订阅
     }
 
     private void OnDisable()
@@ -44,6 +45,7 @@ public class GameClient : MonoBehaviour, INetEventListener
         // Unsubscribe from the event to prevent memory leaks
         EventManager.Unsubscribe("StartCardGame", SendStartCardGameRequest);
         EventManager.Unsubscribe<List<CardModel>>("PlayCards", SendPlayCardsRequest);
+        EventManager.Unsubscribe<List<GameObject>>("CompCard", SendCompCardRequest); // 取消合成卡牌事件订阅
     }
 
     private void Update()
@@ -134,4 +136,51 @@ public class GameClient : MonoBehaviour, INetEventListener
         }
     }
     
+    public void SendCompCardRequest(List<GameObject> cardObjects)
+    {
+        try
+        {
+            // 将GameObject列表转换为CardModel列表
+            List<CardModel> cards = new List<CardModel>();
+            foreach (var cardObj in cardObjects)
+            {
+                var cardItem = cardObj.GetComponent<RepGame.UI.CardItem>();
+                if (cardItem != null)
+                {
+                    // 创建CardModel并添加到列表中
+                    cards.Add(new CardModel 
+                    { 
+                        CardID = cardItem.CardID, 
+                        Type = cardItem.Type,
+                        Damage = 0 // 合成操作不需要伤害值
+                    });
+                }
+            }
+            
+            // 创建ApiResponse对象包装数据
+            ApiResponse<List<CardModel>> response = new ApiResponse<List<CardModel>>
+            {
+                Code = 0, // 0表示成功
+                Message = "Composition Request",
+                Data = cards
+            };
+            
+            // 序列化响应对象
+            string jsonData = JsonUtility.ToJson(response);
+            
+            // 发送请求给服务器
+            NetDataWriter writer = new NetDataWriter();
+            writer.Put("CompCards");
+            writer.Put(jsonData);
+            _netClient.SendToAll(writer, DeliveryMethod.ReliableOrdered);
+            
+            Debug.Log($"Sent CompCards request to server with {cards.Count} cards.");
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"Error sending composition request: {ex.Message}");
+            // 通知UI层处理错误
+            EventManager.TriggerEvent("CompError", $"发送合成请求失败: {ex.Message}");
+        }
+    }
 }

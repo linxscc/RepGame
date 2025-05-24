@@ -4,12 +4,15 @@ using System.Collections.Generic;
 
 namespace RepGamebackModels
 {
-        [System.Serializable]
-        public class Card
-        {
-            public string name;
-            public int value;
-        }
+    [System.Serializable]
+    public class Card
+    {
+        public string name;
+        public int value;
+        public float damage;
+        public string targetname;
+        public int level;
+    }
 
         [System.Serializable]
         public class CardDeckWrapper

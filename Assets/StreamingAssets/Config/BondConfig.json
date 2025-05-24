@@ -1,0 +1,130 @@
+{
+    "Bonds": [
+        {
+            "Name": "学徒羁绊",
+            "Level": 1,
+            "Damage": 10.0,
+            "Cards": ["木匠学徒", "铁匠学徒", "农民学徒", "艺术学徒", "设计学徒"],
+            "Description": "所有工艺学徒共同追求技艺精进"
+        },
+        {
+            "Name": "反抗羁绊",
+            "Level": 1,
+            "Damage": 7.0,
+            "Cards": ["农民学徒", "吏员", "兵卒", "小贩"],
+            "Description": "底层民众团结一致"
+        },
+        {
+            "Name": "修行之道",
+            "Level": 1,
+            "Damage": 8.0,
+            "Cards": ["道童", "沙弥"],
+            "Description": "不同信仰的修行者"
+        },
+        {
+            "Name": "求知之路",
+            "Level": 1,
+            "Damage": 6.0,
+            "Cards": ["学生", "道童", "沙弥"],
+            "Description": "追求知识的年轻人"
+        },
+        {
+            "Name": "市井经济",
+            "Level": 1,
+            "Damage": 6.0,
+            "Cards": ["小贩", "木匠学徒", "铁匠学徒"],
+            "Description": "市场上的手艺人"
+        },
+        {
+            "Name": "医护之道",
+            "Level": 1,
+            "Damage": 5.0,
+            "Cards": ["医学生", "道童"],
+            "Description": "关注生命的医者"
+        },
+        {
+            "Name": "艺术启蒙",
+            "Level": 1,
+            "Damage": 5.0,
+            "Cards": ["艺术学徒", "设计学徒"],
+            "Description": "艺术领域的学徒"
+        },
+        {
+            "Name": "工匠羁绊",
+            "Level": 2,
+            "Damage": 15.0,
+            "Cards": ["木匠", "铁匠"],
+            "Description": "熟练的工匠"
+        },
+        {
+            "Name": "民生羁绊",
+            "Level": 2,
+            "Damage": 12.0,
+            "Cards": ["农民", "医师"],
+            "Description": "关注民生的能手"
+        },
+        {
+            "Name": "艺术羁绊",
+            "Level": 2,
+            "Damage": 12.0,
+            "Cards": ["梦想家", "设计师"],
+            "Description": "艺术领域的大师"
+        },
+        {
+            "Name": "执政羁绊",
+            "Level": 2,
+            "Damage": 18.0,
+            "Cards": ["官员", "老兵"],
+            "Description": "治国能臣"
+        },
+        {
+            "Name": "信仰羁绊",
+            "Level": 2,
+            "Damage": 15.0,
+            "Cards": ["道士", "和尚"],
+            "Description": "有成就的修行者"
+        },
+        {
+            "Name": "百工羁绊",
+            "Level": 3,
+            "Damage": 20.0,
+            "Cards": ["百工专家", "木匠", "铁匠"],
+            "Description": "技艺之巅"
+        },
+        {
+            "Name": "艺术大师",
+            "Level": 3,
+            "Damage": 25.0,
+            "Cards": ["艺术家", "梦想家", "设计师"],
+            "Description": "艺术之巅"
+        },
+        {
+            "Name": "统治羁绊",
+            "Level": 3,
+            "Damage": 30.0,
+            "Cards": ["相国", "统领", "官员"],
+            "Description": "权力巅峰"
+        },
+        {
+            "Name": "文道圣贤",
+            "Level": 3,
+            "Damage": 25.0,
+            "Cards": ["教授", "道士", "和尚"],
+            "Description": "学识与信仰的统一"
+        },
+        {
+            "Name": "天人合一",
+            "Level": 4,
+            "Damage": 70.0,
+            "Cards": ["教授", "百工专家"],
+            "Description": "智慧与技艺的完美统一"
+        },
+        {
+            "Name": "权势巅峰",
+            "Level": 4,
+            "Damage": 70.0,
+            "Cards": ["相国", "住持"],
+            "Description": "权力与信仰的完美融合"
+        }
+    ]
+}

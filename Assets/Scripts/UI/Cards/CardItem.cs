@@ -4,10 +4,10 @@ using UnityEngine.EventSystems;
 using System;
 using RepGameModels;
 using RepGame.Core;
+using DG.Tweening; 
 
 namespace RepGame.UI
-{
-    public class CardItem : MonoBehaviour, IPointerClickHandler
+{public class CardItem : MonoBehaviour, IPointerClickHandler
     {
         public string CardID { get; set; }
         public CardType Type { get; set; }
@@ -15,6 +15,7 @@ namespace RepGame.UI
         private Vector3 originalPosition;
         private Image cardImage;
         private bool isSelected = false;
+        private bool isLocked = false; // 新增：表示卡牌是否被锁定（已出牌但服务器未处理）
         private Material originalMaterial;
         private Material glowMaterial;
         
@@ -63,10 +64,24 @@ namespace RepGame.UI
             //     iconImage.sprite = Resources.Load<Sprite>($"CardIcons/{Type}");
             // }
         }
-        
-        public void OnPointerClick(PointerEventData eventData)
+          public void OnPointerClick(PointerEventData eventData)
         {
+            // 如果卡牌已锁定，则不响应点击事件
+            if (IsLocked)
+            {
+                // 可以添加一个提示效果，如晃动动画，提示用户此卡已锁定
+                ShakeCard();
+                return;
+            }
+            
             SetSelectionState(!IsSelected);
+        }
+        
+        // 晃动卡牌提示已锁定
+        private void ShakeCard()
+        {
+            // 使用DOTween实现晃动效果
+            transform.DOShakePosition(0.5f, new Vector3(10, 0, 0), 10, 90, false, true);
         }
         
         private void SetSelectionState(bool selected)
@@ -106,17 +121,48 @@ namespace RepGame.UI
                 // 发送取消选中卡牌的消息
                 EventManager.TriggerEvent("CardDeselected", new CardSelectionData { CardID = CardID, Type = Type });
             }
-        }
-
-        public bool IsSelected { get; private set; } // 用于获取卡牌是否被选中
+        }        public bool IsSelected { get; private set; } // 用于获取卡牌是否被选中
+        public bool IsLocked { get; private set; } // 用于获取卡牌是否被锁定
 
         public void Deselect()
         {
             SetSelectionState(false);
         }
 
-        private void ApplyGlowEffect(bool glow)
+        // 设置卡牌锁定状态
+        public void SetLockState(bool locked)
         {
+            IsLocked = locked;
+            
+            // 更新视觉效果，锁定时添加灰色蒙版效果
+            UpdateLockVisual();
+        }
+        
+        // 更新锁定状态的视觉效果
+        private void UpdateLockVisual()
+        {
+            Image image = GetComponent<Image>();
+            if (image != null)
+            {
+                // 如果锁定，添加灰色蒙版效果
+                if (IsLocked)
+                {
+                    image.color = new Color(0.7f, 0.7f, 0.7f, 1.0f); // 灰色
+                }
+                else if (IsSelected) // 如果解锁但仍被选中，恢复选中效果
+                {
+                    image.color = new Color(0.8f, 0.6f, 1.0f); // 浅紫色
+                }
+                else // 如果解锁且未选中，恢复正常效果
+                {
+                    image.color = Color.white;
+                }
+            }
+        }        private void ApplyGlowEffect(bool glow)
+        {
+            if (IsLocked) // 如果卡牌已锁定，不应用发光效果
+                return;
+                
             if (cardImage != null)
             {
                 if (glow && glowMaterial != null)
