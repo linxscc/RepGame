@@ -12,6 +12,7 @@ using System;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using RepGame.UI;
+using DG.Tweening; // 添加DOTween命名空间引用
 
 namespace RepGame.UI
 {
@@ -22,9 +23,11 @@ namespace RepGame.UI
         private GameObject panelServer;
         private GameObject panelStart;
         private GameObject panelMain;
+        private GameObject panelMsg;
 
         [Header("Server UI Elements")]
         private TextMeshProUGUI serverStatusText;
+        private TextMeshProUGUI msgText;
 
         [Header("Start Panel Buttons")]
         private Button startGameButton;
@@ -39,13 +42,19 @@ namespace RepGame.UI
         private Button playButton;
         private Button clrButton;
         private Button compButton;
-
+        
+        private Image BloodBar;
+        private Image Profile;
+        private Transform EnemyCardContainer;
+        private Image EnemyBloodBar;
+        private Image EnemyProfile;
         private void Start()
         {
             // 查找面板
             panelServer = FindGameObject("Panel_Server");
             panelStart = FindGameObject("Panel_Start");
             panelMain = FindGameObject("Panel_Main");
+            panelMsg = FindGameObject("Panel_Msg");
 
             // 查找按钮并添加监听器
             startGameButton = FindButton("Panel_Start/Start", OnStartGameClicked);
@@ -53,7 +62,8 @@ namespace RepGame.UI
 
             // 查找文本组件
             serverStatusText = FindText("Panel_Server/ServerStatus");
-            
+            msgText = FindText("Panel_Msg/Msg/Msg_Text");
+
             // 查找卡牌容器
             cardContainer = FindGameObject("Panel_Main/CardContainer")?.transform;
 
@@ -62,24 +72,29 @@ namespace RepGame.UI
             clrButton = FindButton("Panel_Main/CLR", OnClrButtonClicked);
             compButton = FindButton("Panel_Main/COMP", OnCompButtonClicked);
 
+            BloodBar = FindGameObject("Panel_Main/BloodBar/Fill").GetComponent<Image>();
+            Profile = FindGameObject("Panel_Main/Profile").GetComponent<Image>();
+            EnemyCardContainer = FindGameObject("Panel_Main/EnemyCardContainer")?.transform;
+            EnemyBloodBar = FindGameObject("Panel_Main/EnemyBloodBar/Fill").GetComponent<Image>();
+            EnemyProfile = FindGameObject("Panel_Main/EnemyProfile").GetComponent<Image>();
+
             // 初始化面板
             panelServer.SetActive(true);
             panelStart.SetActive(false);
             panelMain.SetActive(false);
 
             // 初始化 CardManager
-            cardManager = new CardUIManager(cardContainer);
+            cardManager = new CardUIManager(cardContainer,EnemyCardContainer);
 
             // 初始化COMP按钮为不可选
             compButton.interactable = false;
+            playButton.interactable = false;
 
             // 隐藏按钮
             playButton.gameObject.SetActive(false);
             clrButton.gameObject.SetActive(false);
             compButton.gameObject.SetActive(false);
-        }
-        
-        private void OnEnable()
+        }        private void OnEnable()
         {
             // 订阅事件
             EventManager.Subscribe<string>("ConnectedToServer", OnServerConnected);
@@ -87,6 +102,9 @@ namespace RepGame.UI
             EventManager.Subscribe<CardSelectionData>("CardSelected", OnCardSelected);
             EventManager.Subscribe<CardSelectionData>("CardDeselected", OnCardDeselected);
             EventManager.Subscribe<RepGameModels.DamageResult>("CardDamageResult", OnCardDamageResult);
+            EventManager.Subscribe<string>("CardDamageError", OnCardDamageError);
+            EventManager.Subscribe<string>("TurnStarted", OnTurnStarted);
+            EventManager.Subscribe<string>("TurnWaiting", OnTurnWaiting);
         }
     
         private void OnDisable()
@@ -97,6 +115,9 @@ namespace RepGame.UI
             EventManager.Unsubscribe<CardSelectionData>("CardSelected", OnCardSelected);
             EventManager.Unsubscribe<CardSelectionData>("CardDeselected", OnCardDeselected);
             EventManager.Unsubscribe<RepGameModels.DamageResult>("CardDamageResult", OnCardDamageResult);
+            EventManager.Unsubscribe<string>("CardDamageError", OnCardDamageError);
+            EventManager.Unsubscribe<string>("TurnStarted", OnTurnStarted);
+            EventManager.Unsubscribe<string>("TurnWaiting", OnTurnWaiting);
         }
 
         public void OnServerConnected(string serverStatus)
@@ -119,10 +140,21 @@ namespace RepGame.UI
             panelMain.SetActive(true);
         }
 
-        private void InitPlayerCards(List<CardModel> cardModels)
-        {
-            cardManager.InitPlayerCards(cardModels);
-        }
+    private void InitPlayerCards(List<CardModel> cardModels)
+    {
+        // 初始化卡牌管理器所需的所有UI组件
+        cardManager.InitializeUIComponents(
+            playButton, clrButton, compButton,
+            BloodBar, EnemyBloodBar,
+            Profile, EnemyProfile,
+            panelMsg, msgText,
+            this
+        );
+        
+        // 初始化卡牌
+        cardManager.InitPlayerCards(cardModels);
+        cardManager.InitEnemyCards(cardModels.Count);
+    }
         
         private void UpdateButtonVisibility()
         {
@@ -151,10 +183,10 @@ namespace RepGame.UI
             // 退出游戏
             Debug.Log("退出游戏...");
             Application.Quit();
-        }        private void OnPlayButtonClicked()
+        }
+        private void OnPlayButtonClicked()
         {
             // 使用 CardUIManager 处理卡牌逻辑
-            // CardUIManager.PlaySelectedCards() 会触发 PlayCards 事件，由 GameClient 处理并发送到服务器
             cardManager.PlaySelectedCards();
         }
 
@@ -166,18 +198,32 @@ namespace RepGame.UI
         private void OnCompButtonClicked()
         {
             cardManager.CompSelectedCards();
-        }
-
-        // 处理伤害结果
+        }             
         private void OnCardDamageResult(DamageResult damageResult)
         {
-            Debug.Log($"收到伤害结果：总伤害 {damageResult.TotalDamage}，处理卡牌数量 {damageResult.ProcessedCards.Count}");
+            Debug.Log($"收到伤害结果：总伤害 {damageResult.TotalDamage}，处理卡牌数量 {damageResult.ProcessedCards.Count}，伤害类型：{damageResult.Type}");
+
+            cardManager.HandleDamageResult(damageResult);
+        }
+        private void OnCardDamageError(string errorMessage)
+        {
+            Debug.LogError($"出牌处理错误: {errorMessage}");
             
-            // 这里可以添加UI显示或其他处理逻辑
-            // 例如：显示伤害动画，更新UI等
-            
-            // 如果需要将伤害信息显示在UI上，可以添加相应代码
-            // damageText.text = $"伤害: {damageResult.TotalDamage}";
+            // 这里可以添加错误提示UI，例如弹出对话框
+            // ShowErrorDialog(errorMessage);
+        }
+        // 处理自己回合开始通知
+        private void OnTurnStarted(string message)
+        {
+            // 委托给CardUIManager处理回合开始通知
+            cardManager.HandleTurnStarted(message);
+        }
+
+        // 处理等待对方回合通知
+        private void OnTurnWaiting(string message)
+        {
+            // 委托给CardUIManager处理等待回合通知
+            cardManager.HandleTurnWaiting(message);
         }
     }
 }

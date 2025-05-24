@@ -17,23 +17,32 @@ public class GameServer : MonoBehaviour, INetEventListener
     private List<int> connectedPlayers = new List<int>();
     private CardManager cardManager = new CardManager();
     private ClientPositionHandler clientPositionHandler = new ClientPositionHandler();
+    private HandleNetworkRequest handleNetworkRequest; // 添加请求处理器
 
     private Dictionary<int, List<int>> rooms = new Dictionary<int, List<int>>(); // Room ID to list of player IDs
     private int nextRoomId = 1; // Incremental room ID tracker
 
     private Queue<(NetPeer peer, string requestType)> requestQueue = new Queue<(NetPeer, string)>();
-    private const int MaxRequestsPerFrame = 10; // Limit the number of requests processed per frame
-    private const int RequiredPlayersToStart = 2; // Number of players required to start a card game
+    private const int MaxRequestsPerFrame = 10; // Limit the number of requests processed per frame    private const int RequiredPlayersToStart = 2; // Number of players required to start a card game
     private HashSet<int> readyPlayers = new HashSet<int>(); // Track players ready to start the game
     private const int MaxRequestsBeforeMultithreading = 20; // Threshold for enabling multithreading
-
-    private Dictionary<NetPeer, string> pendingCardData = new Dictionary<NetPeer, string>();
 
     private void Start()
     {
         _netServer = new NetManager(this);
         _netServer.Start(9050);
         Debug.Log("[SERVER] Server started on port 9050");
+        
+        // 初始化网络请求处理器
+        handleNetworkRequest = new HandleNetworkRequest(
+            _netServer,
+            rooms,
+            readyPlayers,
+            ref nextRoomId,
+            cardManager,
+            clientPositionHandler,
+            clientPositions
+        );
     }
 
     private void Update()
@@ -102,84 +111,22 @@ public class GameServer : MonoBehaviour, INetEventListener
                 break;
             }
         }
-
-        // 通知其他客户端移除该玩家
-        // clientPositionHandler.BroadcastPlayerRemoval(peer.Id);
-    }
+        } 
 
     public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
     {
         string requestType = reader.GetString();
-        
+
         if (requestType == "PlayCards")
         {
-            // 存储卡牌数据以供后续处理
-            string cardData = reader.GetString();
-            pendingCardData[peer] = cardData;
+            // 存储卡牌数据以供后续处理并传递给请求处理器
+            string cardData = reader.GetString(); handleNetworkRequest.StorePendingCardData(peer, cardData);
         }
 
         // Enqueue the request for processing
         requestQueue.Enqueue((peer, requestType));
     }
-
-    private void HandleRequest(NetPeer peer, string requestType)
-    {
-        if (requestType == "RequestClientPositions")
-        {
-            Debug.Log($"[SERVER] Received position request from client {peer.Id}");
-            clientPositionHandler.SendClientPositions(peer, clientPositions);
-        }
-        else if (requestType == "PlayCards" && pendingCardData.ContainsKey(peer))
-        {
-            try
-            {
-                string cardsJson = pendingCardData[peer];
-                pendingCardData.Remove(peer); // 清理已处理的数据
-                  // 反序列化卡牌列表
-                var playedCards = JsonUtility.FromJson<List<CardModel>>(cardsJson);
-                
-                // 使用DamageCalculator计算伤害
-                var damageResult = DamageCalculator.CalculateDamage(playedCards);
-                
-                // 序列化结果
-                string resultJson = DamageResult.Serialize(damageResult);
-                
-                // 发送结果给客户端
-                var writer = new NetDataWriter();
-                writer.Put("DamageResult");
-                writer.Put(resultJson);
-                peer.Send(writer, DeliveryMethod.ReliableOrdered);
-                
-                Debug.Log($"[SERVER] Processed cards from player {peer.Id}, total damage: {damageResult.TotalDamage}");
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[SERVER] Error processing PlayCards request: {ex.Message}");
-            }
-        }
-        else if (requestType == "StartCardGame")
-        {
-            Debug.Log($"[SERVER] Player {peer.Id} is ready to start the card game.");
-            readyPlayers.Add(peer.Id);
-
-            if (readyPlayers.Count >= RequiredPlayersToStart)
-            {
-                CreateRoomAndInitializeCards();
-            }
-        }
-        else if (requestType == "SurrenderCardGame")
-        {
-            Debug.Log($"[SERVER] Player {peer.Id} has surrendered the card game.");
-            RemovePlayerFromRoom(peer.Id);
-        }
-    }
     
-    [Serializable]
-    private class Serialization<T>
-    {
-        public T Items;
-    }
-
     private void RemovePlayerFromRoom(int playerId)
     {
         foreach (var room in rooms)
@@ -194,52 +141,18 @@ public class GameServer : MonoBehaviour, INetEventListener
                 {
                     rooms.Remove(room.Key);
                     Debug.Log($"[SERVER] Room {room.Key} deleted as it is empty.");
-                }
-                break;
+                }                break;
             }
         }
     }
-
-    private void CreateRoomAndInitializeCards()
-    {
-        int roomId = nextRoomId++;
-        List<int> roomPlayerIds = new List<int>(readyPlayers);
-        rooms[roomId] = roomPlayerIds;
-
-        Debug.Log($"[SERVER] Room {roomId} created with players {string.Join(", ", roomPlayerIds)}.");
-
-        // Collect NetPeer instances for the room
-        List<NetPeer> roomPeers = new List<NetPeer>();
-        foreach (int playerId in roomPlayerIds)
-        {
-            NetPeer roomPeer = _netServer.GetPeerById(playerId);
-            if (roomPeer != null)
-            {
-                roomPeers.Add(roomPeer);
-            }
-        }
-
-        // Initialize cards for the room
-        try
-        {
-            cardManager.InitializeCardsForPlayers(roomPeers);
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"[SERVER] Error initializing cards for room {roomId}: {ex.Message}");
-        }
-
-        // Clear the ready players list after creating the room
-        readyPlayers.Clear();
-    }
-
+    
     private void ProcessRequestsInMainThread()
     {
         int processedRequests = 0;
         while (requestQueue.Count > 0 && processedRequests < MaxRequestsPerFrame)
         {
             var (peer, requestType) = requestQueue.Dequeue();
-            HandleRequest(peer, requestType);
+            handleNetworkRequest.HandleRequest(peer, requestType);
             processedRequests++;
         }
     }
@@ -249,7 +162,7 @@ public class GameServer : MonoBehaviour, INetEventListener
         while (requestQueue.Count > 0)
         {
             var (peer, requestType) = requestQueue.Dequeue();
-            HandleRequest(peer, requestType);
+            handleNetworkRequest.HandleRequest(peer, requestType);
         }
     }
 

@@ -7,22 +7,58 @@ using UnityEngine.UI;
 using System;
 using RepGame.Core;
 using System.Linq;
+using DG.Tweening; // 添加 DOTween 命名空间引用
+using TMPro;
 
 namespace RepGame.UI
 {
     public class CardUIManager
     {
         private Transform cardContainer;
+        private Transform enemyCardContainer;
         private List<GameObject> instantiatedCards;
         private Dictionary<string, GameObject> cardItemsById;
         private Dictionary<string, CardModel> cardModelsById; // Store original CardModel objects by ID
 
-        public CardUIManager(Transform cardContainer)
+        // UI组件引用
+        private Button playButton;
+        private Button clrButton;
+        private Button compButton;
+        private Image playerBloodBar;
+        private Image enemyBloodBar;
+        private Image playerProfile;
+        private Image enemyProfile;
+        private GameObject panelMsg;
+        private TextMeshProUGUI msgText;
+        private MonoBehaviour coroutineRunner;
+
+        public CardUIManager(Transform cardContainer, Transform enemyCardContainer)
         {
             this.cardContainer = cardContainer;
+            this.enemyCardContainer = enemyCardContainer;
             this.instantiatedCards = new List<GameObject>();
             this.cardItemsById = new Dictionary<string, GameObject>();
             this.cardModelsById = new Dictionary<string, CardModel>();
+        }
+
+        // 初始化UI组件引用的方法
+        public void InitializeUIComponents(
+            Button playButton, Button clrButton, Button compButton,
+            Image playerBloodBar, Image enemyBloodBar,
+            Image playerProfile, Image enemyProfile,
+            GameObject panelMsg, TextMeshProUGUI msgText,
+            MonoBehaviour coroutineRunner)
+        {
+            this.playButton = playButton;
+            this.clrButton = clrButton;
+            this.compButton = compButton;
+            this.playerBloodBar = playerBloodBar;
+            this.enemyBloodBar = enemyBloodBar;
+            this.playerProfile = playerProfile;
+            this.enemyProfile = enemyProfile;
+            this.panelMsg = panelMsg;
+            this.msgText = msgText;
+            this.coroutineRunner = coroutineRunner;
         }
 
         public void InitPlayerCards(List<CardModel> cardModels)
@@ -42,6 +78,7 @@ namespace RepGame.UI
             // 遍历卡牌模型，为每个卡牌实例化预制体
             foreach (var cardModel in cardModels)
             {
+                
                 InstantiateCardItem(cardModel);
             }
 
@@ -49,7 +86,7 @@ namespace RepGame.UI
         }
 
         private void InstantiateCardItem(CardModel cardModel)
-        {
+        {       
             try
             {
                 // 使用Addressables加载卡牌预制体
@@ -281,6 +318,212 @@ namespace RepGame.UI
 
             // Trigger event to update COMP button state
             EventManager.TriggerEvent("UpdateCompButtonState", hasThreeOrMore);
+        }
+
+        public void InitEnemyCards(int cardCount)
+        {
+            if (enemyCardContainer == null)
+            {
+                Debug.LogError("敌方卡牌容器不存在");
+                return;
+            }
+
+            // 先清空敌方卡牌容器下的所有卡牌
+            foreach (Transform child in enemyCardContainer)
+            {
+                UnityEngine.Object.Destroy(child.gameObject);
+            }
+
+            // 实例化敌方卡牌（cardback）
+            for (int i = 0; i < cardCount; i++)
+            {
+                string address = "Assets/Prefabs/Cards/cardback.prefab";
+                Addressables.LoadAssetAsync<GameObject>(address).Completed += (handle) =>
+                {
+                    if (handle.Status == AsyncOperationStatus.Succeeded)
+                    {
+                        GameObject cardBackPrefab = handle.Result;
+                        if (cardBackPrefab == null)
+                        {
+                            Debug.LogError($"找不到敌方卡牌预制体：{address}");
+                            return;
+                        }
+                        // 实例化并设置为隐藏
+                        GameObject cardBackObj = UnityEngine.Object.Instantiate(cardBackPrefab, enemyCardContainer);
+                        cardBackObj.name = $"EnemyCardBack_{Guid.NewGuid().ToString().Substring(0, 8)}";
+                    }
+                    else
+                    {
+                        Debug.LogError($"加载敌方卡牌预制体失败: {address}");
+                    }
+                };
+            }
+        }        // 处理伤害结果展示效果
+        public void HandleDamageResult(DamageResult damageResult)
+        {
+            if (damageResult.Type == DamageType.Attacker)
+            {
+                HandleAttackerDamage(damageResult);
+            }
+            else if (damageResult.Type == DamageType.Receiver)
+            {
+                HandleReceiverDamage(damageResult);
+            }
+        }        // 处理攻击者效果
+        private void HandleAttackerDamage(DamageResult damageResult)
+        {
+            // 禁用出牌按钮 - 作为攻击者时
+            SetCardButtonsState(false);
+            
+            // 1. 显示消息
+            ShowDamageMessage($"你对敌人造成了 {damageResult.TotalDamage} 点伤害！");
+
+            // 2. 延迟后执行扣血动画
+            coroutineRunner.StartCoroutine(DelayAction(1f, () => {
+                // 计算敌人扣血
+                DecrementBloodBar(enemyBloodBar, damageResult.TotalDamage);
+                
+                // 销毁已使用的卡牌
+                DestroyPlayedCards(damageResult.ProcessedCards);
+            }));
+        }        // 处理承受者效果
+        private void HandleReceiverDamage(DamageResult damageResult)
+        {
+            // 启用出牌按钮 - 作为承受者时
+            SetCardButtonsState(true);
+            
+            // 1. 显示消息
+            ShowDamageMessage($"你受到了 {damageResult.TotalDamage} 点伤害！");
+
+            // 2. 延迟后执行扣血动画
+            coroutineRunner.StartCoroutine(DelayAction(1f, () => {
+                // 计算玩家扣血
+                DecrementBloodBar(playerBloodBar, damageResult.TotalDamage);
+            }));
+        }
+
+        // 显示伤害消息
+        private void ShowDamageMessage(string message)
+        {
+            msgText.text = message;
+            panelMsg.SetActive(true);
+            
+            // 1秒后隐藏消息面板并清除消息
+            coroutineRunner.StartCoroutine(DelayAction(1f, () => {
+                panelMsg.SetActive(false);
+                msgText.text = string.Empty;
+            }));
+        }
+        
+        // 用于延迟执行的协程
+        private System.Collections.IEnumerator DelayAction(float delayTime, System.Action action)
+        {
+            yield return new UnityEngine.WaitForSeconds(delayTime);
+            action?.Invoke();
+        }
+
+        // 血条减少动画
+        private void DecrementBloodBar(Image bloodBar, float damage)
+        {
+            // 假设最大血量为100，计算伤害比例
+            const float MAX_HEALTH = 100f;
+            float damageRatio = damage / MAX_HEALTH;
+            
+            // 获取当前血量
+            float currentFill = bloodBar.fillAmount;
+            float targetFill = Mathf.Max(0, currentFill - damageRatio); // 不低于0
+            
+            // 使用DOTween制作过渡动画
+            bloodBar.DOFillAmount(targetFill, 0.5f).SetEase(DG.Tweening.Ease.OutQuad);
+        }
+
+        // 销毁已使用的卡牌
+        private void DestroyPlayedCards(List<CardModel> processedCards)
+        {
+            foreach (var cardModel in processedCards)
+            {
+                if (cardItemsById.TryGetValue(cardModel.CardID, out GameObject cardObject))
+                {
+                    // 添加简单的消失动画
+                    cardObject.transform.DOScale(Vector3.zero, 0.3f).OnComplete(() => {
+                        // 动画结束后从列表中移除并销毁
+                        instantiatedCards.Remove(cardObject);
+                        cardItemsById.Remove(cardModel.CardID);
+                        cardModelsById.Remove(cardModel.CardID);
+                        UnityEngine.Object.Destroy(cardObject);
+                    });
+                }
+            }
+        }        // 控制出牌相关按钮的启用/禁用状态
+        public void SetCardButtonsState(bool enabled)
+        {
+            // 设置按钮交互状态
+            if (playButton != null) playButton.interactable = enabled;
+            if (clrButton != null) clrButton.interactable = enabled;
+            if (compButton != null) compButton.interactable = enabled;
+
+            // 设置按钮颜色，enabled为false时变灰
+            Color buttonColor = enabled ? Color.white : new Color(0.7f, 0.7f, 0.7f, 0.5f);
+            if (playButton != null && playButton.image != null) playButton.image.color = buttonColor;
+            if (clrButton != null && clrButton.image != null) clrButton.image.color = buttonColor;
+            if (compButton != null && compButton.image != null) compButton.image.color = buttonColor;
+        }// 处理自己回合开始通知
+        public void HandleTurnStarted(string message)
+        {           
+            // 启用所有出牌相关按钮，允许玩家交互
+            SetCardButtonsState(true);
+            
+            // 更新UI显示
+            ShowTurnNotification(message, true);
+            
+            // 高亮自己的头像（添加动画效果）
+            if (playerProfile != null)
+            {
+                playerProfile.transform.DOScale(1.1f, 0.3f).SetLoops(2, LoopType.Yoyo);
+            }
+        }
+          // 处理等待对方回合通知
+        public void HandleTurnWaiting(string message)
+        {  
+            // 禁用所有出牌按钮，阻止玩家交互
+            SetCardButtonsState(false);
+            
+            // 更新UI显示
+            ShowTurnNotification(message, false);
+            
+            // 高亮对方的头像（添加动画效果）
+            if (enemyProfile != null)
+            {
+                enemyProfile.transform.DOScale(1.1f, 0.3f).SetLoops(2, LoopType.Yoyo);
+            }
+        }
+          // 显示回合通知
+        private void ShowTurnNotification(string message, bool isMyTurn)
+        {
+            // 显示通知面板
+            if (panelMsg != null)
+            {
+                panelMsg.SetActive(true);
+                
+                // 设置消息文本
+                if (msgText != null)
+                {
+                    msgText.text = message;
+                    
+                    // 设置文本颜色，自己回合为绿色，对方回合为红色
+                    msgText.color = isMyTurn ? new Color(0.2f, 0.8f, 0.2f) : new Color(0.8f, 0.2f, 0.2f);
+                }
+                
+                // 短暂显示后自动隐藏（通过传入的MonoBehaviour组件启动协程）
+                coroutineRunner.StartCoroutine(AutoHidePanel(panelMsg, 2.0f));
+            }
+        }
+        
+        // 自动隐藏面板的协程
+        private System.Collections.IEnumerator AutoHidePanel(GameObject panel, float delay)
+        {
+            yield return new WaitForSeconds(delay);
+            panel.SetActive(false);
         }
     }
 }

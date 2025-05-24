@@ -115,12 +115,6 @@ public class GameClient : MonoBehaviour, INetEventListener
 
     public void SendPlayCardsRequest(List<CardModel> cards)
     {
-        if (_netClient == null)
-        {
-            Debug.LogError("NetManager is not initialized!");
-            return;
-        }
-
         try
         {
             // 直接使用 RepGameModels.CardModel 中的方法序列化卡牌数据
