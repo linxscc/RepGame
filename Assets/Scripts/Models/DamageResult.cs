@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace RepGameModels
-{    
+{
     [Serializable]
     public class DamageResult
     {
         public float TotalDamage;
+        public List<CardModel> newCards;
         public List<CardModel> ProcessedCards;
-        public DamageType Type; 
+        public DamageType Type;
         public List<BondModel> bonds;
 
         // 序列化方法

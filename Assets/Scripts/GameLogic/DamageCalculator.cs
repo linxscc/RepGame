@@ -8,14 +8,14 @@ namespace GameLogic
 {
     public class DamageCalculator
     {
-        private static BondConfig bondConfig;
-        
-        static DamageCalculator()
+        private BondConfig bondConfig;
+
+        public DamageCalculator()
         {
             LoadBondConfig();
         }
-        
-        private static void LoadBondConfig()
+
+        private void LoadBondConfig()
         {
             try
             {
@@ -33,7 +33,7 @@ namespace GameLogic
                 bondConfig = new BondConfig { Bonds = new List<BondModel>() };
             }
         }
-        private static List<BondModel> FindActiveBonds(List<CardModel> cards)
+        private List<BondModel> FindActiveBonds(List<CardModel> cards)
         {
             if (bondConfig?.Bonds == null || cards == null)
                 return new List<BondModel>();
@@ -63,7 +63,7 @@ namespace GameLogic
             return activeBonds;
         }
 
-        public static DamageResult CalculateDamage(List<CardModel> cards, DamageType damageType = DamageType.Attacker)
+        public DamageResult CalculateDamage(List<CardModel> cards, DamageType damageType = DamageType.Attacker)
         {
             if (cards == null || cards.Count == 0)
                 return new DamageResult
@@ -76,7 +76,7 @@ namespace GameLogic
 
             // 查找激活的羁绊（已按伤害从高到低排序）
             var activeBonds = FindActiveBonds(cards);
-            
+
             // 创建已使用卡牌的HashSet，用于跟踪哪些卡牌已经在羁绊中使用
             var usedCards = new HashSet<string>();
             float totalDamage = 0;
@@ -90,13 +90,17 @@ namespace GameLogic
                     usedCards.Add(cardType);
                 }
             }
-
             // 计算未被用于羁绊的卡牌的伤害
-            var unusedCardsDamage = cards
-                .Where(card => !usedCards.Contains(card.Type.ToString()))
-                .Sum(card => card.Damage);
+            var unusedCards = cards.Where(card => !usedCards.Contains(card.Type.ToString())).ToList();
 
-            totalDamage += unusedCardsDamage;
+            // 调试输出未使用卡牌信息
+            Debug.Log($"未使用于羁绊的卡牌数量: {unusedCards.Count}");
+            foreach (var card in unusedCards)
+            {
+                // 确保卡牌至少有基础伤害
+                float cardDamage = card.Damage;
+                totalDamage += cardDamage;
+            }
 
             return new DamageResult
             {

@@ -13,13 +13,20 @@ public class GameClient : MonoBehaviour, INetEventListener
 {
     private NetManager _netClient;
     private PlayerManager _playerManager;
-    private RepGame.Network.GameClientLogic.NetworkMessageHandler _messageHandler;
+    private NetworkMessageHandler _messageHandler;
 
     private void Start()
     {
         _netClient = new NetManager(this);
         _netClient.UnconnectedMessagesEnabled = true;
         _netClient.UpdateTime = 15;
+
+        // 设置超时参数
+        _netClient.DisconnectTimeout = 60000; // 60 秒
+        _netClient.ReconnectDelay = 500; // 重连延迟 0.5 秒
+        _netClient.MaxConnectAttempts = 60; // 最大连接尝试次数
+        _netClient.PingInterval = 1000; // ping 间隔 1 秒
+
         _netClient.Start(0);
         _netClient.Connect("127.0.0.1", 9050, "demo");
 
@@ -37,7 +44,8 @@ public class GameClient : MonoBehaviour, INetEventListener
         // Subscribe to the "StartCardGame" event
         EventManager.Subscribe("StartCardGame", SendStartCardGameRequest);
         EventManager.Subscribe<List<CardModel>>("PlayCards", SendPlayCardsRequest);
-        EventManager.Subscribe<List<GameObject>>("CompCard", SendCompCardRequest); // 添加合成卡牌事件订阅
+        EventManager.Subscribe<List<GameObject>>("CompCard", SendCompCardRequest);
+        EventManager.Subscribe("AttemptReconnect", AttemptReconnect);
     }
 
     private void OnDisable()
@@ -45,7 +53,8 @@ public class GameClient : MonoBehaviour, INetEventListener
         // Unsubscribe from the event to prevent memory leaks
         EventManager.Unsubscribe("StartCardGame", SendStartCardGameRequest);
         EventManager.Unsubscribe<List<CardModel>>("PlayCards", SendPlayCardsRequest);
-        EventManager.Unsubscribe<List<GameObject>>("CompCard", SendCompCardRequest); // 取消合成卡牌事件订阅
+        EventManager.Unsubscribe<List<GameObject>>("CompCard", SendCompCardRequest);
+        EventManager.Unsubscribe("AttemptReconnect", AttemptReconnect);
     }
 
     private void Update()
@@ -70,13 +79,36 @@ public class GameClient : MonoBehaviour, INetEventListener
 
     public void OnPeerConnected(NetPeer peer)
     {
-        EventManager.TriggerEvent("ConnectedToServer","[CLIENT] Connected to server!");
+        EventManager.TriggerEvent("ConnectedToServer", "[CLIENT] Connected to server!");
         Debug.Log("[CLIENT] Connected to server!");
     }
 
     public void OnPeerDisconnected(NetPeer peer, DisconnectInfo disconnectInfo)
     {
         Debug.Log($"[CLIENT] Disconnected from server: {disconnectInfo.Reason}");
+
+        // 处理不同的断开连接原因
+        switch (disconnectInfo.Reason)
+        {
+            case DisconnectReason.Timeout:
+                Debug.LogWarning("[CLIENT] Connection timed out!");
+                EventManager.TriggerEvent("ConnectionTimeout", "与服务器的连接超时，请检查网络并重试。");
+                break;
+
+            case DisconnectReason.ConnectionFailed:
+                Debug.LogWarning("[CLIENT] Connection failed!");
+                EventManager.TriggerEvent("ConnectionFailed", "无法连接到服务器，请稍后重试。");
+                break;
+
+            case DisconnectReason.RemoteConnectionClose:
+                Debug.LogWarning("[CLIENT] Server closed the connection!");
+                EventManager.TriggerEvent("ServerClosed", "服务器关闭了连接。");
+                break;
+
+            default:
+                EventManager.TriggerEvent("Disconnected", $"与服务器断开连接: {disconnectInfo.Reason}");
+                break;
+        }
     }
 
     public void OnNetworkError(IPEndPoint endPoint, SocketError socketErrorCode)
@@ -101,7 +133,7 @@ public class GameClient : MonoBehaviour, INetEventListener
     public void OnConnectionRequest(ConnectionRequest request)
     {
     }
-    
+
     public void SendStartCardGameRequest()
     {
         if (_netClient == null)
@@ -121,13 +153,14 @@ public class GameClient : MonoBehaviour, INetEventListener
         {
             // 直接使用 RepGameModels.CardModel 中的方法序列化卡牌数据
             string cardsJson = CardModel.SerializeList(cards);
+            // 创建ApiResponse对象包装数据
 
             // 发送请求给服务器
             NetDataWriter writer = new NetDataWriter();
             writer.Put("PlayCards");
             writer.Put(cardsJson);
             _netClient.SendToAll(writer, DeliveryMethod.ReliableOrdered);
-            
+
             Debug.Log($"Sent PlayCards request to server with {cards.Count} cards.");
         }
         catch (Exception ex)
@@ -135,7 +168,7 @@ public class GameClient : MonoBehaviour, INetEventListener
             Debug.LogError($"Error sending play cards request: {ex.Message}");
         }
     }
-    
+
     public void SendCompCardRequest(List<GameObject> cardObjects)
     {
         try
@@ -148,15 +181,15 @@ public class GameClient : MonoBehaviour, INetEventListener
                 if (cardItem != null)
                 {
                     // 创建CardModel并添加到列表中
-                    cards.Add(new CardModel 
-                    { 
-                        CardID = cardItem.CardID, 
+                    cards.Add(new CardModel
+                    {
+                        CardID = cardItem.CardID,
                         Type = cardItem.Type,
                         Damage = 0 // 合成操作不需要伤害值
                     });
                 }
             }
-            
+
             // 创建ApiResponse对象包装数据
             ApiResponse<List<CardModel>> response = new ApiResponse<List<CardModel>>
             {
@@ -164,16 +197,16 @@ public class GameClient : MonoBehaviour, INetEventListener
                 Message = "Composition Request",
                 Data = cards
             };
-            
+
             // 序列化响应对象
             string jsonData = JsonUtility.ToJson(response);
-            
+
             // 发送请求给服务器
             NetDataWriter writer = new NetDataWriter();
             writer.Put("CompCards");
             writer.Put(jsonData);
             _netClient.SendToAll(writer, DeliveryMethod.ReliableOrdered);
-            
+
             Debug.Log($"Sent CompCards request to server with {cards.Count} cards.");
         }
         catch (Exception ex)
@@ -181,6 +214,20 @@ public class GameClient : MonoBehaviour, INetEventListener
             Debug.LogError($"Error sending composition request: {ex.Message}");
             // 通知UI层处理错误
             EventManager.TriggerEvent("CompError", $"发送合成请求失败: {ex.Message}");
+        }
+    }
+
+    // 尝试重新连接到服务器
+    public void AttemptReconnect()
+    {
+        if (_netClient != null)
+        {
+            Debug.Log("[CLIENT] Attempting to reconnect to server...");
+            _netClient.Connect("127.0.0.1", 9050, "demo");
+        }
+        else
+        {
+            Debug.LogError("[CLIENT] Cannot reconnect: NetManager is not initialized");
         }
     }
 }

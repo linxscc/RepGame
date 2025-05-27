@@ -1,19 +1,20 @@
 using System.Collections.Generic;
+using System;
 
 namespace RepGamebackModels
 {
-    [System.Serializable]
+    [Serializable]
     public class BondModel
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public List<string> Cards { get; set; }
-        public int Level { get; set; }
-        public float Damage { get; set; }
-        public string Description { get; set; }
+        public string Id;
+        public string Name;
+        public List<string> Cards;
+        public int Level;
+        public float Damage;
+        public string Description;
     }
 
-    [System.Serializable]
+    [Serializable]
     public class BondConfig
     {
         public List<BondModel> Bonds;

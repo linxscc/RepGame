@@ -4,11 +4,12 @@ using System.Collections.Generic;
 
 namespace RepGamebackModels
 {
-    
+
     [Serializable]
     public class DamageResult
     {
         public float TotalDamage;
+        public List<CardModel> newCards;
         public List<CardModel> ProcessedCards;
         public DamageType Type;
         public List<BondModel> bonds;

@@ -9,47 +9,59 @@ using System.Linq;
 using DG.Tweening;
 using TMPro;
 using RepGameModels;
+using UnityEngine.EventSystems;
 
 namespace RepGame.UI
 {
     public class CardUIManager
-    {        private Transform cardContainer;
+    {
+        private Transform cardContainer;
         private Transform enemyCardContainer;
+        private Transform playContainer;
         private List<GameObject> instantiatedCards;
         private Dictionary<string, GameObject> cardItemsById;
-        private Dictionary<string, CardModel> cardModelsById; // Store original CardModel objects by ID
-        private List<string> lockedCardIds = new List<string>(); // 新增：用于跟踪已锁定的卡牌ID
+        private Dictionary<string, CardModel> cardModelsById;
+        private List<string> lockedCardIds = new List<string>();
+        private float MAX_HEALTH = 100f;
 
         // UI组件引用
         private Button playButton;
         private Button clrButton;
         private Button compButton;
+        private Button clearButton;
         private Image playerBloodBar;
         private Image enemyBloodBar;
         private Image playerProfile;
         private Image enemyProfile;
         private GameObject panelMsg;
         private TextMeshProUGUI msgText;
+        private GameObject gameOverPanel;
+        private TextMeshProUGUI gameOverText;
+        private TextMeshProUGUI blood_Text;
+        private TextMeshProUGUI enemyBlood_Text;
         private MonoBehaviour coroutineRunner;
-        public CardUIManager(Transform cardContainer, Transform enemyCardContainer)
+        private bool isAttacker = true; // 默认为攻击者
+
+        public CardUIManager(Transform cardContainer, Transform enemyCardContainer, Transform playContainer)
         {
             this.cardContainer = cardContainer;
             this.enemyCardContainer = enemyCardContainer;
+            this.playContainer = playContainer;
             this.instantiatedCards = new List<GameObject>();
             this.cardItemsById = new Dictionary<string, GameObject>();
             this.cardModelsById = new Dictionary<string, CardModel>();
             this.lockedCardIds = new List<string>();
-        }
-
-        // 初始化UI组件引用的方法
+        }        // 初始化UI组件引用的方法
         public void InitializeUIComponents(
             Button playButton, Button clrButton, Button compButton,
             Image playerBloodBar, Image enemyBloodBar,
             Image playerProfile, Image enemyProfile,
-            GameObject panelMsg, TextMeshProUGUI msgText,
-            MonoBehaviour coroutineRunner)
+            GameObject panelMsg, TextMeshProUGUI msgText, TextMeshProUGUI Blood_Text, TextMeshProUGUI EnemyBlood_Text,
+            MonoBehaviour coroutineRunner,
+            GameObject gameOverPanel, TextMeshProUGUI gameOverText)
         {
             this.playButton = playButton;
+            this.clearButton = clrButton;
             this.clrButton = clrButton;
             this.compButton = compButton;
             this.playerBloodBar = playerBloodBar;
@@ -58,11 +70,20 @@ namespace RepGame.UI
             this.enemyProfile = enemyProfile;
             this.panelMsg = panelMsg;
             this.msgText = msgText;
+            this.blood_Text = Blood_Text;
+            this.enemyBlood_Text = EnemyBlood_Text;
             this.coroutineRunner = coroutineRunner;
+            this.gameOverPanel = gameOverPanel;
+            this.gameOverText = gameOverText;
         }
 
         public void InitPlayerCards(List<CardModel> cardModels)
         {
+
+            // 确保游戏开始时血条是满的
+            if (playerBloodBar != null) playerBloodBar.fillAmount = 1f;
+            if (enemyBloodBar != null) enemyBloodBar.fillAmount = 1f;
+
             Debug.Log($"初始化玩家卡牌，数量：{cardModels.Count}");
 
             // 清空现有卡牌
@@ -84,7 +105,7 @@ namespace RepGame.UI
             // 初始化敌方卡牌的显示状态（与玩家卡牌数量相同）
             InitEnemyCardVisibility(cardModels.Count);
 
-            Debug.Log($"卡牌实例化完成，共{instantiatedCards.Count}张卡牌");
+            Debug.Log($"卡牌实例化完成，共{cardModels.Count}张卡牌");
         }
 
         // 初始化敌方卡牌显示状态
@@ -105,7 +126,7 @@ namespace RepGame.UI
         }
 
         private void InstantiateCardItem(CardModel cardModel)
-        {       
+        {
             try
             {
                 // 使用Addressables加载卡牌预制体
@@ -205,7 +226,7 @@ namespace RepGame.UI
             cardItemsById.Clear();
             cardModelsById.Clear();
         }
-          public List<CardModel> GetSelectedCards()
+        public List<CardModel> GetSelectedCards()
         {
             // 返回所有选中且未锁定的卡牌的ID和Type
             List<CardModel> selectedCards = new List<CardModel>();
@@ -215,17 +236,17 @@ namespace RepGame.UI
                 if (cardItem != null && cardItem.IsSelected && !cardItem.IsLocked)
                 {
                     // 创建包含卡片ID和Type的CardModel对象
-                    selectedCards.Add(new CardModel 
+                    selectedCards.Add(new CardModel
                     {
                         CardID = cardItem.CardID,
                         Type = cardItem.Type,
-                        Damage = 0 
+                        Damage = 0
                     });
                 }
             }
             return selectedCards;
         }
-          // 获取选中的GameObject（用于内部实现）
+        // 获取选中的GameObject（用于内部实现）
         private List<GameObject> GetSelectedCardObjects()
         {
             List<GameObject> selectedCards = new List<GameObject>();
@@ -276,30 +297,93 @@ namespace RepGame.UI
             var selectedCards = GetSelectedCards();
             if (selectedCards.Count > 0)
             {
+                // 获取当前未锁定的卡牌总数（手牌数量）
+                int totalUnlockedCards = instantiatedCards.Count(card =>
+                {
+                    var cardItem = card.GetComponent<CardItem>();
+                    return cardItem != null && !cardItem.IsLocked;
+                });
+
+                // 计算选择的卡牌数量
+                int selectedCount = selectedCards.Count;
+
+                // 计算打出这些卡后剩余的手牌数量
+                int remainingCards = totalUnlockedCards - selectedCount;
+
+                // 如果剩余卡牌数量大于7，需要额外选择卡牌
+                if (remainingCards > 7)
+                {
+                    // 计算需要额外打出的卡牌数量
+                    int additionalCardsNeeded = remainingCards - 7;
+                    Debug.Log($"需要额外打出 {additionalCardsNeeded} 张卡牌以确保手牌不超过7张");
+
+                    // 获取所有未选择且未锁定的卡牌
+                    List<GameObject> availableCardObjects = new List<GameObject>();
+                    List<CardModel> additionalCards = new List<CardModel>();
+
+                    foreach (var card in instantiatedCards)
+                    {
+                        var cardItem = card.GetComponent<CardItem>();
+                        if (cardItem != null && !cardItem.IsSelected && !cardItem.IsLocked)
+                        {
+                            availableCardObjects.Add(card);
+                        }
+                    }
+
+                    // 按顺序选择额外的卡牌
+                    int cardsToSelect = Math.Min(additionalCardsNeeded, availableCardObjects.Count);
+                    for (int i = 0; i < cardsToSelect; i++)
+                    {
+                        var cardObject = availableCardObjects[i];
+                        var cardItem = cardObject.GetComponent<CardItem>();
+
+                        // 模拟点击卡牌以选择它
+                        // 使用public的OnPointerClick方法
+                        cardItem.OnPointerClick(new PointerEventData(EventSystem.current));
+
+                        // 添加到额外选择的卡牌列表中
+                        additionalCards.Add(new CardModel
+                        {
+                            CardID = cardItem.CardID,
+                            Type = cardItem.Type,
+                            Damage = 0
+                        });
+                    }
+
+                    // 检查额外选择的卡牌，确保它们已经被选中了
+                    var updatedSelectedCards = GetSelectedCards();
+
+                    // 显示一条消息，通知玩家额外的卡牌被自动选择
+                    ShowMessage($"已自动选择额外 {additionalCards.Count} 张卡牌以确保手牌不超过7张");
+                }
+
+                // 获取所有选中的卡牌（包括可能新增的额外卡牌）
+                selectedCards = GetSelectedCards();
+
                 // 锁定已选择的卡牌
                 foreach (var card in selectedCards)
                 {
                     LockCard(card.CardID);
                 }
-                
+
                 // 向服务器发送出牌消息
                 EventManager.TriggerEvent("PlayCards", selectedCards);
-                
+
                 // 禁用出牌按钮
                 SetCardButtonsState(false);
-                
+
                 // 确保COMP按钮也被禁用
                 UpdateCompButtonState(false);
             }
         }
-        
+
         // 锁定指定ID的卡牌
         private void LockCard(string cardId)
         {
             if (!lockedCardIds.Contains(cardId))
             {
                 lockedCardIds.Add(cardId);
-                
+
                 // 更新卡牌视觉状态
                 if (cardItemsById.TryGetValue(cardId, out GameObject cardObject))
                 {
@@ -312,7 +396,7 @@ namespace RepGame.UI
                 }
             }
         }
-        
+
         // 解锁所有锁定的卡牌
         public void UnlockAllCards()
         {
@@ -320,18 +404,18 @@ namespace RepGame.UI
             {
                 UnlockCard(cardId);
             }
-            
+
             lockedCardIds.Clear();
             Debug.Log("已解锁所有卡牌");
         }
-        
+
         // 解锁指定ID的卡牌
         private void UnlockCard(string cardId)
         {
             if (lockedCardIds.Contains(cardId))
             {
                 lockedCardIds.Remove(cardId);
-                
+
                 // 更新卡牌视觉状态
                 if (cardItemsById.TryGetValue(cardId, out GameObject cardObject))
                 {
@@ -486,25 +570,25 @@ namespace RepGame.UI
                 HandleReceiverDamage(damageResult);
             }
         }
-        
+
         // 处理出牌错误，解锁所有锁定的卡牌
         public void HandleDamageError(string errorMessage)
         {
             // 显示错误消息
             ShowMessage($"出牌失败: {errorMessage}");
-            
+
             // 解锁所有锁定的卡牌
             UnlockAllCards();
-            
+
             // 重新启用出牌按钮
             SetCardButtonsState(true);
-            
+
             // 更新COMP按钮状态（基于当前选择的卡牌）
             var groupedCards = GroupSelectedCardsByType();
             bool hasThreeOrMore = groupedCards.Values.Any(group => group.Count >= 3);
             UpdateCompButtonState(hasThreeOrMore);
         }
-        
+
         // 处理合成结果
         public void HandleCompResult(CompResult compResult)
         {
@@ -514,13 +598,13 @@ namespace RepGame.UI
                 {
                     // 显示成功消息
                     ShowMessage($"合成成功! 获得了 {compResult.NewCards.Count} 张新卡牌");
-                    
+
                     // 清除卡牌选择
                     ClearCardSelection();
-                    
+
                     // 销毁已使用的卡牌
                     DestroyPlayedCards(compResult.UsedCards);
-                    
+
                     // 添加新合成的卡牌
                     if (compResult.NewCards != null && compResult.NewCards.Count > 0)
                     {
@@ -529,11 +613,11 @@ namespace RepGame.UI
                             InstantiateCardItem(cardModel);
                         }
                     }
-                    
+
                     // 重新启用按钮
                     SetCardButtonsState(true);
                     UpdateCompButtonState(false);
-                    
+
                     // 解锁所有锁定的卡牌
                     UnlockAllCards();
                 }
@@ -549,42 +633,48 @@ namespace RepGame.UI
                 HandleDamageError(compResult.ErrorMessage ?? "未知错误");
             }
         }
-        
+
         // 处理攻击者效果
         private void HandleAttackerDamage(DamageResult damageResult)
         {
             // 1. 显示消息
-            ShowMessage($"你对敌人造成了 {damageResult.TotalDamage} 点伤害");
+            ShowMessage($"YOU Attack {damageResult.TotalDamage} TotalDamage！");
 
 
             // 2. 延迟后执行扣血动画
             coroutineRunner.StartCoroutine(DelayAction(1f, () =>
             {
                 // 计算敌人扣血
-                DecrementBloodBar(enemyBloodBar, damageResult.TotalDamage);
+                DecrementBloodBar(enemyBloodBar, damageResult.TotalDamage, true);
 
                 // 销毁已使用的卡牌
                 UnlockAllCards();
                 DestroyPlayedCards(damageResult.ProcessedCards);
             }));
+
+            //3 遍历卡牌模型，为每个新卡牌实例化预制体
+            foreach (var cardModel in damageResult.newCards)
+            {
+                InstantiateCardItem(cardModel);
+            }
         }
         // 处理承受者效果
         private void HandleReceiverDamage(DamageResult damageResult)
         {
             // 1. 显示消息
-            ShowMessage($"你受到了 {damageResult.TotalDamage} 点伤害！");
+            ShowMessage($"YOU get {damageResult.TotalDamage} TotalDamage！");
 
             // 2. 延迟后执行扣血动画
             coroutineRunner.StartCoroutine(DelayAction(1f, () =>
             {
                 // 计算玩家扣血
                 DecrementBloodBar(playerBloodBar, damageResult.TotalDamage);
-                
+
                 // 3. 根据对方使用的卡牌数量，销毁相应数量的敌方卡牌
                 RemoveEnemyCards(damageResult.ProcessedCards.Count);
             }));
         }
-        
+
         // 移除敌方卡牌显示
         private void RemoveEnemyCards(int count)
         {
@@ -625,7 +715,8 @@ namespace RepGame.UI
                     if (!shouldBeVisible)
                     {
                         // 添加消失动画，动画结束后设置为隐藏
-                        card.transform.DOScale(Vector3.zero, 0.3f).OnComplete(() => {
+                        card.transform.DOScale(Vector3.zero, 0.3f).OnComplete(() =>
+                        {
                             card.transform.localScale = Vector3.one; // 重置缩放
                             card.SetActive(false);
                         });
@@ -637,20 +728,21 @@ namespace RepGame.UI
                 }
             }
         }
-        
+
         // 显示伤害消息
         private void ShowMessage(string message)
         {
             msgText.text = message;
             panelMsg.SetActive(true);
-            
+
             // 1秒后隐藏消息面板并清除消息
-            coroutineRunner.StartCoroutine(DelayAction(1f, () => {
+            coroutineRunner.StartCoroutine(DelayAction(1f, () =>
+            {
                 panelMsg.SetActive(false);
                 msgText.text = string.Empty;
             }));
         }
-        
+
         // 用于延迟执行的协程
         private System.Collections.IEnumerator DelayAction(float delayTime, Action action)
         {
@@ -659,18 +751,35 @@ namespace RepGame.UI
         }
 
         // 血条减少动画
-        private void DecrementBloodBar(Image bloodBar, float damage)
+        private void DecrementBloodBar(Image bloodBar, float damage, bool isEnemy = false)
         {
-            // 假设最大血量为100，计算伤害比例
-            const float MAX_HEALTH = 100f;
             float damageRatio = damage / MAX_HEALTH;
-            
+
             // 获取当前血量
             float currentFill = bloodBar.fillAmount;
             float targetFill = Mathf.Max(0, currentFill - damageRatio); // 不低于0
-            
+
             // 使用DOTween制作过渡动画
-            bloodBar.DOFillAmount(targetFill, 0.5f).SetEase(DG.Tweening.Ease.OutQuad);
+            bloodBar.DOFillAmount(targetFill, 0.5f).SetEase(Ease.OutQuad);
+
+            if (isEnemy)
+            {
+                // 更新敌方血量文本
+                if (enemyBlood_Text != null)
+                {
+                    string newHealth = (MAX_HEALTH * targetFill).ToString("F0");
+                    enemyBlood_Text.text = $"{newHealth}";
+                }
+            }
+            else
+            {
+                // 更新玩家血量文本
+                if (blood_Text != null)
+                {
+                    string newHealth = (MAX_HEALTH * targetFill).ToString("F0");
+                    blood_Text.text = $"{newHealth}";
+                }
+            }
         }
         // 销毁已使用的卡牌
         public void DestroyPlayedCards(List<CardModel> processedCards)
@@ -701,14 +810,14 @@ namespace RepGame.UI
             Color buttonColor = enabled ? Color.white : new Color(0.7f, 0.7f, 0.7f, 0.5f);
             if (playButton != null && playButton.image != null) playButton.image.color = buttonColor;
         }
-        
+
         // 更新COMP按钮状态
         public void UpdateCompButtonState(bool enabled)
         {
             if (compButton != null)
             {
                 compButton.interactable = enabled;
-                
+
                 // 设置按钮颜色，enabled为false时变灰
                 Color buttonColor = enabled ? Color.white : new Color(0.7f, 0.7f, 0.7f, 0.5f);
                 if (compButton.image != null)
@@ -730,51 +839,25 @@ namespace RepGame.UI
             }
         }        // 处理等待对方回合通知
         public void HandleTurnWaiting(string message)
-        {  
+        {
             // 禁用出牌按钮，阻止玩家交互
             SetCardButtonsState(false);
-              
+
             // 高亮对方的头像（添加动画效果）
             if (enemyProfile != null)
             {
                 enemyProfile.transform.DOScale(1.1f, 0.3f).SetLoops(2, LoopType.Yoyo);
             }
         }
-        //   // 显示回合通知
-        // private void ShowTurnNotification(string message, bool isMyTurn)
-        // {
-        //     // 显示通知面板
-        //     if (panelMsg != null)
-        //     {
-        //         panelMsg.SetActive(true);
-                
-        //         // 设置消息文本
-        //         if (msgText != null)
-        //         {
-        //             msgText.text = message;
-                    
-        //             // 设置文本颜色，自己回合为绿色，对方回合为红色
-        //             msgText.color = isMyTurn ? new Color(0.2f, 0.8f, 0.2f) : new Color(0.8f, 0.2f, 0.2f);
-        //         }
-                
-        //         // 短暂显示后自动隐藏（通过传入的MonoBehaviour组件启动协程）
-        //         coroutineRunner.StartCoroutine(AutoHidePanel(panelMsg, 2.0f));
-        //     }
-        // }
-        
-        // // 自动隐藏面板的协程
-        // private System.Collections.IEnumerator AutoHidePanel(GameObject panel, float delay)
-        // {
-        //     yield return new WaitForSeconds(delay);
-        //     panel.SetActive(false);
-        // }        // 自动选择第一张卡牌并出牌
+
+        // 自动选择第一张卡牌并出牌
         public void AutoPlayFirstCard()
         {
             Debug.Log("执行自动出牌...");
-            
+
             // 先清除已选择的卡牌
             ClearSelectedCards();
-            
+
             // 禁用所有出牌按钮，包括COMP按钮
             SetCardButtonsState(false);
             UpdateCompButtonState(false);
@@ -785,23 +868,24 @@ namespace RepGame.UI
                 // 获取第一张卡牌
                 GameObject firstCard = instantiatedCards[0];
                 CardItem cardItem = firstCard.GetComponent<CardItem>();
-                
+
                 if (cardItem != null)
                 {
                     // 选择第一张卡牌
                     Debug.Log($"自动选择卡牌: {cardItem.CardID}, 类型: {cardItem.Type}");
-                    
+
                     // 通过反射调用Select方法
                     var selectMethod = cardItem.GetType().GetMethod("Select");
                     if (selectMethod != null)
                     {
                         selectMethod.Invoke(cardItem, null);
-                        
+
                         // 显示一个通知
                         ShowMessage("回合超时，已自动选择第一张卡牌出牌");
-                        
+
                         // 短暂延迟后出牌
-                        coroutineRunner.StartCoroutine(DelayAction(1.0f, () => {
+                        coroutineRunner.StartCoroutine(DelayAction(1.0f, () =>
+                        {
                             // 执行出牌操作
                             PlaySelectedCards();
                         }));
@@ -864,6 +948,99 @@ namespace RepGame.UI
             for (int i = 0; i < totalCards; i++)
             {
                 enemyCards[i].SetActive(i < targetVisibleCards);
+            }
+        }
+
+        public void UpdateInitHealthBars(int initHealth)
+        {
+            MAX_HEALTH = (float)initHealth;
+            // 设置初始血量
+            if (playerBloodBar != null)
+            {
+                playerBloodBar.fillAmount = 1f; // 满血
+            }
+
+            if (enemyBloodBar != null)
+            {
+                enemyBloodBar.fillAmount = 1f; // 满血
+            }
+
+        }
+        // 处理游戏结束
+        public void HandleGameOver(object gameOverData)
+        {
+            try
+            {
+                // 尝试将对象转换为强类型的游戏结束数据
+                if (gameOverData is GameOverResponse typedGameOver)
+                {
+                    // 直接使用强类型数据
+                    ShowGameOverUI(typedGameOver.IsWinner);
+
+                    Debug.Log($"Game over - IsWinner: {typedGameOver.IsWinner}");
+                }
+                else
+                {
+                    // 回退方案：通过JSON进行转换
+                    var gameOverJson = JsonUtility.ToJson(gameOverData);
+                    var gameOver = JsonUtility.FromJson<GameOverResponse>(gameOverJson);
+
+                    // 显示游戏结束UI
+                    ShowGameOverUI(gameOver.IsWinner);
+
+                    Debug.Log($"Game over (via JSON) - IsWinner: {gameOver.IsWinner}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"处理游戏结束时出错: {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
+        // 显示游戏结束UI
+        private void ShowGameOverUI(bool isWinner)
+        {
+            // 禁用所有卡牌交互
+            SetAllCardsInteractable(false);
+
+            // 禁用所有按钮
+            SetCardButtonsState(false);
+            if (clearButton != null) clearButton.interactable = false;
+            if (compButton != null) compButton.interactable = false;
+
+            // 显示游戏结束面板
+            if (gameOverPanel != null)
+            {
+                gameOverPanel.SetActive(true);
+
+                // 设置胜利或失败文本
+                if (gameOverText != null)
+                {
+                    gameOverText.text = isWinner ? "Victory!" : "Defeat!";
+                    gameOverText.color = isWinner ? Color.green : Color.red;
+                }
+            }
+            else
+            {
+                // 如果没有专门的游戏结束面板，就显示一个消息
+                string message = isWinner ? "You Win!" : "You Lose!";
+                ShowMessage(message);
+            }
+        }
+
+        // 禁用所有卡牌交互
+        private void SetAllCardsInteractable(bool interactable)
+        {
+            foreach (var cardObject in instantiatedCards)
+            {
+                if (cardObject != null)
+                {
+                    var button = cardObject.GetComponent<Button>();
+                    if (button != null)
+                    {
+                        button.interactable = interactable;
+                    }
+                }
             }
         }
     }

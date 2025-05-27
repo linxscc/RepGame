@@ -4,26 +4,27 @@ using UnityEngine.EventSystems;
 using System;
 using RepGameModels;
 using RepGame.Core;
-using DG.Tweening; 
+using DG.Tweening;
 
 namespace RepGame.UI
-{public class CardItem : MonoBehaviour, IPointerClickHandler
+{
+    public class CardItem : MonoBehaviour, IPointerClickHandler
     {
         public string CardID { get; set; }
         public CardType Type { get; set; }
-        
+
         private Vector3 originalPosition;
         private Image cardImage;
         private bool isSelected = false;
         private bool isLocked = false; // 新增：表示卡牌是否被锁定（已出牌但服务器未处理）
         private Material originalMaterial;
         private Material glowMaterial;
-        
+
         private const float MOVE_DISTANCE_RATIO = 0.5f; // 移动自身长度的一半
-        
+
         private int originalSiblingIndex; // 记录卡牌的原始索引位置
         private Transform originalParent; // 记录卡牌的原始父对象
-        
+
         void Awake()
         {
             cardImage = GetComponent<Image>();
@@ -33,20 +34,20 @@ namespace RepGame.UI
                 // 在实际项目中，应该从资源加载发光材质
                 // glowMaterial = Resources.Load<Material>("Materials/CardGlow");
             }
-            
+
             originalPosition = transform.position;
         }
-        
+
         public void Init(string cardID, CardType type)
         {
             CardID = cardID;
             Type = type;
-            
+
             // 根据卡牌类型设置额外的视觉效果或属性
             // 例如不同类型的卡牌可能有不同的背景色
             SetCardAppearance();
         }
-        
+
         private void SetCardAppearance()
         {
             // 根据卡牌类型设置卡牌外观
@@ -56,7 +57,7 @@ namespace RepGame.UI
             {
                 nameText.text = Type.ToString();
             }
-            
+
             // 可以根据卡牌类型设置不同的图标或颜色
             // Image iconImage = transform.Find("IconImage")?.GetComponent<Image>();
             // if (iconImage != null)
@@ -64,7 +65,8 @@ namespace RepGame.UI
             //     iconImage.sprite = Resources.Load<Sprite>($"CardIcons/{Type}");
             // }
         }
-          public void OnPointerClick(PointerEventData eventData)
+
+        public void OnPointerClick(PointerEventData eventData)
         {
             // 如果卡牌已锁定，则不响应点击事件
             if (IsLocked)
@@ -73,17 +75,17 @@ namespace RepGame.UI
                 ShakeCard();
                 return;
             }
-            
+
             SetSelectionState(!IsSelected);
         }
-        
+
         // 晃动卡牌提示已锁定
         private void ShakeCard()
         {
             // 使用DOTween实现晃动效果
             transform.DOShakePosition(0.5f, new Vector3(10, 0, 0), 10, 90, false, true);
         }
-        
+
         private void SetSelectionState(bool selected)
         {
             IsSelected = selected;
@@ -94,13 +96,10 @@ namespace RepGame.UI
                 originalParent = transform.parent;
                 originalSiblingIndex = transform.GetSiblingIndex();
 
-                // 将卡牌从 GridLayoutGroup 中移除
-                transform.SetParent(originalParent.parent);
-
                 // 发光效果
                 ApplyGlowEffect(true);
 
-                // 向前移动
+                // 将卡牌移动到PlayContainer中
                 MoveForward();
 
                 // 发送选中卡牌的消息
@@ -111,21 +110,24 @@ namespace RepGame.UI
                 // 取消发光效果
                 ApplyGlowEffect(false);
 
-                // 恢复到原始父对象和索引
+                // 恢复到原始父对象
                 if (originalParent != null)
                 {
                     transform.SetParent(originalParent);
-                    transform.SetSiblingIndex(originalSiblingIndex);
+                    // 不再需要设置索引，卡牌会被添加到末尾
                 }
 
                 // 发送取消选中卡牌的消息
                 EventManager.TriggerEvent("CardDeselected", new CardSelectionData { CardID = CardID, Type = Type });
             }
-        }        public bool IsSelected { get; private set; } // 用于获取卡牌是否被选中
+        }
+
+        public bool IsSelected { get; private set; } // 用于获取卡牌是否被选中
         public bool IsLocked { get; private set; } // 用于获取卡牌是否被锁定
 
         public void Deselect()
         {
+            // 取消选中状态
             SetSelectionState(false);
         }
 
@@ -133,11 +135,11 @@ namespace RepGame.UI
         public void SetLockState(bool locked)
         {
             IsLocked = locked;
-            
+
             // 更新视觉效果，锁定时添加灰色蒙版效果
             UpdateLockVisual();
         }
-        
+
         // 更新锁定状态的视觉效果
         private void UpdateLockVisual()
         {
@@ -158,11 +160,13 @@ namespace RepGame.UI
                     image.color = Color.white;
                 }
             }
-        }        private void ApplyGlowEffect(bool glow)
+        }
+
+        private void ApplyGlowEffect(bool glow)
         {
             if (IsLocked) // 如果卡牌已锁定，不应用发光效果
                 return;
-                
+
             if (cardImage != null)
             {
                 if (glow && glowMaterial != null)
@@ -184,21 +188,32 @@ namespace RepGame.UI
                 }
             }
         }
-        
+
         private void MoveForward()
         {
-            RectTransform rectTransform = GetComponent<RectTransform>();
-            if (rectTransform != null)
-            {
-                // 计算向前移动的距离（卡牌高度）
-                float moveDistance = rectTransform.rect.height*1.2f;
+            // 查找名为PlayContainer的容器
+            Transform playContainer = originalParent.parent.Find("PlayContainer");
 
-                // 向上移动（在本地坐标系中，向上为正Y方向）
-                transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y + moveDistance, transform.localPosition.z);
+            if (playContainer == null)
+            {
+                Debug.LogWarning("找不到PlayContainer，将继续在原父对象的父级中显示卡牌");
+                // 如果找不到PlayContainer，就使用原始父对象的父级作为替代
+                transform.SetParent(originalParent.parent);
             }
+            else
+            {
+                // 将卡牌移动到PlayContainer中
+                transform.SetParent(playContainer);
+            }
+
+            // 重置本地位置，避免位置偏移
+            transform.localPosition = new Vector3(0, 0, 0);
+
+            // 保持原始缩放，不再放大
+            transform.localScale = Vector3.one;
         }
     }
-    
+
     // 用于传递卡牌选择数据的类
     [Serializable]
     public class CardSelectionData

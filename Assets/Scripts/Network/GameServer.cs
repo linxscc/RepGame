@@ -15,7 +15,7 @@ public class GameServer : MonoBehaviour, INetEventListener
     private NetManager _netServer;
     private Dictionary<int, Vector3> clientPositions = new Dictionary<int, Vector3>(); // 客户端ID和位置映射
     private List<int> connectedPlayers = new List<int>();
-    private CardManager cardManager = new CardManager();
+    private CardManager cardManager;
     private ClientPositionHandler clientPositionHandler = new ClientPositionHandler();
     private HandleNetworkRequest handleNetworkRequest; // 添加请求处理器
 
@@ -31,9 +31,8 @@ public class GameServer : MonoBehaviour, INetEventListener
     {
         _netServer = new NetManager(this);
         _netServer.Start(9050);
-        Debug.Log("[SERVER] Server started on port 9050");
-        
-        // 初始化网络请求处理器
+        Debug.Log("[SERVER] Server started on port 9050");        // 初始化网络请求处理器
+        cardManager = new CardManager(_netServer);
         handleNetworkRequest = new HandleNetworkRequest(
             _netServer,
             rooms,
@@ -111,14 +110,15 @@ public class GameServer : MonoBehaviour, INetEventListener
                 break;
             }
         }
-        }     public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
+    }
+    public void OnNetworkReceive(NetPeer peer, NetPacketReader reader, byte channelNumber, DeliveryMethod deliveryMethod)
     {
         string requestType = reader.GetString();
 
         if (requestType == "PlayCards")
         {
             // 存储卡牌数据以供后续处理并传递给请求处理器
-            string cardData = reader.GetString(); 
+            string cardData = reader.GetString();
             handleNetworkRequest.StorePendingCardData(peer, cardData);
         }
         else if (requestType == "CompCards")
@@ -131,7 +131,7 @@ public class GameServer : MonoBehaviour, INetEventListener
         // Enqueue the request for processing
         requestQueue.Enqueue((peer, requestType));
     }
-    
+
     private void RemovePlayerFromRoom(int playerId)
     {
         foreach (var room in rooms)
@@ -146,11 +146,12 @@ public class GameServer : MonoBehaviour, INetEventListener
                 {
                     rooms.Remove(room.Key);
                     Debug.Log($"[SERVER] Room {room.Key} deleted as it is empty.");
-                }                break;
+                }
+                break;
             }
         }
     }
-    
+
     private void ProcessRequestsInMainThread()
     {
         int processedRequests = 0;

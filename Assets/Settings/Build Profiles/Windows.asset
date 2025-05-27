@@ -112,7 +112,7 @@ MonoBehaviour:
     - line: '|   deferSystemGesturesMode: 0'
     - line: '|   hideHomeButton: 0'
     - line: '|   submitAnalytics: 1'
-    - line: '|   usePlayerLog: 1'
+    - line: '|   usePlayerLog: 0'
     - line: '|   dedicatedServerOptimizations: 1'
     - line: '|   bakeCollisionMeshes: 0'
     - line: '|   forceSingleInstance: 0'
