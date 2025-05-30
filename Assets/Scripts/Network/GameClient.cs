@@ -28,7 +28,7 @@ public class GameClient : MonoBehaviour, INetEventListener
         _netClient.PingInterval = 1000; // ping 间隔 1 秒
 
         _netClient.Start(0);
-        _netClient.Connect("127.0.0.1", 9050, "demo");
+        _netClient.Connect("127.0.0.1", 9060, "demo");
 
         // 初始化消息处理器
         _messageHandler = new RepGame.Network.GameClientLogic.NetworkMessageHandler();

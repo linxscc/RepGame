@@ -11,6 +11,7 @@ Prefab/
 Debug/
 structure/
 Texture/
+RepGameServer/
 # Ignore all DS_Store files
 .DS_Store
 UserSettings/
