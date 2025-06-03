@@ -5,17 +5,9 @@ namespace RepGameModels
     [System.Serializable]
     public class BondModel
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public List<string> Cards { get; set; }
-        public int Level { get; set; }
-        public float Damage { get; set; }
-        public string Description { get; set; }
-    }
-
-    [System.Serializable]
-    public class BondConfig
-    {
-        public BondModel[] Bonds;
+        public string Name;
+        public List<string> Cards;
+        public float Damage;
+        public string Description;
     }
 }
