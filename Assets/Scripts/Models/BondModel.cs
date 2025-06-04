@@ -6,7 +6,7 @@ namespace RepGameModels
     public class BondModel
     {
         public string Name;
-        public List<string> Cards;
+        public List<Card> Cards;
         public float Damage;
         public string Description;
     }

@@ -8,11 +8,11 @@ namespace RepGameModels
     public class TcpRequest<T>
     {
         public string message;
-        public int code;
+        public string code;
         public T Data;
 
 
-        public static string Serialize(int code, string message, T data)
+        public static string Serialize(string code, string message, T data)
         {
             TcpRequest<T> request = new TcpRequest<T>
             {
@@ -29,11 +29,11 @@ namespace RepGameModels
     public class TcpRequest
     {
         public string message;
-        public int code;
+        public string code;
         public string Data;
 
 
-        public static string Serialize(int code, string message, string data)
+        public static string Serialize(string code, string message, string data)
         {
             TcpRequest request = new TcpRequest
             {

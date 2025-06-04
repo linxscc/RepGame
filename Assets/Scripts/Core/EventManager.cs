@@ -79,6 +79,10 @@ namespace RepGame.Core
                     callback.Invoke(arg);
                 }
             }
+            else
+            {
+                Console.WriteLine($"Event '{eventName}' not found or no subscribers.");
+            }
         }
     }
 }

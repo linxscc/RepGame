@@ -143,13 +143,13 @@ public class GameTcpClient : MonoBehaviour
                         // 直接从JSON字符串中提取data部分                        
                         string dataContent = TcpMessageHandler.Instance.ExtractDataContent(jsonObject);
 
-                        if (response.code != 200)
+                        if (response.code != "200")
                         {
                             EventManager.TriggerEvent("NetworkError", response.message);
                             continue;
                         }
 
-                        EventManager.TriggerEvent(response.message, dataContent);
+                        EventManager.TriggerEvent(response.responsekey, dataContent);
                     }
                 }
             }
@@ -183,11 +183,11 @@ public class GameTcpClient : MonoBehaviour
         string json;
         if (data == null || (data is string s && string.IsNullOrEmpty(s)))
         {
-            json = TcpRequest.Serialize(0, messageType, "");
+            json = TcpRequest.Serialize("0", messageType, "");
         }
         else
         {
-            json = TcpRequest<T>.Serialize(0, messageType, data);
+            json = TcpRequest<T>.Serialize("0", messageType, data);
         }
 
         try

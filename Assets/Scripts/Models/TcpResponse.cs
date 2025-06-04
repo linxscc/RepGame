@@ -6,15 +6,17 @@ namespace RepGameModels
     public class TcpResponse
     {
         public object data;
-        public int code;
+        public string code;
         public string message;
+        public string responsekey;
     }
 
     [Serializable]
     public class TcpResponse<T>
     {
         public string message;
-        public int code;
+        public string code;
+        public string responsekey;
         public T Data;
 
     }

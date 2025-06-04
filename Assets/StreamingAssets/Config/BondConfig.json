@@ -1,130 +1,676 @@
 {
     "Bonds": [
         {
-            "Name": "学徒羁绊",
-            "Level": 1,
-            "Damage": 10.0,
-            "Cards": ["木匠学徒", "铁匠学徒", "农民学徒", "艺术学徒", "设计学徒"],
-            "Description": "所有工艺学徒共同追求技艺精进"
-        },
-        {
-            "Name": "反抗羁绊",
-            "Level": 1,
-            "Damage": 7.0,
-            "Cards": ["农民学徒", "吏员", "兵卒", "小贩"],
-            "Description": "底层民众团结一致"
-        },
-        {
             "Name": "修行之道",
             "Level": 1,
-            "Damage": 8.0,
-            "Cards": ["道童", "沙弥"],
+            "Damage": 4.0,
+            "Cards": [
+                "道童",
+                "沙弥"
+            ],
             "Description": "不同信仰的修行者"
-        },
-        {
-            "Name": "求知之路",
-            "Level": 1,
-            "Damage": 6.0,
-            "Cards": ["学生", "道童", "沙弥"],
-            "Description": "追求知识的年轻人"
-        },
-        {
-            "Name": "市井经济",
-            "Level": 1,
-            "Damage": 6.0,
-            "Cards": ["小贩", "木匠学徒", "铁匠学徒"],
-            "Description": "市场上的手艺人"
-        },
-        {
-            "Name": "医护之道",
-            "Level": 1,
-            "Damage": 5.0,
-            "Cards": ["医学生", "道童"],
-            "Description": "关注生命的医者"
         },
         {
             "Name": "艺术启蒙",
             "Level": 1,
-            "Damage": 5.0,
-            "Cards": ["艺术学徒", "设计学徒"],
+            "Damage": 4.0,
+            "Cards": [
+                "艺术学徒",
+                "设计学徒"
+            ],
             "Description": "艺术领域的学徒"
         },
         {
-            "Name": "工匠羁绊",
+            "Name": "工匠初心",
+            "Level": 1,
+            "Damage": 4.0,
+            "Cards": [
+                "木匠学徒",
+                "铁匠学徒"
+            ],
+            "Description": "工艺学徒的初始羁绊"
+        },
+        {
+            "Name": "劳动力量",
+            "Level": 1,
+            "Damage": 4.0,
+            "Cards": [
+                "农民学徒",
+                "兵卒"
+            ],
+            "Description": "劳动与军事的基础"
+        },
+        {
+            "Name": "求学路",
+            "Level": 1,
+            "Damage": 4.0,
+            "Cards": [
+                "学生",
+                "医学生"
+            ],
+            "Description": "求知的年轻人"
+        },
+        {
+            "Name": "服务民众",
+            "Level": 1,
+            "Damage": 4.0,
+            "Cards": [
+                "吏员",
+                "小贩"
+            ],
+            "Description": "为民服务的基层"
+        },
+        {
+            "Name": "医护之道",
+            "Level": 1,
+            "Damage": 4.0,
+            "Cards": [
+                "医学生",
+                "道童"
+            ],
+            "Description": "关注生命的医者"
+        },
+        {
+            "Name": "军政基础",
+            "Level": 1,
+            "Damage": 4.0,
+            "Cards": [
+                "兵卒",
+                "吏员"
+            ],
+            "Description": "军事与政治的基础"
+        },
+        {
+            "Name": "文武之道",
+            "Level": 1,
+            "Damage": 4.0,
+            "Cards": [
+                "学生",
+                "兵卒"
+            ],
+            "Description": "文武并重"
+        },
+        {
+            "Name": "创意火花",
+            "Level": 1,
+            "Damage": 4.0,
+            "Cards": [
+                "设计学徒",
+                "学生"
+            ],
+            "Description": "设计与学习的结合"
+        },
+        {
+            "Name": "手工艺术",
+            "Level": 1,
+            "Damage": 4.0,
+            "Cards": [
+                "木匠学徒",
+                "艺术学徒"
+            ],
+            "Description": "手工与艺术的结合"
+        },
+        {
+            "Name": "实用技能",
+            "Level": 1,
+            "Damage": 4.0,
+            "Cards": [
+                "铁匠学徒",
+                "医学生"
+            ],
+            "Description": "实用性技能"
+        },
+        {
+            "Name": "传统工艺",
+            "Level": 1,
+            "Damage": 4.0,
+            "Cards": [
+                "木匠学徒",
+                "农民学徒"
+            ],
+            "Description": "传统工艺的传承"
+        },
+        {
+            "Name": "商业萌芽",
+            "Level": 1,
+            "Damage": 4.0,
+            "Cards": [
+                "小贩",
+                "设计学徒"
+            ],
+            "Description": "商业与设计的结合"
+        },
+        {
+            "Name": "服务意识",
+            "Level": 1,
+            "Damage": 4.0,
+            "Cards": [
+                "医学生",
+                "吏员"
+            ],
+            "Description": "为民服务的意识"
+        },
+        {
+            "Name": "武道初心",
+            "Level": 1,
+            "Damage": 4.0,
+            "Cards": [
+                "兵卒",
+                "道童"
+            ],
+            "Description": "武道与修行的初心"
+        },
+        {
+            "Name": "民间智慧",
+            "Level": 1,
+            "Damage": 4.0,
+            "Cards": [
+                "农民学徒",
+                "学生"
+            ],
+            "Description": "民间与学院智慧"
+        },
+        {
+            "Name": "信仰启蒙",
+            "Level": 1,
+            "Damage": 6.0,
+            "Cards": [
+                "道童",
+                "沙弥",
+                "学生"
+            ],
+            "Description": "求知与信仰的结合"
+        },
+        {
+            "Name": "市井生活",
+            "Level": 1,
+            "Damage": 6.0,
+            "Cards": [
+                "小贩",
+                "木匠学徒",
+                "铁匠学徒"
+            ],
+            "Description": "市场上的手艺人"
+        },
+        {
+            "Name": "创作基础",
+            "Level": 1,
+            "Damage": 6.0,
+            "Cards": [
+                "艺术学徒",
+                "学生",
+                "设计学徒"
+            ],
+            "Description": "创作与学习"
+        },
+        {
+            "Name": "底层反抗",
+            "Level": 1,
+            "Damage": 6.0,
+            "Cards": [
+                "农民学徒",
+                "吏员",
+                "兵卒"
+            ],
+            "Description": "底层民众的团结"
+        },
+        {
+            "Name": "技艺传承",
+            "Level": 1,
+            "Damage": 6.0,
+            "Cards": [
+                "木匠学徒",
+                "铁匠学徒",
+                "医学生"
+            ],
+            "Description": "传统技艺的传承"
+        },
+        {
+            "Name": "民生基础",
+            "Level": 1,
+            "Damage": 6.0,
+            "Cards": [
+                "农民学徒",
+                "医学生",
+                "小贩"
+            ],
+            "Description": "民生相关职业"
+        },
+        {
+            "Name": "社会基层",
+            "Level": 1,
+            "Damage": 6.0,
+            "Cards": [
+                "小贩",
+                "农民学徒",
+                "吏员"
+            ],
+            "Description": "社会基层的联合"
+        },
+        {
+            "Name": "精神追求",
+            "Level": 1,
+            "Damage": 6.0,
+            "Cards": [
+                "道童",
+                "学生",
+                "艺术学徒"
+            ],
+            "Description": "精神层面的追求"
+        },
+        {
+            "Name": "创造基因",
+            "Level": 1,
+            "Damage": 6.0,
+            "Cards": [
+                "艺术学徒",
+                "铁匠学徒",
+                "设计学徒"
+            ],
+            "Description": "创造性职业的联合"
+        },
+        {
+            "Name": "基础建设",
+            "Level": 1,
+            "Damage": 6.0,
+            "Cards": [
+                "木匠学徒",
+                "铁匠学徒",
+                "农民学徒"
+            ],
+            "Description": "社会基础建设"
+        },
+        {
+            "Name": "青年力量",
+            "Level": 1,
+            "Damage": 8.0,
+            "Cards": [
+                "学生",
+                "艺术学徒",
+                "设计学徒",
+                "医学生"
+            ],
+            "Description": "年轻一代的力量"
+        },
+        {
+            "Name": "学徒联盟",
+            "Level": 1,
+            "Damage": 8.0,
+            "Cards": [
+                "木匠学徒",
+                "铁匠学徒",
+                "农民学徒",
+                "艺术学徒"
+            ],
+            "Description": "工艺学徒的大联盟"
+        },
+        {
+            "Name": "全民启蒙",
+            "Level": 1,
+            "Damage": 8.0,
+            "Cards": [
+                "学生",
+                "道童",
+                "沙弥",
+                "医学生"
+            ],
+            "Description": "全民教育与启蒙"
+        },
+        {
+            "Name": "文化基础",
+            "Level": 1,
+            "Damage": 10.0,
+            "Cards": [
+                "学生",
+                "艺术学徒",
+                "设计学徒",
+                "道童",
+                "沙弥"
+            ],
+            "Description": "文化与精神的基础"
+        },
+        {
+            "Name": "社会支柱",
+            "Level": 1,
+            "Damage": 10.0,
+            "Cards": [
+                "农民学徒",
+                "医学生",
+                "兵卒",
+                "吏员",
+                "小贩"
+            ],
+            "Description": "构成社会的五大支柱"
+        },
+        {
+            "Name": "工艺大师",
+            "Level": 1,
+            "Damage": 12.0,
+            "Cards": [
+                "木匠学徒",
+                "铁匠学徒",
+                "农民学徒",
+                "艺术学徒",
+                "设计学徒",
+                "医学生"
+            ],
+            "Description": "各种工艺的大师级组合"
+        },
+        {
+            "Name": "基层英雄",
+            "Level": 1,
+            "Damage": 33.0,
+            "Cards": [
+                "木匠学徒",
+                "铁匠学徒",
+                "农民学徒",
+                "医学生",
+                "兵卒",
+                "学生",
+                "道童"
+            ],
+            "Description": "社会基层的英雄联盟"
+        },
+        {
+            "Name": "天下学子",
+            "Level": 1,
+            "Damage": 33.0,
+            "Cards": [
+                "学生",
+                "医学生",
+                "艺术学徒",
+                "设计学徒",
+                "道童",
+                "沙弥",
+                "吏员"
+            ],
+            "Description": "各行各业的学子联盟"
+        },
+        {
+            "Name": "民族脊梁",
+            "Level": 1,
+            "Damage": 33.0,
+            "Cards": [
+                "农民学徒",
+                "木匠学徒",
+                "铁匠学徒",
+                "兵卒",
+                "医学生",
+                "吏员",
+                "小贩"
+            ],
+            "Description": "支撑民族的脊梁力量"
+        },
+        {
+            "Name": "工匠精神",
             "Level": 2,
             "Damage": 15.0,
-            "Cards": ["木匠", "铁匠"],
-            "Description": "熟练的工匠"
+            "Cards": [
+                "木匠",
+                "铁匠",
+                "百工专家"
+            ],
+            "Description": "熟练工匠的精神"
         },
         {
-            "Name": "民生羁绊",
+            "Name": "民生保障",
             "Level": 2,
-            "Damage": 12.0,
-            "Cards": ["农民", "医师"],
-            "Description": "关注民生的能手"
+            "Damage": 14.0,
+            "Cards": [
+                "农民",
+                "医师",
+                "游商"
+            ],
+            "Description": "民生相关的保障"
         },
         {
-            "Name": "艺术羁绊",
+            "Name": "艺术传承",
             "Level": 2,
-            "Damage": 12.0,
-            "Cards": ["梦想家", "设计师"],
-            "Description": "艺术领域的大师"
+            "Damage": 16.0,
+            "Cards": [
+                "梦想家",
+                "设计师",
+                "艺术家"
+            ],
+            "Description": "艺术领域的传承"
         },
         {
-            "Name": "执政羁绊",
+            "Name": "治理之道",
             "Level": 2,
             "Damage": 18.0,
-            "Cards": ["官员", "老兵"],
-            "Description": "治国能臣"
+            "Cards": [
+                "官员",
+                "老兵",
+                "学者"
+            ],
+            "Description": "治国理政的智慧"
         },
         {
-            "Name": "信仰羁绊",
+            "Name": "信仰力量",
+            "Level": 2,
+            "Damage": 17.0,
+            "Cards": [
+                "道士",
+                "和尚",
+                "住持"
+            ],
+            "Description": "宗教信仰的力量"
+        },
+        {
+            "Name": "商业网络",
+            "Level": 2,
+            "Damage": 13.0,
+            "Cards": [
+                "游商",
+                "商人",
+                "官员"
+            ],
+            "Description": "商业与政治的结合"
+        },
+        {
+            "Name": "知识传播",
+            "Level": 2,
+            "Damage": 16.0,
+            "Cards": [
+                "学者",
+                "教授",
+                "道士"
+            ],
+            "Description": "知识的传播与发展"
+        },
+        {
+            "Name": "军政联合",
+            "Level": 2,
+            "Damage": 20.0,
+            "Cards": [
+                "老兵",
+                "统领",
+                "官员"
+            ],
+            "Description": "军事与政治的联合"
+        },
+        {
+            "Name": "技艺融合",
             "Level": 2,
             "Damage": 15.0,
-            "Cards": ["道士", "和尚"],
-            "Description": "有成就的修行者"
+            "Cards": [
+                "木匠",
+                "铁匠",
+                "医师",
+                "设计师"
+            ],
+            "Description": "不同技艺的融合"
         },
         {
-            "Name": "百工羁绊",
-            "Level": 3,
-            "Damage": 20.0,
-            "Cards": ["百工专家", "木匠", "铁匠"],
-            "Description": "技艺之巅"
+            "Name": "社会精英",
+            "Level": 2,
+            "Damage": 22.0,
+            "Cards": [
+                "学者",
+                "官员",
+                "梦想家",
+                "医师"
+            ],
+            "Description": "社会各界精英"
         },
         {
-            "Name": "艺术大师",
-            "Level": 3,
-            "Damage": 25.0,
-            "Cards": ["艺术家", "梦想家", "设计师"],
-            "Description": "艺术之巅"
+            "Name": "五行合一",
+            "Level": 2,
+            "Damage": 33.0,
+            "Cards": [
+                "木匠",
+                "铁匠",
+                "农民",
+                "医师",
+                "道士"
+            ],
+            "Description": "五大Level 2职业的完美结合"
         },
         {
-            "Name": "统治羁绊",
+            "Name": "百工之巅",
             "Level": 3,
             "Damage": 30.0,
-            "Cards": ["相国", "统领", "官员"],
-            "Description": "权力巅峰"
+            "Cards": [
+                "百工专家",
+                "木匠",
+                "铁匠",
+                "医师",
+                "农民"
+            ],
+            "Description": "工艺技术的最高境界"
         },
         {
-            "Name": "文道圣贤",
+            "Name": "艺术至尊",
             "Level": 3,
-            "Damage": 25.0,
-            "Cards": ["教授", "道士", "和尚"],
-            "Description": "学识与信仰的统一"
+            "Damage": 32.0,
+            "Cards": [
+                "艺术家",
+                "梦想家",
+                "设计师",
+                "教授"
+            ],
+            "Description": "艺术与智慧的完美结合"
+        },
+        {
+            "Name": "权力中枢",
+            "Level": 3,
+            "Damage": 35.0,
+            "Cards": [
+                "相国",
+                "统领",
+                "官员",
+                "老兵"
+            ],
+            "Description": "国家权力的核心"
+        },
+        {
+            "Name": "精神领袖",
+            "Level": 3,
+            "Damage": 28.0,
+            "Cards": [
+                "住持",
+                "教授",
+                "道士",
+                "和尚"
+            ],
+            "Description": "精神与智慧的领导者"
+        },
+        {
+            "Name": "商业帝国",
+            "Level": 3,
+            "Damage": 26.0,
+            "Cards": [
+                "商人",
+                "游商",
+                "相国",
+                "百工专家"
+            ],
+            "Description": "商业与政治的完美结合"
+        },
+        {
+            "Name": "文武双全",
+            "Level": 3,
+            "Damage": 33.0,
+            "Cards": [
+                "教授",
+                "统领",
+                "学者",
+                "老兵"
+            ],
+            "Description": "文武兼备的治世之才"
+        },
+        {
+            "Name": "创新联盟",
+            "Level": 3,
+            "Damage": 29.0,
+            "Cards": [
+                "艺术家",
+                "百工专家",
+                "教授",
+                "设计师"
+            ],
+            "Description": "创新技术的联盟"
+        },
+        {
+            "Name": "治世联盟",
+            "Level": 3,
+            "Damage": 40.0,
+            "Cards": [
+                "相国",
+                "教授",
+                "住持",
+                "统领",
+                "商人"
+            ],
+            "Description": "治理天下的完美组合"
         },
         {
             "Name": "天人合一",
             "Level": 4,
-            "Damage": 70.0,
-            "Cards": ["教授", "百工专家"],
-            "Description": "智慧与技艺的完美统一"
+            "Damage": 75.0,
+            "Cards": [
+                "教授",
+                "住持"
+            ],
+            "Description": "智慧与信仰的完美统一"
         },
         {
             "Name": "权势巅峰",
             "Level": 4,
-            "Damage": 70.0,
-            "Cards": ["相国", "住持"],
-            "Description": "权力与信仰的完美融合"
+            "Damage": 80.0,
+            "Cards": [
+                "相国",
+                "统领"
+            ],
+            "Description": "政治与军事的完美融合"
+        },
+        {
+            "Name": "文明之光",
+            "Level": 4,
+            "Damage": 85.0,
+            "Cards": [
+                "教授"
+            ],
+            "Description": "文明发展的最高体现"
+        },
+        {
+            "Name": "至尊联盟",
+            "Level": 4,
+            "Damage": 90.0,
+            "Cards": [
+                "相国",
+                "教授"
+            ],
+            "Description": "政治与学术的至高联盟"
+        },
+        {
+            "Name": "完美世界",
+            "Level": 4,
+            "Damage": 100.0,
+            "Cards": [
+                "相国"
+            ],
+            "Description": "理想世界的完美体现"
         }
     ]
 }

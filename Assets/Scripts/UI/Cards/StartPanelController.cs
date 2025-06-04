@@ -42,14 +42,19 @@ namespace RepGame.UI
             // 使用GameTcpClient单例模式
             GameTcpClient.Instance.SendMessageToServer("UserReady", "");
 
-
-
+            startGameButton.interactable = false;
             infoText.text = "等待其他玩家准备...";
         }
         private void OnStartGameResult(object result)
         {
+            if (result == null)
+            {
+                infoText.text = "对局已拒绝，请重新开始游戏！";
+                startGameButton.interactable = true;
+                return;
+            }
             ResPlayerGameInfo playerGameInfo = TcpMessageHandler.Instance.ConvertJsonObject<ResPlayerGameInfo>(result);
-            Debug.Log($"游戏初始化结果: {playerGameInfo?.room_id}");
+            Debug.Log($"游戏初始化结果: {playerGameInfo?.Room_Id}");
             if (playerGameInfo != null)
             {
                 // 更新玩家信息
@@ -60,6 +65,7 @@ namespace RepGame.UI
             {
                 infoText.text = "游戏初始化失败，请稍后再试。";
             }
+            startGameButton.interactable = true;
 
             // 隐藏开始面板，显示主面板
             UIPanelController.Instance.HidePanel(PANEL_NAME);

@@ -76,7 +76,7 @@ public class PanelRegisterController : UIBase
             return;
         }
         // 发送注册请求，使用LoginData类
-        LoginData loginData = new LoginData { Username = username, Password = password };
+        UserAccount loginData = new UserAccount { Username = username, Password = password };
         // 使用GameTcpClient单例模式
         GameTcpClient.Instance.SendMessageToServer("UserRegister", loginData);
     }
@@ -85,20 +85,29 @@ public class PanelRegisterController : UIBase
         // 使用UIPanelController隐藏注册面板并显示登录面板
         UIPanelController.Instance.HidePanel(PANEL_NAME);
         UIPanelController.Instance.ShowPanel(LOGIN_PANEL_NAME);
+        inputUserName.text = string.Empty;
+        inputPassword.text = string.Empty;
+        inputRepeatPassword.text = string.Empty;
     }
 
-    private void OnRegisterResult(string data)
+    private void OnRegisterResult(object data)
     {
-        // 注册结果回调，data为服务器返回内容
         if (data == null)
         {
             infoText.text = "注册失败，服务器无响应";
             return;
         }
-        infoText.text = data;
-        if (data == "用户创建成功")
+        UserRegisterResponse userRegisterResponse = TcpMessageHandler.Instance.ConvertJsonObject<UserRegisterResponse>(data);
+        // 注册结果回调，data为服务器返回内容
+        if (userRegisterResponse == null)
         {
-            Invoke(nameof(OnGoToLoginClick), 30f);
+            infoText.text = "注册失败，服务器无响应";
+            return;
+        }
+        infoText.text = userRegisterResponse.message;
+        if (userRegisterResponse.message == "用户创建成功")
+        {
+            Invoke(nameof(OnGoToLoginClick), 0.5f);
 
         }
     }
@@ -137,4 +146,10 @@ public class PanelRegisterController : UIBase
             inputField.text = filtered;
         }
     }
+}
+
+public class UserRegisterResponse
+{
+    public string username;
+    public string message;
 }

@@ -5,7 +5,7 @@ using RepGame.UI;
 using RepGameModels;
 using RepGame.Core;
 using RepGame;
-using System;
+using RepGame.GameLogic;
 using System.Text.RegularExpressions;
 
 public class PanelLoginController : UIBase
@@ -42,13 +42,13 @@ public class PanelLoginController : UIBase
     void OnEnable()
     {
         // 订阅登录结果事件（带参数）
-        EventManager.Subscribe<string>("UserLogin", OnLoginResult);
+        EventManager.Subscribe<object>("UserLogin", OnLoginResult);
     }
 
     void OnDisable()
     {
         // 取消订阅登录结果事件
-        EventManager.Unsubscribe<string>("UserLogin", OnLoginResult);
+        EventManager.Unsubscribe<object>("UserLogin", OnLoginResult);
     }
 
     private void OnLoginClick()
@@ -70,7 +70,7 @@ public class PanelLoginController : UIBase
             return;
         }
         // 发送登录请求
-        LoginData loginData = new LoginData { Username = username, Password = password };
+        UserAccount loginData = new UserAccount { Username = username, Password = password };
         // 使用GameTcpClient单例模式
         GameTcpClient.Instance.SendMessageToServer("UserLogin", loginData);
     }
@@ -85,7 +85,7 @@ public class PanelLoginController : UIBase
     {
         Application.Quit();
     }
-    private void OnLoginResult(string data)
+    private void OnLoginResult(object data)
     {
         // 登录结果回调，data为服务器返回内容
         if (data == null)
@@ -93,11 +93,13 @@ public class PanelLoginController : UIBase
             infoText.text = "登录失败，服务器无响应";
             return;
         }
-        infoText.text = data;
-        if (data == "用户登录成功")
+        UserInfo userRegisterResponse = TcpMessageHandler.Instance.ConvertJsonObject<UserInfo>(data);
+
+        if (userRegisterResponse.username != string.Empty)
         {
+            UserAccountManager.Instance.SetUsername(userRegisterResponse.username);
             // 登录成功后隐藏登录面板，显示开始面板
-            Invoke(nameof(GotoStartPanel), 0.5f);
+            Invoke(nameof(GotoStartPanel), 0.1f);
         }
     }
 
@@ -106,6 +108,9 @@ public class PanelLoginController : UIBase
         // 初始化时隐藏登录面板
         UIPanelController.Instance.HidePanel(PANEL_NAME);
         UIPanelController.Instance.ShowPanel(START_PANEL_NAME);
+        inputUserName.text = string.Empty;
+        inputPassword.text = string.Empty;
+        infoText.text = "";
     }
 
     private void OnUserNameChanged(string value)
