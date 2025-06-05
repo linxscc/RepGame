@@ -35,7 +35,7 @@ public class GameTcpClient : MonoBehaviour
 
     private TcpClient client;
     private NetworkStream stream;
-    private byte[] buffer = new byte[1024];
+    private byte[] buffer = new byte[8192];
     private bool isReconnecting = false;
     private float reconnectInterval = 5f; // 重连间隔时间（秒）
     private int maxReconnectAttempts = 5; // 最大重连尝试次数
@@ -131,6 +131,7 @@ public class GameTcpClient : MonoBehaviour
                 {
                     int bytes = stream.Read(buffer, 0, buffer.Length);
                     string jsonString = Encoding.UTF8.GetString(buffer, 0, bytes);
+                    Debug.Log($"收到json: {jsonString}");
                     // 解析 message 和 data 字段
                     int start = jsonString.IndexOf('{');
                     int end = jsonString.LastIndexOf('}');
