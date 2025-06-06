@@ -13,6 +13,8 @@ namespace RepGame.UI
         public string CardID { get; set; }
         public CardType Type { get; set; }
 
+        public string CardName { get; set; }
+
         private Vector3 originalPosition;
         private Image cardImage;
         private bool isSelected = false;
@@ -38,6 +40,39 @@ namespace RepGame.UI
             originalPosition = transform.position;
         }
 
+        void Start()
+        {
+            // 订阅清除所有卡牌选择的事件
+            EventManager.Subscribe("ClearAllCardSelection", OnClearAllCardSelection);
+        }
+
+        void OnDestroy()
+        {
+            // 取消订阅事件
+            EventManager.Unsubscribe("ClearAllCardSelection", OnClearAllCardSelection);
+        }
+
+        /// <summary>
+        /// 处理清除所有卡牌选择的事件
+        /// </summary>
+        private void OnClearAllCardSelection()
+        {
+            if (IsSelected)
+            {
+                // 直接重置选中状态，不发送取消选中的消息
+                IsSelected = false;
+
+                // 取消发光效果
+                ApplyGlowEffect(false);
+
+                // 恢复到原始父对象
+                if (originalParent != null)
+                {
+                    transform.SetParent(originalParent);
+                }
+            }
+        }
+
         public void Init(string cardID, CardType type)
         {
             CardID = cardID;
@@ -45,6 +80,16 @@ namespace RepGame.UI
 
             // 根据卡牌类型设置额外的视觉效果或属性
             // 例如不同类型的卡牌可能有不同的背景色
+            SetCardAppearance();
+        }
+
+        public void Init(string cardID, string cardName)
+        {
+            CardID = cardID;
+            CardName = cardName;
+
+            // 根据卡牌名称设置额外的视觉效果或属性
+            // 例如可以在卡牌上显示名称
             SetCardAppearance();
         }
 
@@ -103,7 +148,7 @@ namespace RepGame.UI
                 MoveForward();
 
                 // 发送选中卡牌的消息
-                EventManager.TriggerEvent("CardSelected", new CardSelectionData { CardID = CardID, Type = Type });
+                EventManager.TriggerEvent("CardSelected", CardID);
             }
             else
             {
@@ -118,7 +163,7 @@ namespace RepGame.UI
                 }
 
                 // 发送取消选中卡牌的消息
-                EventManager.TriggerEvent("CardDeselected", new CardSelectionData { CardID = CardID, Type = Type });
+                EventManager.TriggerEvent("CardDeselected", CardID);
             }
         }
 
@@ -220,5 +265,7 @@ namespace RepGame.UI
     {
         public string CardID;
         public CardType Type;
+        public string CardName;
+
     }
 }

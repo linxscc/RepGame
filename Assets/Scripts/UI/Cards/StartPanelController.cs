@@ -3,6 +3,8 @@ using UnityEngine.UI;
 using RepGame.Core;
 using TMPro;
 using RepGameModels;
+using System.Collections.Generic;
+using RepGame.GameLogic;
 
 namespace RepGame.UI
 {
@@ -27,13 +29,15 @@ namespace RepGame.UI
         void OnEnable()
         {
             // 订阅登录结果事件（带参数）
-            EventManager.Subscribe<object>("InitializationCardGame", OnStartGameResult);
+            EventManager.Subscribe<object>("InitializationCardGame", OnUserReadyResult);
+            EventManager.Subscribe<object>("InitializationCardBonds", OnBondModelInit);
         }
 
         void OnDisable()
         {
             // 取消订阅登录结果事件
-            EventManager.Unsubscribe<object>("InitializationCardGame", OnStartGameResult);
+            EventManager.Unsubscribe<object>("InitializationCardGame", OnUserReadyResult);
+            EventManager.Unsubscribe<object>("InitializationCardBonds", OnBondModelInit);
         }
 
         private void OnStartGameClicked()
@@ -45,7 +49,7 @@ namespace RepGame.UI
             startGameButton.interactable = false;
             infoText.text = "等待其他玩家准备...";
         }
-        private void OnStartGameResult(object result)
+        private void OnUserReadyResult(object result)
         {
             if (result == null)
             {
@@ -54,22 +58,45 @@ namespace RepGame.UI
                 return;
             }
             ResPlayerGameInfo playerGameInfo = TcpMessageHandler.Instance.ConvertJsonObject<ResPlayerGameInfo>(result);
-            Debug.Log($"游戏初始化结果: {playerGameInfo?.Room_Id}");
             if (playerGameInfo != null)
             {
                 // 更新玩家信息
 
-                infoText.text = "游戏已开始！";
+                infoText.text += "匹配成功，创建房间中...";
             }
             else
             {
                 infoText.text = "游戏初始化失败，请稍后再试。";
             }
+
+            // 登录成功后隐藏登录面板，显示开始面板
+            Invoke(nameof(ClearStartPanel), 0.5f);
+
+        }
+
+        private void ClearStartPanel()
+        {
             startGameButton.interactable = true;
 
             // 隐藏开始面板，显示主面板
             UIPanelController.Instance.HidePanel(PANEL_NAME);
             UIPanelController.Instance.ShowPanel(MAIN_PANEL_NAME);
+            EventManager.TriggerEvent("StartGame");
+        }
+
+        private void OnBondModelInit(object bonds)
+        {
+            // 处理绑定模型初始化逻辑
+            if (bonds != null)
+            {
+                List<BondModel> gameBondModelInfo = TcpMessageHandler.Instance.ConvertJsonObject<List<BondModel>>(bonds);
+                BondManager.Instance.SetBonds(gameBondModelInfo);
+
+            }
+            else
+            {
+                Debug.Log("没有绑定模型需要初始化。");
+            }
         }
 
 

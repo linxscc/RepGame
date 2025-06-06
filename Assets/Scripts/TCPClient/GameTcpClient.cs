@@ -32,14 +32,15 @@ public class GameTcpClient : MonoBehaviour
             return _instance;
         }
     }
-
     private TcpClient client;
     private NetworkStream stream;
-    private byte[] buffer = new byte[8192];
+    private List<byte> messageBuffer = new List<byte>(); // 动态缓冲区
+    private byte[] readBuffer = new byte[4096]; // 临时读取缓冲区
     private bool isReconnecting = false;
     private float reconnectInterval = 5f; // 重连间隔时间（秒）
     private int maxReconnectAttempts = 5; // 最大重连尝试次数
     private int reconnectAttempts = 0;
+    private const int MAX_MESSAGE_SIZE = 1024 * 1024; // 最大消息大小1MB
 
     void Start()
     {
@@ -120,7 +121,6 @@ public class GameTcpClient : MonoBehaviour
 
         isReconnecting = false;
     }
-
     private IEnumerator CheckServerResponse()
     {
         while (client != null && client.Connected)
@@ -129,28 +129,26 @@ public class GameTcpClient : MonoBehaviour
             {
                 if (stream != null && stream.DataAvailable)
                 {
-                    int bytes = stream.Read(buffer, 0, buffer.Length);
-                    string jsonString = Encoding.UTF8.GetString(buffer, 0, bytes);
-                    Debug.Log($"收到json: {jsonString}");
-                    // 解析 message 和 data 字段
-                    int start = jsonString.IndexOf('{');
-                    int end = jsonString.LastIndexOf('}');
-                    if (start >= 0 && end > start)
+                    // 读取数据到临时缓冲区
+                    int bytesRead = stream.Read(readBuffer, 0, readBuffer.Length);
+                    if (bytesRead > 0)
                     {
-                        string jsonObject = jsonString.Substring(start, end - start + 1);
-                        TcpResponse response = JsonUtility.FromJson<TcpResponse>(jsonObject);
-                        Debug.Log($"收到响应: {jsonObject}");
-
-                        // 直接从JSON字符串中提取data部分                        
-                        string dataContent = TcpMessageHandler.Instance.ExtractDataContent(jsonObject);
-
-                        if (response.code != "200")
+                        // 将读取的数据添加到消息缓冲区
+                        for (int i = 0; i < bytesRead; i++)
                         {
-                            EventManager.TriggerEvent("NetworkError", response.message);
+                            messageBuffer.Add(readBuffer[i]);
+                        }
+
+                        // 检查缓冲区大小，防止内存溢出
+                        if (messageBuffer.Count > MAX_MESSAGE_SIZE)
+                        {
+                            Debug.LogError("接收到的消息过大，清空缓冲区");
+                            messageBuffer.Clear();
                             continue;
                         }
 
-                        EventManager.TriggerEvent(response.responsekey, dataContent);
+                        // 尝试从缓冲区中提取完整的JSON消息
+                        ProcessCompleteMessages();
                     }
                 }
             }
@@ -158,8 +156,124 @@ public class GameTcpClient : MonoBehaviour
             {
                 Debug.LogError($"处理服务器响应时发生错误: {ex.Message}");
                 EventManager.TriggerEvent("NetworkError", "处理响应数据时发生错误");
+
+                // 清空缓冲区以防止数据污染
+                messageBuffer.Clear();
             }
             yield return null; // 每帧检测一次
+        }
+    }
+
+    /// <summary>
+    /// 从缓冲区中提取并处理完整的JSON消息
+    /// </summary>
+    private void ProcessCompleteMessages()
+    {
+        while (messageBuffer.Count > 0)
+        {
+            // 转换为字符串进行JSON解析
+            string bufferString = Encoding.UTF8.GetString(messageBuffer.ToArray());
+
+            // 查找第一个完整的JSON对象
+            int jsonStart = bufferString.IndexOf('{');
+            if (jsonStart == -1)
+            {
+                // 没有找到JSON开始标记，清空缓冲区
+                messageBuffer.Clear();
+                break;
+            }
+
+            // 从JSON开始位置查找完整的JSON对象
+            int braceCount = 0;
+            int jsonEnd = -1;
+            bool inString = false;
+            bool escapeNext = false;
+
+            for (int i = jsonStart; i < bufferString.Length; i++)
+            {
+                char c = bufferString[i];
+
+                if (escapeNext)
+                {
+                    escapeNext = false;
+                    continue;
+                }
+
+                if (c == '\\' && inString)
+                {
+                    escapeNext = true;
+                    continue;
+                }
+
+                if (c == '"' && !escapeNext)
+                {
+                    inString = !inString;
+                    continue;
+                }
+
+                if (!inString)
+                {
+                    if (c == '{')
+                    {
+                        braceCount++;
+                    }
+                    else if (c == '}')
+                    {
+                        braceCount--;
+                        if (braceCount == 0)
+                        {
+                            jsonEnd = i;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (jsonEnd != -1)
+            {
+                // 找到完整的JSON对象
+                string jsonObject = bufferString.Substring(jsonStart, jsonEnd - jsonStart + 1);
+
+                // 从缓冲区中移除已处理的数据
+                int bytesProcessed = Encoding.UTF8.GetByteCount(bufferString.Substring(0, jsonEnd + 1));
+                messageBuffer.RemoveRange(0, Math.Min(bytesProcessed, messageBuffer.Count));
+
+                // 处理这个完整的JSON消息
+                ProcessJsonMessage(jsonObject);
+            }
+            else
+            {
+                // 没有找到完整的JSON对象，等待更多数据
+                break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 处理单个完整的JSON消息
+    /// </summary>
+    private void ProcessJsonMessage(string jsonObject)
+    {
+        try
+        {
+            Debug.Log($"处理jsonObject数据: {jsonObject}");
+            TcpResponse response = JsonUtility.FromJson<TcpResponse>(jsonObject);
+
+            // 直接从JSON字符串中提取data部分                        
+            string dataContent = TcpMessageHandler.Instance.ExtractDataContent(jsonObject);
+
+            if (response.code != "200")
+            {
+                EventManager.TriggerEvent("NetworkError", response.message);
+                return;
+            }
+
+            EventManager.TriggerEvent(response.responsekey, dataContent);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError($"解析JSON消息时发生错误: {ex.Message}");
+            Debug.LogError($"问题JSON: {jsonObject}");
         }
     }
 
@@ -235,11 +349,9 @@ public class GameTcpClient : MonoBehaviour
         {
             _instance = null;
         }
-    }
-
-    /// <summary>
-    /// 断开与服务器的连接
-    /// </summary>
+    }    /// <summary>
+         /// 断开与服务器的连接
+         /// </summary>
     public void DisconnectFromServer()
     {
         try
@@ -255,6 +367,9 @@ public class GameTcpClient : MonoBehaviour
                 client.Close();
                 client = null;
             }
+
+            // 清空消息缓冲区
+            messageBuffer.Clear();
 
             Debug.Log("已断开与服务器的连接");
         }
