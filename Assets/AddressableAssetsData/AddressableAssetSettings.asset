@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: c01e166e8433abe4ead837d42c73c975
   m_currentHash:
     serializedVersion: 2
-    Hash: 00000000000000000000000000000000
+    Hash: bbb3dd60a0f4fb1d2a41bb2d67c0c7d0
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_CatalogRequestsTimeout: 0
@@ -101,6 +101,7 @@ MonoBehaviour:
   m_LabelTable:
     m_LabelNames:
     - default
+    - CardPrefabs
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 1a1dbd148b592a445bdb07ee52c7d39a, type: 2}

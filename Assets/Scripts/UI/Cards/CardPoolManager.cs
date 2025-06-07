@@ -26,9 +26,9 @@ namespace RepGame.UI
                 return _instance;
             }
         }
-
         [Header("预制体路径配置")]
-        [SerializeField] private string cardPrefabPath = "Assets/Prefabs/Cards/";
+        [SerializeField] private string cardPrefabLabel = "CardPrefabs"; // Addressables标签
+        [SerializeField] private string cardPrefabPath = "Assets/Prefabs/Cards/"; // 备用路径（用于调试）
         [SerializeField] private string prefabExtension = ".prefab";        // 预制体存储
         private Dictionary<string, GameObject> cardPrefabs = new Dictionary<string, GameObject>();
 
@@ -39,8 +39,9 @@ namespace RepGame.UI
         private HashSet<string> loadedPrefabs = new HashSet<string>();
 
         [Header("对象池配置")]
-        [SerializeField] private int defaultPoolSize = 100;
-        [SerializeField] private Transform poolContainer; private void Awake()
+        [SerializeField] private int defaultPoolSize = 17;
+        [SerializeField] private Transform poolContainer;
+        private void Awake()
         {
             if (_instance != null && _instance != this)
             {
@@ -63,14 +64,93 @@ namespace RepGame.UI
                 container.SetActive(false); // 隐藏对象池容器
                 poolContainer = container.transform;
             }
-        }
-
-        /// <summary>
-        /// 加载指定路径下的所有卡牌预制体并创建对象池
-        /// </summary>
+        }        /// <summary>
+                 /// 加载指定路径下的所有卡牌预制体并创建对象池
+                 /// </summary>
         private void LoadAllCardPrefabs()
         {
             Debug.Log("开始加载所有卡牌预制体...");
+
+            // 方法1: 使用标签加载 (推荐)
+            LoadCardPrefabsByLabel();
+
+            // 方法2: 使用路径加载 (备用)
+            // LoadCardPrefabsByPath();
+        }
+
+        /// <summary>
+        /// 通过Addressables标签加载卡牌预制体
+        /// </summary>
+        private void LoadCardPrefabsByLabel()
+        {
+            Debug.Log($"通过标签加载卡牌预制体: {cardPrefabLabel}");
+
+            // 使用标签加载所有相关的GameObject资源
+            Addressables.LoadResourceLocationsAsync(cardPrefabLabel, typeof(GameObject)).Completed += (locations) =>
+            {
+                if (locations.Status == AsyncOperationStatus.Succeeded)
+                {
+                    int totalPrefabs = locations.Result.Count;
+                    int loadedCount = 0;
+
+                    Debug.Log($"通过标签找到 {totalPrefabs} 个卡牌预制体");
+
+                    if (totalPrefabs == 0)
+                    {
+                        Debug.LogWarning($"标签 '{cardPrefabLabel}' 下没有找到任何预制体，尝试使用路径加载...");
+                        LoadCardPrefabsByPath();
+                        return;
+                    }
+
+                    foreach (var location in locations.Result)
+                    {
+                        // 从location中提取卡牌名称
+                        string cardName = System.IO.Path.GetFileNameWithoutExtension(location.PrimaryKey);
+
+                        Addressables.LoadAssetAsync<GameObject>(location).Completed += (handle) =>
+                        {
+                            loadedCount++;
+
+                            if (handle.Status == AsyncOperationStatus.Succeeded)
+                            {
+                                GameObject prefab = handle.Result;
+                                cardPrefabs[cardName] = prefab;
+                                loadedPrefabs.Add(cardName);
+
+                                // 立即创建对象池
+                                CreatePool(cardName, prefab);
+
+
+                            }
+                            else
+                            {
+                                Debug.LogError($"加载卡牌预制体失败: {cardName} - {handle.OperationException?.Message}");
+                            }
+
+                            // 检查是否所有预制体都已加载完成
+                            if (loadedCount >= totalPrefabs)
+                            {
+                                Debug.Log($"所有卡牌预制体加载完成! 共加载 {loadedPrefabs.Count} 个预制体");
+                                Debug.Log(GetPoolStatus());
+                            }
+                        };
+                    }
+                }
+                else
+                {
+                    Debug.LogError($"无法通过标签加载卡牌预制体资源位置: {locations.OperationException?.Message}");
+                    Debug.Log("尝试使用路径加载...");
+                    LoadCardPrefabsByPath();
+                }
+            };
+        }
+
+        /// <summary>
+        /// 通过路径加载卡牌预制体 (备用方法)
+        /// </summary>
+        private void LoadCardPrefabsByPath()
+        {
+            Debug.Log($"通过路径加载卡牌预制体: {cardPrefabPath}");
 
             // 使用Addressables加载指定路径下的所有预制体
             Addressables.LoadResourceLocationsAsync(cardPrefabPath, typeof(GameObject)).Completed += (locations) =>
@@ -80,11 +160,15 @@ namespace RepGame.UI
                     int totalPrefabs = locations.Result.Count;
                     int loadedCount = 0;
 
-                    Debug.Log($"找到 {totalPrefabs} 个卡牌预制体");
+                    Debug.Log($"通过路径找到 {totalPrefabs} 个卡牌预制体");
 
                     if (totalPrefabs == 0)
                     {
                         Debug.LogWarning($"在路径 {cardPrefabPath} 下没有找到任何预制体");
+                        Debug.LogWarning("请检查以下事项:");
+                        Debug.LogWarning("1. 预制体是否已添加到Addressables组中");
+                        Debug.LogWarning("2. 预制体的Addressables地址是否正确");
+                        Debug.LogWarning("3. 是否已构建Addressables资源");
                         return;
                     }
 
@@ -92,6 +176,8 @@ namespace RepGame.UI
                     {
                         // 从location中提取卡牌名称
                         string cardName = System.IO.Path.GetFileNameWithoutExtension(location.PrimaryKey);
+
+                        Debug.Log($"正在加载预制体: {cardName} (地址: {location.PrimaryKey})");
 
                         Addressables.LoadAssetAsync<GameObject>(location).Completed += (handle) =>
                         {
@@ -125,6 +211,10 @@ namespace RepGame.UI
                 else
                 {
                     Debug.LogError($"无法加载卡牌预制体资源位置: {locations.OperationException?.Message}");
+                    Debug.LogError("Addressables加载失败，可能的原因:");
+                    Debug.LogError("1. 资源没有正确添加到Addressables组");
+                    Debug.LogError("2. Addressables资源没有构建");
+                    Debug.LogError("3. 路径或标签配置错误");
                 }
             };
         }
@@ -151,39 +241,57 @@ namespace RepGame.UI
             }
 
             cardPools[cardName] = pool;
-            Debug.Log($"为卡牌 {cardName} 创建对象池，预创建 {defaultPoolSize} 个实例");
-        }        /// <summary>
-                 /// 从对象池获取卡牌实例并设置属性
-                 /// </summary>
-                 /// <param name="cardName">卡牌名称</param>
-                 /// <param name="cardID">卡牌ID</param>
-                 /// <param name="parent">父级Transform</param>
-                 /// <param name="onComplete">完成回调</param>
+        }
+        /// <summary>
+        /// 从对象池获取卡牌实例并设置属性
+        /// </summary>
+        /// <param name="cardName">卡牌名称</param>
+        /// <param name="cardID">卡牌ID</param>
+        /// <param name="parent">父级Transform</param>
+        /// <param name="onComplete">完成回调</param>
         public void GetCardInstance(string cardName, string cardID, Transform parent, Action<GameObject> onComplete)
         {
+            Debug.Log($"请求获取卡牌实例: {cardName} (ID: {cardID})");
+
             // 检查是否已加载该卡牌
             if (!loadedPrefabs.Contains(cardName))
             {
                 Debug.LogError($"卡牌预制体未加载: {cardName}，请确保在初始化时已加载所有预制体");
+                Debug.Log($"已加载的预制体列表: {string.Join(", ", loadedPrefabs)}");
                 onComplete?.Invoke(null);
                 return;
             }
 
             GameObject prefab = cardPrefabs[cardName];
+            if (prefab == null)
+            {
+                Debug.LogError($"预制体为空: {cardName}");
+                onComplete?.Invoke(null);
+                return;
+            }
+
             GameObject cardInstance = GetInstanceFromPool(cardName, prefab);
 
             if (cardInstance != null)
             {
+                Debug.Log($"从对象池获取实例成功: {cardName}，开始设置属性");
+
                 // 设置父级和激活状态
                 cardInstance.transform.SetParent(parent);
                 cardInstance.transform.localScale = Vector3.one;
                 cardInstance.transform.localPosition = Vector3.zero;
+                cardInstance.transform.localRotation = Quaternion.identity;
+
+                // 重要：确保卡牌实例被激活
                 cardInstance.SetActive(true);
+
+                // 设置卡牌名称
                 cardInstance.name = $"Card_{cardName}_{cardID.Substring(0, Math.Min(8, cardID.Length))}";
 
                 // 设置CardItem组件属性
                 SetupCardComponent(cardInstance, cardID, cardName);
 
+                Debug.Log($"卡牌实例设置完成: {cardName} (ID: {cardID})，激活状态: {cardInstance.activeSelf}");
                 onComplete?.Invoke(cardInstance);
             }
             else
@@ -222,7 +330,6 @@ namespace RepGame.UI
                 return newInstance;
             }
         }
-
         /// <summary>
         /// 设置CardItem组件的属性
         /// </summary>
@@ -240,47 +347,23 @@ namespace RepGame.UI
                     cardButton = cardInstance.AddComponent<Button>();
                 }
 
-                // 获取或添加CardItem组件
-                MonoBehaviour cardComponent = cardInstance.GetComponent<MonoBehaviour>();
-                Type cardItemType = Type.GetType("RepGame.UI.CardItem, Assembly-CSharp");
+                // 尝试获取现有的CardItem组件
+                CardItem cardComponent = cardInstance.GetComponent<CardItem>();
 
-                if (cardComponent == null || cardComponent.GetType() != cardItemType)
+                // 如果没有CardItem组件，添加一个
+                if (cardComponent == null)
                 {
-                    // 移除旧组件（如果存在且类型不匹配）
-                    if (cardComponent != null && cardComponent.GetType() != cardItemType)
-                    {
-                        DestroyImmediate(cardComponent);
-                    }
-
-                    // 添加CardItem组件
-                    if (cardItemType != null)
-                    {
-                        cardComponent = cardInstance.AddComponent(cardItemType) as MonoBehaviour;
-                    }
+                    cardComponent = cardInstance.AddComponent<CardItem>();
                 }
 
                 if (cardComponent != null)
                 {
-                    // 设置CardID属性
-                    var cardIDProperty = cardComponent.GetType().GetProperty("CardID");
-                    if (cardIDProperty != null && cardIDProperty.CanWrite)
-                    {
-                        cardIDProperty.SetValue(cardComponent, cardID);
-                    }
+                    // 直接设置属性
+                    cardComponent.CardID = cardID;
+                    cardComponent.CardName = cardName;
 
-                    // 设置CardName属性
-                    var cardNameProperty = cardComponent.GetType().GetProperty("CardName");
-                    if (cardNameProperty != null && cardNameProperty.CanWrite)
-                    {
-                        cardNameProperty.SetValue(cardComponent, cardName);
-                    }
-
-                    // 调用Init方法
-                    var initMethod = cardComponent.GetType().GetMethod("Init");
-                    if (initMethod != null)
-                    {
-                        initMethod.Invoke(cardComponent, new object[] { cardID, cardName });
-                    }
+                    // 调用Init方法，使用具体的参数类型避免歧义
+                    cardComponent.Init(cardID, cardName);
 
                     Debug.Log($"成功设置CardItem组件属性: {cardName} (ID: {cardID})");
                 }
@@ -362,5 +445,6 @@ namespace RepGame.UI
         {
             ClearAllPools();
         }
+
     }
 }

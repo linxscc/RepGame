@@ -73,16 +73,6 @@ namespace RepGame.UI
             }
         }
 
-        public void Init(string cardID, CardType type)
-        {
-            CardID = cardID;
-            Type = type;
-
-            // 根据卡牌类型设置额外的视觉效果或属性
-            // 例如不同类型的卡牌可能有不同的背景色
-            SetCardAppearance();
-        }
-
         public void Init(string cardID, string cardName)
         {
             CardID = cardID;

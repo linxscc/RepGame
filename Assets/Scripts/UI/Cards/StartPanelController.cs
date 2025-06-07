@@ -24,6 +24,7 @@ namespace RepGame.UI
             startGameButton = FindButton("Start", OnStartGameClicked);
             exitGameButton = FindButton("Quit", OnExitGameClicked);
             infoText = FindText("Info");
+            UIPanelController.Instance.ShowPanel(MAIN_PANEL_NAME);
         }
 
         void OnEnable()
@@ -57,7 +58,11 @@ namespace RepGame.UI
                 startGameButton.interactable = true;
                 return;
             }
+            Debug.Log("收到信息: " + result);
             ResPlayerGameInfo playerGameInfo = TcpMessageHandler.Instance.ConvertJsonObject<ResPlayerGameInfo>(result);
+            Debug.Log("玩家游戏信息: " + playerGameInfo.Username);
+
+            EventManager.TriggerEvent("InitGame", playerGameInfo);
             if (playerGameInfo != null)
             {
                 // 更新玩家信息
@@ -70,7 +75,7 @@ namespace RepGame.UI
             }
 
             // 登录成功后隐藏登录面板，显示开始面板
-            Invoke(nameof(ClearStartPanel), 0.5f);
+            Invoke(nameof(ClearStartPanel), 0.2f);
 
         }
 
@@ -78,10 +83,8 @@ namespace RepGame.UI
         {
             startGameButton.interactable = true;
 
-            // 隐藏开始面板，显示主面板
+            // 隐藏开始面板
             UIPanelController.Instance.HidePanel(PANEL_NAME);
-            UIPanelController.Instance.ShowPanel(MAIN_PANEL_NAME);
-            EventManager.TriggerEvent("StartGame");
         }
 
         private void OnBondModelInit(object bonds)
@@ -91,7 +94,6 @@ namespace RepGame.UI
             {
                 List<BondModel> gameBondModelInfo = TcpMessageHandler.Instance.ConvertJsonObject<List<BondModel>>(bonds);
                 BondManager.Instance.SetBonds(gameBondModelInfo);
-
             }
             else
             {

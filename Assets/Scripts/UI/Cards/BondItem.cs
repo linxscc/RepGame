@@ -63,7 +63,7 @@ namespace RepGame.UI
             if (button != null && !string.IsNullOrEmpty(_name))
             {
                 // 查找Button下的TextMeshProUGUI组件
-                var tmpText = button.GetComponentInChildren<TMPro.TextMeshProUGUI>();
+                var tmpText = button.GetComponentInChildren<Text>();
                 if (tmpText != null)
                 {
                     tmpText.text = _name;
@@ -176,16 +176,9 @@ namespace RepGame.UI
             if (currentTooltip == null) return;
 
             // 查找提示框中的Text组件并设置内容
-            var textComponents = currentTooltip.GetComponentsInChildren<UnityEngine.UI.Text>();
-            var tmpComponents = currentTooltip.GetComponentsInChildren<TMPro.TextMeshProUGUI>();
+            var tmpComponents = currentTooltip.GetComponentsInChildren<Text>();
 
             string tooltipText = GenerateTooltipText();
-
-            // 设置Text组件内容
-            if (textComponents.Length > 0)
-            {
-                textComponents[0].text = tooltipText;
-            }
 
             // 设置TextMeshPro组件内容
             if (tmpComponents.Length > 0)

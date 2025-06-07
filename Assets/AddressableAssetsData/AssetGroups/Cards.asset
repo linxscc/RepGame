@@ -18,7 +18,8 @@ MonoBehaviour:
   - m_GUID: bdf23a1216e6f8444abe9b2670594246
     m_Address: Assets/Prefabs/Cards
     m_ReadOnly: 0
-    m_SerializedLabels: []
+    m_SerializedLabels:
+    - CardPrefabs
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 80dbd25d080863f42bca89b28ffb12d7
     m_Address: Assets/font/zhong.ttf

@@ -217,7 +217,6 @@ namespace RepGame
                         }
                     }
                 }
-                Debug.Log($"目标类型: {typeof(T).Name}");
 
                 // 尝试将JSON字符串转换为目标类型
                 T result = JsonUtility.FromJson<T>(jsonString);

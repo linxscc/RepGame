@@ -17,7 +17,9 @@ MonoBehaviour:
   m_PlatformId: 4e3c793746204150860bf175a9a41a05
   m_PlatformBuildProfile:
     rid: 5840216845579714561
-  m_Scenes: []
+  m_Scenes:
+  - m_enabled: 1
+    m_path: Assets/Scenes/boardGame.unity
   m_ScriptingDefines: []
   m_PlayerSettingsYaml:
     m_Settings:
@@ -110,7 +112,7 @@ MonoBehaviour:
     - line: '|   deferSystemGesturesMode: 0'
     - line: '|   hideHomeButton: 0'
     - line: '|   submitAnalytics: 1'
-    - line: '|   usePlayerLog: 0'
+    - line: '|   usePlayerLog: 1'
     - line: '|   dedicatedServerOptimizations: 1'
     - line: '|   bakeCollisionMeshes: 0'
     - line: '|   forceSingleInstance: 0'
