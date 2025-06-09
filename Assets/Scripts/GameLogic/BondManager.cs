@@ -86,7 +86,6 @@ namespace RepGame.GameLogic
                 bond.CardNames.Contains(cardName)
             ).ToList();
 
-            Debug.Log($"BondManager: 卡牌 '{cardName}' 可以构成 {result.Count} 个羁绊");
             return result;
         }
 
@@ -127,7 +126,6 @@ namespace RepGame.GameLogic
                 }
             }
 
-            Debug.Log($"BondManager: 从 {cardNames.Count} 张卡牌中激活了 {activeBonds.Count} 个羁绊");
             return activeBonds;
         }
 

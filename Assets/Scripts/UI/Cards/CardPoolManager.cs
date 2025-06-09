@@ -83,7 +83,6 @@ namespace RepGame.UI
         /// </summary>
         private void LoadCardPrefabsByLabel()
         {
-            Debug.Log($"通过标签加载卡牌预制体: {cardPrefabLabel}");
 
             // 使用标签加载所有相关的GameObject资源
             Addressables.LoadResourceLocationsAsync(cardPrefabLabel, typeof(GameObject)).Completed += (locations) =>
@@ -92,8 +91,6 @@ namespace RepGame.UI
                 {
                     int totalPrefabs = locations.Result.Count;
                     int loadedCount = 0;
-
-                    Debug.Log($"通过标签找到 {totalPrefabs} 个卡牌预制体");
 
                     if (totalPrefabs == 0)
                     {
@@ -127,12 +124,6 @@ namespace RepGame.UI
                                 Debug.LogError($"加载卡牌预制体失败: {cardName} - {handle.OperationException?.Message}");
                             }
 
-                            // 检查是否所有预制体都已加载完成
-                            if (loadedCount >= totalPrefabs)
-                            {
-                                Debug.Log($"所有卡牌预制体加载完成! 共加载 {loadedPrefabs.Count} 个预制体");
-                                Debug.Log(GetPoolStatus());
-                            }
                         };
                     }
                 }
@@ -251,7 +242,6 @@ namespace RepGame.UI
         /// <param name="onComplete">完成回调</param>
         public void GetCardInstance(string cardName, string cardID, Transform parent, Action<GameObject> onComplete)
         {
-            Debug.Log($"请求获取卡牌实例: {cardName} (ID: {cardID})");
 
             // 检查是否已加载该卡牌
             if (!loadedPrefabs.Contains(cardName))
@@ -274,7 +264,6 @@ namespace RepGame.UI
 
             if (cardInstance != null)
             {
-                Debug.Log($"从对象池获取实例成功: {cardName}，开始设置属性");
 
                 // 设置父级和激活状态
                 cardInstance.transform.SetParent(parent);
@@ -291,7 +280,6 @@ namespace RepGame.UI
                 // 设置CardItem组件属性
                 SetupCardComponent(cardInstance, cardID, cardName);
 
-                Debug.Log($"卡牌实例设置完成: {cardName} (ID: {cardID})，激活状态: {cardInstance.activeSelf}");
                 onComplete?.Invoke(cardInstance);
             }
             else
@@ -338,13 +326,27 @@ namespace RepGame.UI
         /// <param name="cardName">卡牌名称</param>
         private void SetupCardComponent(GameObject cardInstance, string cardID, string cardName)
         {
+            if (cardInstance == null)
+            {
+                Debug.LogError("卡牌实例为空，无法设置组件");
+                return;
+            }
+
             try
             {
+                // 检查Image组件是否存在（因为您的预制体是基于Image的）
+                Image cardImage = cardInstance.GetComponent<Image>();
+                if (cardImage == null)
+                {
+                    Debug.LogWarning($"卡牌 {cardName} 缺少Image组件，这可能导致显示问题");
+                }
+
                 // 确保有Button组件
                 Button cardButton = cardInstance.GetComponent<Button>();
                 if (cardButton == null)
                 {
                     cardButton = cardInstance.AddComponent<Button>();
+                    Debug.Log($"为卡牌 {cardName} 添加了Button组件");
                 }
 
                 // 尝试获取现有的CardItem组件
@@ -354,15 +356,16 @@ namespace RepGame.UI
                 if (cardComponent == null)
                 {
                     cardComponent = cardInstance.AddComponent<CardItem>();
+                    Debug.Log($"为卡牌 {cardName} 添加了CardItem组件");
                 }
 
                 if (cardComponent != null)
                 {
-                    // 直接设置属性
+                    // 直接设置属性，避免反射操作
                     cardComponent.CardID = cardID;
                     cardComponent.CardName = cardName;
 
-                    // 调用Init方法，使用具体的参数类型避免歧义
+                    // 直接调用Init方法，指定具体的参数类型
                     cardComponent.Init(cardID, cardName);
 
                     Debug.Log($"成功设置CardItem组件属性: {cardName} (ID: {cardID})");
@@ -372,9 +375,20 @@ namespace RepGame.UI
                     Debug.LogError($"无法找到或创建CardItem组件: {cardName}");
                 }
             }
-            catch (Exception ex)
+            catch (System.Reflection.AmbiguousMatchException ex)
             {
-                Debug.LogError($"设置CardItem组件时出错: {ex.Message}\n{ex.StackTrace}");
+                Debug.LogError($"设置CardItem组件时发生歧义匹配错误: {cardName}\n错误详情: {ex.Message}");
+                Debug.LogError("这通常是由于存在多个重载方法导致的，请检查CardItem类的Init方法定义");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogError($"设置CardItem组件时出错: {cardName}\n错误类型: {ex.GetType().Name}\n错误消息: {ex.Message}");
+
+                // 提供更详细的调试信息
+                if (ex.InnerException != null)
+                {
+                    Debug.LogError($"内部异常: {ex.InnerException.Message}");
+                }
             }
         }
 

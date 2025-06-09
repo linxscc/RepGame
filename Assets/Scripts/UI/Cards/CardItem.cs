@@ -17,8 +17,6 @@ namespace RepGame.UI
 
         private Vector3 originalPosition;
         private Image cardImage;
-        private bool isSelected = false;
-        private bool isLocked = false; // 新增：表示卡牌是否被锁定（已出牌但服务器未处理）
         private Material originalMaterial;
         private Material glowMaterial;
 

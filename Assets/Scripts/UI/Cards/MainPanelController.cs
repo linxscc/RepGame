@@ -15,6 +15,7 @@ namespace RepGame.UI
     {
         // 面板名称常量
         public const string PANEL_NAME = "Panel_Main";
+        public const string Panel_GameOver = "Panel_GameOver";
 
         private GameObject panelMain;
 
@@ -37,16 +38,18 @@ namespace RepGame.UI
         private TextMeshProUGUI blood_Text;
         private TextMeshProUGUI enemyBlood_Text;
         private Image infoImg;
-        private TextMeshProUGUI infoText;
+        private Text infoText;
         public GameObject bondButtonPrefab;
-        private Transform bondContainer;
-
-        // 游戏状态管理器
+        private Transform bondContainer;        // 游戏状态管理器
         private GameStateManager gameStateManager;
 
         private List<GameObject> instantiatedCards;
         private Dictionary<string, GameObject> cardItemsById;
         private Dictionary<string, Card> cardModelsById;
+
+        // 协程管理
+        private Coroutine currentInfoCoroutine;
+        private bool isInfoDisplaying = false;
 
         private float MAX_HEALTH = 100f;
         private void Start()
@@ -77,19 +80,19 @@ namespace RepGame.UI
             bloodBar = FindComponent<Image>("BloodBar/Fill");
             profile = FindComponent<Image>("Profile");
             enemyBloodBar = FindComponent<Image>("EnemyBloodBar/Fill");
-            enemyProfile = FindComponent<Image>("EnemyProfile"); blood_Text = FindText("BloodBar/Blood_Text");
+            enemyProfile = FindComponent<Image>("EnemyProfile");
+            blood_Text = FindText("BloodBar/Blood_Text");
             enemyBlood_Text = FindText("EnemyBloodBar/Blood_Text");
             infoImg = FindComponent<Image>("InfoImage");
-            infoText = FindText("InfoImage/InfoText");
+            infoText = FindTextByNormal("InfoImage/InfoText");
 
             // 初始化数据结构
             instantiatedCards = new List<GameObject>();
             cardItemsById = new Dictionary<string, GameObject>();
             cardModelsById = new Dictionary<string, Card>();
-        }
-        /// <summary>
-        /// 订阅游戏状态管理器的事件
-        /// </summary>
+        }        /// <summary>
+                 /// 订阅游戏状态管理器的事件
+                 /// </summary>        
         private void SubscribeToGameStateEvents()
         {
             gameStateManager.OnHandCardsUpdated += HandleHandCardsUpdated;
@@ -101,6 +104,7 @@ namespace RepGame.UI
             gameStateManager.OnClearCardSelection += ClearAllCardSelections;
             gameStateManager.OnButtonVisibilityUpdate += UpdateButtonVisibility;
             gameStateManager.OnBondDisplayUpdate += UpdateBondDisplay;
+            gameStateManager.OnGameDataClear += HandleGameDataClear;
         }
 
         #region GameStateManager Event Handlers
@@ -109,15 +113,48 @@ namespace RepGame.UI
         {
             UpdateHandCards(cards);
         }
-
         private void HandleEnemyCardCountUpdated(int count)
         {
             InitEnemyCardVisibility(count);
         }
-
         private void HandleGameStateUpdated(ResPlayerGameInfo gameInfo)
         {
-            UpdateGameState(gameInfo);
+            UpdateHealthBars(gameInfo);
+        }
+
+        private void HandleGameDataClear()
+        {
+            try
+            {
+                Debug.Log("MainPanelController: 开始清理UI数据...");
+
+                // 1. 清空所有卡牌UI对象
+                ClearCards();
+
+                // 2. 清空羁绊按钮
+                ClearBondButtons();
+
+                // 3. 重置按钮状态
+                if (playButton != null) playButton.gameObject.SetActive(false);
+                if (clrButton != null) clrButton.gameObject.SetActive(false);
+                if (compButton != null) compButton.gameObject.SetActive(false);
+
+                // 4. 清除任何显示中的消息
+                if (currentInfoCoroutine != null)
+                {
+                    StopCoroutine(currentInfoCoroutine);
+                    currentInfoCoroutine = null;
+                }
+                isInfoDisplaying = false;
+                if (infoImg != null) infoImg.gameObject.SetActive(false);
+
+                UIPanelController.Instance.ShowPanel(Panel_GameOver);
+
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"MainPanelController: 清理UI数据时出现错误: {ex.Message}\n{ex.StackTrace}");
+            }
         }
 
         private void ShowDelayedMessage(string message, float delay, float duration)
@@ -142,24 +179,33 @@ namespace RepGame.UI
             EventManager.Subscribe<ResPlayerGameInfo>("InitGame", InitGame);
             EventManager.Subscribe<string>("CardSelected", OnCardSelected);
             EventManager.Subscribe<string>("CardDeselected", OnCardDeselected);
-            EventManager.Subscribe<object>("UserPlayCard", OnPlayCardResult);
+            EventManager.Subscribe<string>("UserPlayCard", OnPlayCardResult);
             EventManager.Subscribe<object>("UserCompose", OnComposeCardResult);
 
             EventManager.Subscribe<string>("ForcePlayCards", OnForcePlayCards);
-            EventManager.Subscribe<object>("GameOver", OnGameOver);
+            EventManager.Subscribe<string>("GameOver", OnGameOver);
         }
-
         private void OnDisable()
         {
+            // 停止当前信息显示协程
+            if (currentInfoCoroutine != null)
+            {
+                StopCoroutine(currentInfoCoroutine);
+                currentInfoCoroutine = null;
+            }
+
+            // 重置状态
+            isInfoDisplaying = false;
+
             EventManager.Unsubscribe<ResPlayerGameInfo>("InitGame", InitGame);
             EventManager.Unsubscribe<string>("CardSelected", OnCardSelected);
             EventManager.Unsubscribe<string>("CardDeselected", OnCardDeselected);
-            EventManager.Unsubscribe<object>("UserPlayCard", OnPlayCardResult);
+            EventManager.Unsubscribe<string>("UserPlayCard", OnPlayCardResult);
             EventManager.Unsubscribe<object>("UserCompose", OnComposeCardResult);
 
 
             EventManager.Unsubscribe<string>("ForcePlayCards", OnForcePlayCards);
-            EventManager.Unsubscribe<object>("GameOver", OnGameOver);
+            EventManager.Unsubscribe<string>("GameOver", OnGameOver);
         }
         private void UpdateButtonVisibility()
         {
@@ -213,14 +259,10 @@ namespace RepGame.UI
         {
             if (gameStateManager.HasSelectedCards())
             {
-                Debug.Log($"出牌: {gameStateManager.SelectedCards.Count} 张卡牌");
-
                 // 使用游戏状态管理器处理出牌逻辑
                 var playRequest = gameStateManager.CreatePlayCardRequest();
                 if (playRequest != null)
                 {
-                    Debug.Log($"发送出牌请求：房间ID {playRequest.Room_Id}，用户名 {playRequest.Username}，出牌数量 {playRequest.SelfCards.Count}");
-
                     // 使用GameTcpClient发送出牌数据到服务器
                     GameTcpClient.Instance.SendMessageToServer("UserPlayCard", playRequest);
 
@@ -241,7 +283,6 @@ namespace RepGame.UI
                     // 清除选择列表
                     gameStateManager.ClearSelectedCards();
 
-                    Debug.Log("出牌完成，已清除选中状态并销毁卡牌对象");
                 }
             }
             else
@@ -259,10 +300,6 @@ namespace RepGame.UI
             var composeResult = gameStateManager.CreateComposeCardRequest();
             if (composeResult.request != null)
             {
-                Debug.Log($"准备合成 {composeResult.cardsToCompose.Count} 张卡牌，恢复 {composeResult.cardsToRevert.Count} 张卡牌状态");
-
-                Debug.Log($"发送卡牌合成请求：房间ID {composeResult.request.Room_Id}，用户名 {composeResult.request.Username}，合成卡牌数量 {composeResult.cardsToCompose.Count}");
-
                 GameTcpClient.Instance.SendMessageToServer("UserComposeCard", composeResult.request);
 
                 // 移除要合成的卡牌从UI中
@@ -304,7 +341,7 @@ namespace RepGame.UI
             Debug.Log($"收到强制出牌请求: {message}");
             cardManager.AutoPlayFirstCard();
         }
-        private void OnGameOver(object result)
+        private void OnGameOver(string result)
         {
             if (result == null)
             {
@@ -314,32 +351,9 @@ namespace RepGame.UI
 
             ResPlayerGameInfo playerGameInfo = TcpMessageHandler.Instance.ConvertJsonObject<ResPlayerGameInfo>(result);
 
-            // 判断当前血量是否<=0，确定是失败还是胜利
-            if (playerGameInfo.Health <= 0)
-            {
-                // 失败情况：血量<=0
-                Debug.Log($"游戏失败 - 当前血量: {playerGameInfo.Health}");
-
-                // 构建失败消息，包含触发的羁绊信息
-                string defeatMessage = BuildDamageMessage(playerGameInfo.DamageReceived, playerGameInfo.TriggeredBonds, false);
-
-                // 显示受到伤害的消息
-                ShowTimedMessage(defeatMessage, 0.5f);
-
-                // 0.5秒后显示失败消息
-                StartCoroutine(ShowGameOverMessage("你失败了！", 0.5f));
-            }
-            else
-            {
-                // 胜利情况：血量>0
-                Debug.Log($"游戏胜利 - 当前血量: {playerGameInfo.Health}");
-
-                // 直接显示胜利消息
-                ShowTimedMessage("你胜利了！", 2.0f);
-            }
-
-            // 更新最终游戏状态
-            UpdateGameState(playerGameInfo);
+            // 委托给 GameStateManager 处理游戏结束的业务逻辑
+            // GameStateManager 会通过事件系统自动更新UI和游戏状态
+            gameStateManager.HandleGameOver(playerGameInfo);
         }
         private void Init(ResPlayerGameInfo resInfo)
         {
@@ -368,7 +382,7 @@ namespace RepGame.UI
             }
 
             // 初始化敌方卡牌的显示状态
-            InitEnemyCardVisibility(resInfo.OtherCards.Count);
+            InitEnemyCardVisibility(resInfo.OtherPlayers[0].CardsCount);
 
         }
 
@@ -401,7 +415,6 @@ namespace RepGame.UI
                         cardItemsById[cardModel.UID] = cardObject;
                         cardModelsById[cardModel.UID] = cardModel;
 
-                        Debug.Log($"成功从对象池获取卡牌实例: {cardModel.Name} (ID: {cardModel.UID})");
                     }
                     else
                     {
@@ -413,9 +426,10 @@ namespace RepGame.UI
             {
                 Debug.LogError($"实例化卡牌时出错: {ex.Message}\n{ex.StackTrace}");
             }
-        }        /// <summary>
-                 /// 清除所有选中的卡牌
-                 /// </summary>
+        }
+        /// <summary>
+        /// 清除所有选中的卡牌
+        /// </summary>
         public void ClearSelectedCards()
         {
             // 使用游戏状态管理器清除选中的卡牌
@@ -590,7 +604,7 @@ namespace RepGame.UI
                 }
             }
         }
-        private void OnPlayCardResult(object result)
+        private void OnPlayCardResult(string result)
         {
             if (result == null)
             {
@@ -600,93 +614,62 @@ namespace RepGame.UI
 
             ResPlayerGameInfo playerGameInfo = TcpMessageHandler.Instance.ConvertJsonObject<ResPlayerGameInfo>(result);
 
-            // 检查是否造成伤害
-            if (playerGameInfo.DamageDealt > 0)
-            {
-                string damageMessage = BuildDamageMessage(playerGameInfo.DamageDealt, playerGameInfo.TriggeredBonds, true);
-                ShowDamageMessageAndUpdateGame(damageMessage, playerGameInfo);
-            }
-            // 检查是否收到攻击伤害
-            else if (playerGameInfo.DamageReceived > 0)
-            {
-                string damageMessage = BuildDamageMessage(playerGameInfo.DamageReceived, playerGameInfo.TriggeredBonds, false);
-                ShowDamageMessageAndUpdateGame(damageMessage, playerGameInfo);
-            }
-            else
-            {
-                // 没有造成或受到伤害，直接更新游戏状态
-                UpdateGameState(playerGameInfo);
-            }
+            gameStateManager.HandlePlayCardResult(playerGameInfo);
         }
-
-        /// <summary>
-        /// 构建伤害消息
-        /// </summary>
-        /// <param name="damageAmount">伤害数值</param>
-        /// <param name="triggeredBonds">触发的羁绊</param>
-        /// <param name="isDamageDealer">是否为造成伤害方</param>
-        /// <returns>构建好的伤害消息</returns>
-        private string BuildDamageMessage(float damageAmount, BondModel[] triggeredBonds, bool isDamageDealer)
-        {
-            string actionText = isDamageDealer ? "造成" : "受到";
-            string damageText = isDamageDealer ? "点伤害" : "点伤害";
-
-            // 检查是否有触发的羁绊
-            if (triggeredBonds != null && triggeredBonds.Length > 0)
-            {
-                var bondNames = triggeredBonds.Select(bond => bond.Name).ToArray();
-                string bondsText = string.Join("、", bondNames);
-                return $"存在{bondsText} 羁绊伤害加成，{actionText}{damageAmount} {damageText}！";
-            }
-            else
-            {
-                return $"{actionText}伤害 {damageAmount} 点！";
-            }
-        }
-
         /// <summary>
         /// 显示伤害消息（仅显示，不更新游戏状态）
         /// </summary>
         /// <param name="message">要显示的消息</param>
         private void ShowDamageMessage(string message)
         {
-            infoImg.gameObject.SetActive(true);
-            infoText.text = message;
-            StartCoroutine(HideInfoAfterDelay(0.8f));
+            ShowInfoMessage(message, 0.8f);
         }
-
         /// <summary>
-        /// 显示伤害消息并更新游戏状态
+        /// 统一的信息显示方法，防止协程冲突
         /// </summary>
         /// <param name="message">要显示的消息</param>
-        /// <param name="playerGameInfo">游戏状态信息</param>
-        private void ShowDamageMessageAndUpdateGame(string message, ResPlayerGameInfo playerGameInfo)
+        /// <param name="duration">显示时长</param>
+        private void ShowInfoMessage(string message, float duration)
         {
+            if (infoImg == null || infoText == null)
+            {
+                Debug.LogWarning("InfoImg 或 InfoText 为空，无法显示消息");
+                return;
+            }
+
+            // 如果当前有信息正在显示，先停止当前协程
+            if (currentInfoCoroutine != null)
+            {
+                StopCoroutine(currentInfoCoroutine);
+                currentInfoCoroutine = null;
+            }
+
+            // 重置状态
+            isInfoDisplaying = true;
+
+            // 显示信息
             infoImg.gameObject.SetActive(true);
             infoText.text = message;
 
-            // 0.8秒后隐藏消息并更新游戏状态
-            StartCoroutine(HideInfoAndUpdateGame(0.8f));
-            UpdateGameState(playerGameInfo);
+            // 启动新的隐藏协程
+            currentInfoCoroutine = StartCoroutine(HideInfoAfterDelay(duration));
         }
-
         /// <summary>
         /// 延迟隐藏信息面板的协程
         /// </summary>
         private IEnumerator HideInfoAfterDelay(float delay)
         {
             yield return new WaitForSeconds(delay);
-            infoImg.gameObject.SetActive(false);
-        }
 
-        /// <summary>
-        /// 延迟隐藏信息面板并更新游戏状态的协程
-        /// </summary>
-        private IEnumerator HideInfoAndUpdateGame(float delay)
-        {
-            yield return new WaitForSeconds(delay);
-            infoText.text = "";
-            infoImg.gameObject.SetActive(false);
+            // 安全地隐藏信息面板
+            if (infoImg != null)
+            {
+                infoImg.gameObject.SetActive(false);
+            }
+
+            // 重置状态
+            isInfoDisplaying = false;
+            currentInfoCoroutine = null;
         }
 
         /// <summary>
@@ -696,16 +679,8 @@ namespace RepGame.UI
         /// <param name="duration">显示时长（秒）</param>
         private void ShowTimedMessage(string message, float duration)
         {
-            if (infoImg != null && infoText != null)
-            {
-                infoImg.gameObject.SetActive(true);
-                infoText.text = message;
-
-                // 启动定时隐藏协程
-                StartCoroutine(HideMessageAfterDelay(duration));
-            }
+            ShowInfoMessage(message, duration);
         }
-
         /// <summary>
         /// 延迟显示消息的协程
         /// </summary>
@@ -719,72 +694,6 @@ namespace RepGame.UI
 
             // 显示消息
             ShowTimedMessage(message, duration);
-        }
-
-        /// <summary>
-        /// 延迟隐藏消息的协程
-        /// </summary>
-        /// <param name="duration">延迟时间（秒）</param>
-        private IEnumerator HideMessageAfterDelay(float duration)
-        {
-            yield return new WaitForSeconds(duration);
-
-            if (infoImg != null)
-            {
-                infoImg.gameObject.SetActive(false);
-            }
-        }        /// <summary>
-                 /// 更新游戏状态（血量、回合、手牌等）
-                 /// </summary>
-        private void UpdateGameState(ResPlayerGameInfo playerGameInfo)
-        {
-            // 更新血量
-            if (playerGameInfo.Health >= 0)
-            {
-                MAX_HEALTH = playerGameInfo.Health;
-                blood_Text.text = MAX_HEALTH.ToString();
-
-                // 更新血条填充
-                if (bloodBar != null)
-                {
-                    // 计算血条比例
-                    float healthRatio = playerGameInfo.Health / MAX_HEALTH;
-                    bloodBar.fillAmount = Mathf.Clamp01(healthRatio);
-                }
-            }
-
-            // 更新手牌信息 - 增量更新
-            if (playerGameInfo.SelfCards != null)
-            {
-                UpdateHandCards(playerGameInfo.SelfCards);
-            }
-
-            // 更新敌方手牌显示
-            if (playerGameInfo.OtherCards != null)
-            {
-                InitEnemyCardVisibility(playerGameInfo.OtherCards.Count);
-                Debug.Log($"敌方手牌更新：敌方手牌数量 {playerGameInfo.OtherCards.Count}");
-            }
-
-            // 通过事件处理器让游戏状态管理器处理状态更新
-            HandleGameStateUpdated(playerGameInfo);// 更新手牌信息 - 增量更新
-            if (playerGameInfo.SelfCards != null)
-            {
-                UpdateHandCards(playerGameInfo.SelfCards);
-            }
-
-            // 更新敌方手牌显示
-            if (playerGameInfo.OtherCards != null)
-            {
-                InitEnemyCardVisibility(playerGameInfo.OtherCards.Count);
-                Debug.Log($"敌方手牌更新：敌方手牌数量 {playerGameInfo.OtherCards.Count}");
-            }
-
-            // 更新按钮状态
-            UpdateButtonVisibility();
-
-            // 更新羁绊显示
-            UpdateBondDisplay();
         }
 
         /// <summary>
@@ -880,44 +789,42 @@ namespace RepGame.UI
 
             ResPlayerGameInfo playerGameInfo = TcpMessageHandler.Instance.ConvertJsonObject<ResPlayerGameInfo>(result);
 
-            // 1. 检查SelfCards更新并更新本地手牌
-            if (playerGameInfo.SelfCards != null)
-            {
-                UpdateHandCards(playerGameInfo.SelfCards);
-                Debug.Log($"卡牌合成成功，更新手牌数量：{playerGameInfo.SelfCards.Count}");
-
-                // 显示合成成功消息 0.8 秒
-                ShowTimedMessage("卡牌合成成功！", 0.8f);
-            }
-
-            // 2. 检查OtherCards数量更新并更新敌方卡牌容器显示
-            if (playerGameInfo.OtherCards != null)
-            {
-                InitEnemyCardVisibility(playerGameInfo.OtherCards.Count);
-                Debug.Log($"敌方完成卡牌合成，敌方手牌数量：{playerGameInfo.OtherCards.Count}");
-
-                // 延迟显示敌方合成消息 0.8 秒（在己方消息后显示）
-                StartCoroutine(DelayedMessage("敌方完成卡牌合成！", 1.0f, 0.8f));
-            }
-
-            // 3. 更新游戏状态
-            UpdateGameState(playerGameInfo);
+            // 委托给 GameStateManager 处理合成结果的业务逻辑
+            // GameStateManager 会通过事件系统自动更新UI和游戏状态
+            gameStateManager.HandleComposeCardResult(playerGameInfo);
         }
 
         /// <summary>
-        /// 延迟显示游戏结束消息的协程
+        /// 更新双方血条
         /// </summary>
-        /// <param name="message">要显示的游戏结束消息</param>
-        /// <param name="delay">延迟时间（秒）</param>
-        private IEnumerator ShowGameOverMessage(string message, float delay)
+        /// <param name="gameInfo">游戏状态信息</param>
+        private void UpdateHealthBars(ResPlayerGameInfo gameInfo)
         {
-            // 等待指定的延迟时间
-            yield return new WaitForSeconds(delay);
+            if (gameInfo == null)
+            {
+                Debug.LogWarning("游戏状态信息为空，无法更新血条");
+                return;
+            }
 
-            // 显示游戏结束消息，持续时间更长
-            ShowTimedMessage(message, 3.0f);
+            // 更新己方血条
+            if (bloodBar != null && blood_Text != null)
+            {
+                float playerHealthRatio = gameInfo.Health / MAX_HEALTH;
+                bloodBar.fillAmount = Mathf.Clamp01(playerHealthRatio);
+                blood_Text.text = gameInfo.Health.ToString("F0");
+            }
 
-            Debug.Log($"游戏结束消息已显示: {message}");
+            // 更新敌方血条
+            if (gameInfo.OtherPlayers != null && gameInfo.OtherPlayers.Count > 0)
+            {
+                var enemyPlayer = gameInfo.OtherPlayers[0];
+                if (enemyBloodBar != null && enemyBlood_Text != null)
+                {
+                    float enemyHealthRatio = enemyPlayer.Health / MAX_HEALTH;
+                    enemyBloodBar.fillAmount = Mathf.Clamp01(enemyHealthRatio);
+                    enemyBlood_Text.text = enemyPlayer.Health.ToString("F0");
+                }
+            }
         }
 
     }

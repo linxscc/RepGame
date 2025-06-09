@@ -15,7 +15,6 @@ public class UIBootstrap : MonoBehaviour
     {
         // 确保 UIInitializer 被初始化
         var initializer = UIInitializer.Instance;
-        Debug.Log("UI系统初始化开始");
     }
 
     void Start()
@@ -28,7 +27,6 @@ public class UIBootstrap : MonoBehaviour
     {
         if (!string.IsNullOrEmpty(defaultPanelName) && UIPanelController.Instance.IsPanelRegistered(defaultPanelName))
         {
-            Debug.Log($"UIBootstrap: 显示默认面板 {defaultPanelName}");
 
             // 隐藏所有其他面板
             UIPanelController.Instance.HideAllPanels();

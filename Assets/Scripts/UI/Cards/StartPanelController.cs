@@ -30,14 +30,14 @@ namespace RepGame.UI
         void OnEnable()
         {
             // 订阅登录结果事件（带参数）
-            EventManager.Subscribe<object>("InitializationCardGame", OnUserReadyResult);
+            EventManager.Subscribe<string>("InitializationCardGame", OnUserReadyResult);
             EventManager.Subscribe<object>("InitializationCardBonds", OnBondModelInit);
         }
 
         void OnDisable()
         {
             // 取消订阅登录结果事件
-            EventManager.Unsubscribe<object>("InitializationCardGame", OnUserReadyResult);
+            EventManager.Unsubscribe<string>("InitializationCardGame", OnUserReadyResult);
             EventManager.Unsubscribe<object>("InitializationCardBonds", OnBondModelInit);
         }
 
@@ -50,7 +50,7 @@ namespace RepGame.UI
             startGameButton.interactable = false;
             infoText.text = "等待其他玩家准备...";
         }
-        private void OnUserReadyResult(object result)
+        private void OnUserReadyResult(string result)
         {
             if (result == null)
             {
@@ -58,9 +58,7 @@ namespace RepGame.UI
                 startGameButton.interactable = true;
                 return;
             }
-            Debug.Log("收到信息: " + result);
             ResPlayerGameInfo playerGameInfo = TcpMessageHandler.Instance.ConvertJsonObject<ResPlayerGameInfo>(result);
-            Debug.Log("玩家游戏信息: " + playerGameInfo.Username);
 
             EventManager.TriggerEvent("InitGame", playerGameInfo);
             if (playerGameInfo != null)

@@ -78,7 +78,7 @@ public class GameTcpClient : MonoBehaviour
             }
 
             client = new TcpClient("127.0.0.1", 9060); // 本地测试
-            // client = new TcpClient("52.62.195.43", 9060);
+            // client = new TcpClient("13.237.148.137", 9060);
 
             stream = client.GetStream();
             StartCoroutine(CheckServerResponse());
