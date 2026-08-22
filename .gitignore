@@ -1,14 +1,13 @@
 # Ignore build and temp folders
 Library/
 Logs/
-Packages/
-ProjectSettings/
 Temp/
 .vscode/
 Resources/
 Prefabs/
 Prefab/
 Debug/
+Debug2/
 structure/
 Texture/
 RepGameServer/

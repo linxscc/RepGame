@@ -422,8 +422,6 @@ namespace RepGame.GameLogic
             // 判断当前血量是否<=0，确定是失败还是胜利
             if (result.Health <= 0)
             {
-                // 失败情况：血量<=0
-                Debug.Log($"游戏失败 - 当前血量: {result.Health}");
 
                 // 如果有伤害信息，先处理伤害信息
                 if (result.DamageInfo != null && result.DamageInfo.Count > 0)
@@ -442,9 +440,6 @@ namespace RepGame.GameLogic
             }
             else
             {
-                // 胜利情况：血量>0
-                Debug.Log($"游戏胜利 - 当前血量: {result.Health}");
-
                 // 直接显示胜利消息
                 OnMessageRequested?.Invoke("你胜利了！", 3.0f);
 

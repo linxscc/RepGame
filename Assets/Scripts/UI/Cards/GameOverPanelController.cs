@@ -64,6 +64,8 @@ namespace RepGame.UI
             {
                 // 更新玩家信息
 
+                Invoke(nameof(ClearStartPanel), 0.5f);
+
                 infoText.text += "匹配成功，创建房间中...";
             }
             else
@@ -71,14 +73,14 @@ namespace RepGame.UI
                 infoText.text = "游戏初始化失败，请稍后再试。";
             }
 
-            // 登录成功后隐藏登录面板，显示开始面板
-            Invoke(nameof(ClearStartPanel), 0.5f);
+
 
         }
 
         private void ClearStartPanel()
         {
             // 隐藏开始面板
+            infoText.text = "游戏结束！";
             UIPanelController.Instance.HidePanel(PANEL_NAME);
         }
 

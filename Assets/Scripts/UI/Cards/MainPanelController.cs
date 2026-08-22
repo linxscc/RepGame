@@ -148,13 +148,19 @@ namespace RepGame.UI
                 isInfoDisplaying = false;
                 if (infoImg != null) infoImg.gameObject.SetActive(false);
 
-                UIPanelController.Instance.ShowPanel(Panel_GameOver);
+
+                Invoke(nameof(ClearStartPanel), 0.5f);
 
             }
             catch (Exception ex)
             {
                 Debug.LogError($"MainPanelController: 清理UI数据时出现错误: {ex.Message}\n{ex.StackTrace}");
             }
+        }
+
+        private void ClearStartPanel()
+        {
+            UIPanelController.Instance.ShowPanel(Panel_GameOver);
         }
 
         private void ShowDelayedMessage(string message, float delay, float duration)
