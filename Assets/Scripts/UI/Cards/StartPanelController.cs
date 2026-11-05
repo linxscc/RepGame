@@ -5,6 +5,7 @@ using TMPro;
 using RepGameModels;
 using System.Collections.Generic;
 using RepGame.GameLogic;
+using RepGame.Net;
 
 namespace RepGame.UI
 {
@@ -29,36 +30,37 @@ namespace RepGame.UI
 
         void OnEnable()
         {
-            // 订阅登录结果事件（带参数）
-            EventManager.Subscribe<string>("InitializationCardGame", OnUserReadyResult);
-            EventManager.Subscribe<object>("InitializationCardBonds", OnBondModelInit);
+            EventManager.Subscribe<ResPlayerGameInfo>(NetEvents.GameStarted, OnUserReadyResult);
+            EventManager.Subscribe<List<BondModel>>(NetEvents.BondsReceived, OnBondModelInit);
+            EventManager.Subscribe<RequestFailure>(NetEvents.RequestFailed, OnRequestFailed);
         }
 
         void OnDisable()
         {
-            // 取消订阅登录结果事件
-            EventManager.Unsubscribe<string>("InitializationCardGame", OnUserReadyResult);
-            EventManager.Unsubscribe<object>("InitializationCardBonds", OnBondModelInit);
+            EventManager.Unsubscribe<ResPlayerGameInfo>(NetEvents.GameStarted, OnUserReadyResult);
+            EventManager.Unsubscribe<List<BondModel>>(NetEvents.BondsReceived, OnBondModelInit);
+            EventManager.Unsubscribe<RequestFailure>(NetEvents.RequestFailed, OnRequestFailed);
         }
 
         private void OnStartGameClicked()
         {
 
-            // 使用GameTcpClient单例模式
-            GameTcpClient.Instance.SendMessageToServer("UserReady", "");
+            GameTcpClient.Instance.Ready();
 
             startGameButton.interactable = false;
             infoText.text = "等待其他玩家准备...";
         }
-        private void OnUserReadyResult(string result)
+        private void OnRequestFailed(RequestFailure failure)
         {
-            if (result == null)
+            if (failure.Request == RequestKind.Ready)
             {
-                infoText.text = "对局已拒绝，请重新开始游戏！";
+                infoText.text = failure.Message;
                 startGameButton.interactable = true;
-                return;
             }
-            ResPlayerGameInfo playerGameInfo = TcpMessageHandler.Instance.ConvertJsonObject<ResPlayerGameInfo>(result);
+        }
+
+        private void OnUserReadyResult(ResPlayerGameInfo playerGameInfo)
+        {
 
             EventManager.TriggerEvent("InitGame", playerGameInfo);
             if (playerGameInfo != null)
@@ -85,18 +87,9 @@ namespace RepGame.UI
             UIPanelController.Instance.HidePanel(PANEL_NAME);
         }
 
-        private void OnBondModelInit(object bonds)
+        private void OnBondModelInit(List<BondModel> bonds)
         {
-            // 处理绑定模型初始化逻辑
-            if (bonds != null)
-            {
-                List<BondModel> gameBondModelInfo = TcpMessageHandler.Instance.ConvertJsonObject<List<BondModel>>(bonds);
-                BondManager.Instance.SetBonds(gameBondModelInfo);
-            }
-            else
-            {
-                Debug.Log("没有绑定模型需要初始化。");
-            }
+            BondManager.Instance.SetBonds(bonds);
         }
 
 

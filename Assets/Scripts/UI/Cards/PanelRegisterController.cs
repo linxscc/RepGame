@@ -5,6 +5,7 @@ using RepGame.UI;
 using RepGameModels;
 using RepGame.Core;
 using RepGame;
+using RepGame.Net;
 using System;
 using System.Text.RegularExpressions;
 
@@ -41,14 +42,14 @@ public class PanelRegisterController : UIBase
 
     void OnEnable()
     {
-        // 订阅注册结果事件（带参数）
-        EventManager.Subscribe<string>("UserRegister", OnRegisterResult);
+        EventManager.Subscribe<string>(NetEvents.RegisterSucceeded, OnRegisterSucceeded);
+        EventManager.Subscribe<RequestFailure>(NetEvents.RequestFailed, OnRequestFailed);
     }
 
     void OnDisable()
     {
-        // 取消订阅注册结果事件
-        EventManager.Unsubscribe<string>("UserRegister", OnRegisterResult);
+        EventManager.Unsubscribe<string>(NetEvents.RegisterSucceeded, OnRegisterSucceeded);
+        EventManager.Unsubscribe<RequestFailure>(NetEvents.RequestFailed, OnRequestFailed);
     }
 
     private void OnRegisterClick()
@@ -57,17 +58,15 @@ public class PanelRegisterController : UIBase
         string password = inputPassword.text;
         string repeatPassword = inputRepeatPassword.text;
 
-        // 验证用户名不为空且长度不超过20位
-        if (string.IsNullOrEmpty(username) || username.Length > 20)
+        if (string.IsNullOrEmpty(username) || username.Length < 3 || username.Length > 20)
         {
-            infoText.text = "用户名不能为空且长度不能超过20位";
+            infoText.text = "用户名长度需为3-20位";
             return;
         }
 
-        // 验证密码不为空且长度不超过24位
-        if (string.IsNullOrEmpty(password) || password.Length > 24)
+        if (string.IsNullOrEmpty(password) || password.Length < 6 || password.Length > 24)
         {
-            infoText.text = "密码不能为空且长度不能超过24位";
+            infoText.text = "密码长度需为6-24位";
             return;
         }        // 验证两次输入的密码是否一致
         if (password != repeatPassword)
@@ -75,10 +74,8 @@ public class PanelRegisterController : UIBase
             infoText.text = "两次输入的密码不一致";
             return;
         }
-        // 发送注册请求，使用LoginData类
-        UserAccount loginData = new UserAccount { Username = username, Password = password };
-        // 使用GameTcpClient单例模式
-        GameTcpClient.Instance.SendMessageToServer("UserRegister", loginData);
+        infoText.text = "注册中...";
+        GameTcpClient.Instance.Register(username, password);
     }
     private void OnGoToLoginClick()
     {
@@ -90,25 +87,17 @@ public class PanelRegisterController : UIBase
         inputRepeatPassword.text = string.Empty;
     }
 
-    private void OnRegisterResult(object data)
+    private void OnRegisterSucceeded(string username)
     {
-        if (data == null)
-        {
-            infoText.text = "注册失败，服务器无响应";
-            return;
-        }
-        UserRegisterResponse userRegisterResponse = TcpMessageHandler.Instance.ConvertJsonObject<UserRegisterResponse>(data);
-        // 注册结果回调，data为服务器返回内容
-        if (userRegisterResponse == null)
-        {
-            infoText.text = "注册失败，服务器无响应";
-            return;
-        }
-        infoText.text = userRegisterResponse.message;
-        if (userRegisterResponse.message == "用户创建成功")
-        {
-            Invoke(nameof(OnGoToLoginClick), 0.5f);
+        infoText.text = "注册成功，请登录";
+        Invoke(nameof(OnGoToLoginClick), 0.5f);
+    }
 
+    private void OnRequestFailed(RequestFailure failure)
+    {
+        if (failure.Request == RequestKind.Register)
+        {
+            infoText.text = failure.Message;
         }
     }
 
@@ -146,10 +135,4 @@ public class PanelRegisterController : UIBase
             inputField.text = filtered;
         }
     }
-}
-
-public class UserRegisterResponse
-{
-    public string username;
-    public string message;
 }

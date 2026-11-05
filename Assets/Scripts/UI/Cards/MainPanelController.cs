@@ -7,6 +7,7 @@ using RepGameModels;
 using System;
 using System.Linq;
 using RepGame.GameLogic;
+using RepGame.Net;
 using System.Collections;
 
 namespace RepGame.UI
@@ -185,11 +186,11 @@ namespace RepGame.UI
             EventManager.Subscribe<ResPlayerGameInfo>("InitGame", InitGame);
             EventManager.Subscribe<string>("CardSelected", OnCardSelected);
             EventManager.Subscribe<string>("CardDeselected", OnCardDeselected);
-            EventManager.Subscribe<string>("UserPlayCard", OnPlayCardResult);
-            EventManager.Subscribe<object>("UserCompose", OnComposeCardResult);
-
-            EventManager.Subscribe<string>("ForcePlayCards", OnForcePlayCards);
-            EventManager.Subscribe<string>("GameOver", OnGameOver);
+            EventManager.Subscribe<ResPlayerGameInfo>(NetEvents.CardsPlayed, OnPlayCardResult);
+            EventManager.Subscribe<ResPlayerGameInfo>(NetEvents.CardsComposed, OnComposeCardResult);
+            EventManager.Subscribe<ResPlayerGameInfo>(NetEvents.ForcePlay, OnForcePlayCards);
+            EventManager.Subscribe<ResPlayerGameInfo>(NetEvents.GameOver, OnGameOver);
+            EventManager.Subscribe<RequestFailure>(NetEvents.RequestFailed, OnRequestFailed);
         }
         private void OnDisable()
         {
@@ -206,12 +207,11 @@ namespace RepGame.UI
             EventManager.Unsubscribe<ResPlayerGameInfo>("InitGame", InitGame);
             EventManager.Unsubscribe<string>("CardSelected", OnCardSelected);
             EventManager.Unsubscribe<string>("CardDeselected", OnCardDeselected);
-            EventManager.Unsubscribe<string>("UserPlayCard", OnPlayCardResult);
-            EventManager.Unsubscribe<object>("UserCompose", OnComposeCardResult);
-
-
-            EventManager.Unsubscribe<string>("ForcePlayCards", OnForcePlayCards);
-            EventManager.Unsubscribe<string>("GameOver", OnGameOver);
+            EventManager.Unsubscribe<ResPlayerGameInfo>(NetEvents.CardsPlayed, OnPlayCardResult);
+            EventManager.Unsubscribe<ResPlayerGameInfo>(NetEvents.CardsComposed, OnComposeCardResult);
+            EventManager.Unsubscribe<ResPlayerGameInfo>(NetEvents.ForcePlay, OnForcePlayCards);
+            EventManager.Unsubscribe<ResPlayerGameInfo>(NetEvents.GameOver, OnGameOver);
+            EventManager.Unsubscribe<RequestFailure>(NetEvents.RequestFailed, OnRequestFailed);
         }
         private void UpdateButtonVisibility()
         {
@@ -269,8 +269,8 @@ namespace RepGame.UI
                 var playRequest = gameStateManager.CreatePlayCardRequest();
                 if (playRequest != null)
                 {
-                    // 使用GameTcpClient发送出牌数据到服务器
-                    GameTcpClient.Instance.SendMessageToServer("UserPlayCard", playRequest);
+                    // 只发送牌的 UID，结算由服务器完成
+                    GameTcpClient.Instance.PlayCards(playRequest.Room_Id, playRequest.SelfCards.Select(c => c.UID));
 
                     // 销毁已发送的卡牌对象
                     foreach (var card in playRequest.SelfCards)
@@ -306,7 +306,7 @@ namespace RepGame.UI
             var composeResult = gameStateManager.CreateComposeCardRequest();
             if (composeResult.request != null)
             {
-                GameTcpClient.Instance.SendMessageToServer("UserComposeCard", composeResult.request);
+                GameTcpClient.Instance.ComposeCards(composeResult.request.Room_Id, composeResult.cardsToCompose.Select(c => c.UID));
 
                 // 移除要合成的卡牌从UI中
                 foreach (var card in composeResult.cardsToCompose)
@@ -342,21 +342,13 @@ namespace RepGame.UI
             }
         }
 
-        private void OnForcePlayCards(string message)
+        private void OnForcePlayCards(ResPlayerGameInfo state)
         {
-            Debug.Log($"收到强制出牌请求: {message}");
+            Debug.Log("出牌超时，自动出牌");
             cardManager.AutoPlayFirstCard();
         }
-        private void OnGameOver(string result)
+        private void OnGameOver(ResPlayerGameInfo playerGameInfo)
         {
-            if (result == null)
-            {
-                ShowDamageMessage("网络连接错误！");
-                return;
-            }
-
-            ResPlayerGameInfo playerGameInfo = TcpMessageHandler.Instance.ConvertJsonObject<ResPlayerGameInfo>(result);
-
             // 委托给 GameStateManager 处理游戏结束的业务逻辑
             // GameStateManager 会通过事件系统自动更新UI和游戏状态
             gameStateManager.HandleGameOver(playerGameInfo);
@@ -610,17 +602,17 @@ namespace RepGame.UI
                 }
             }
         }
-        private void OnPlayCardResult(string result)
+        private void OnPlayCardResult(ResPlayerGameInfo playerGameInfo)
         {
-            if (result == null)
-            {
-                ShowDamageMessage("网络连接错误！");
-                return;
-            }
-
-            ResPlayerGameInfo playerGameInfo = TcpMessageHandler.Instance.ConvertJsonObject<ResPlayerGameInfo>(result);
-
             gameStateManager.HandlePlayCardResult(playerGameInfo);
+        }
+
+        private void OnRequestFailed(RequestFailure failure)
+        {
+            if (failure.Request == RequestKind.PlayCards || failure.Request == RequestKind.ComposeCards)
+            {
+                ShowDamageMessage(failure.Message);
+            }
         }
         /// <summary>
         /// 显示伤害消息（仅显示，不更新游戏状态）
@@ -785,16 +777,8 @@ namespace RepGame.UI
                 }
             }
         }
-        private void OnComposeCardResult(object result)
+        private void OnComposeCardResult(ResPlayerGameInfo playerGameInfo)
         {
-            if (result == null)
-            {
-                ShowDamageMessage("网络连接错误！");
-                return;
-            }
-
-            ResPlayerGameInfo playerGameInfo = TcpMessageHandler.Instance.ConvertJsonObject<ResPlayerGameInfo>(result);
-
             // 委托给 GameStateManager 处理合成结果的业务逻辑
             // GameStateManager 会通过事件系统自动更新UI和游戏状态
             gameStateManager.HandleComposeCardResult(playerGameInfo);

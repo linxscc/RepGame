@@ -1,16 +1,20 @@
 using System;
-using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Net.Sockets;
-using System.Text;
-using UnityEngine;
-using RepGameModels;
+using System.Threading.Tasks;
 using RepGame.Core;
-using RepGame;
+using RepGame.Net;
+using RepGame.Protocol;
+using UnityEngine;
 
+/// <summary>
+/// 游戏服务器客户端（场景单例）。
+/// 职责：连接生命周期（连接、断线重连、心跳）、把后台线程收到的消息切回主线程分发、
+/// 对外提供类型安全的请求方法。传输细节见 <see cref="SecureConnection"/>，
+/// 消息到领域事件的转换见 <see cref="ServerMessageRouter"/>。
+/// </summary>
 public class GameTcpClient : MonoBehaviour
 {
-    // 单例实例
     private static GameTcpClient _instance;
     public static GameTcpClient Instance
     {
@@ -18,367 +22,242 @@ public class GameTcpClient : MonoBehaviour
         {
             if (_instance == null)
             {
-                // 查找场景中是否已有实例
                 _instance = FindFirstObjectByType<GameTcpClient>();
-
-                // 如果没有找到，创建一个新的
                 if (_instance == null)
                 {
-                    GameObject go = new GameObject("GameTcpClient");
+                    var go = new GameObject("GameTcpClient");
                     _instance = go.AddComponent<GameTcpClient>();
-                    DontDestroyOnLoad(go); // 保证控制器在场景切换时不被销毁
+                    DontDestroyOnLoad(go);
                 }
             }
             return _instance;
         }
     }
-    private TcpClient client;
-    private NetworkStream stream;
-    private List<byte> messageBuffer = new List<byte>(); // 动态缓冲区
-    private byte[] readBuffer = new byte[4096]; // 临时读取缓冲区
-    private bool isReconnecting = false;
-    private float reconnectInterval = 5f; // 重连间隔时间（秒）
-    private int maxReconnectAttempts = 5; // 最大重连尝试次数
-    private int reconnectAttempts = 0;
-    private const int MAX_MESSAGE_SIZE = 1024 * 1024; // 最大消息大小1MB
 
-    void Start()
+    private const float HeartbeatInterval = 15f;
+    private const float MaxReconnectDelay = 30f;
+
+    private readonly ConcurrentQueue<Action> mainThreadQueue = new ConcurrentQueue<Action>();
+    private readonly Dictionary<uint, RequestKind> pendingRequests = new Dictionary<uint, RequestKind>();
+
+    private ServerMessageRouter router;
+    private SecureConnection connection;
+    private bool connecting;
+    private bool shuttingDown;
+    private uint nextSeq;
+    private int reconnectAttempts;
+    private float nextHeartbeatAt;
+    private string sessionToken;
+
+    public bool IsConnected => connection != null && !connecting;
+
+    void Awake()
     {
-        // 确保只有一个实例
         if (_instance != null && _instance != this)
         {
             Destroy(gameObject);
             return;
         }
-
         _instance = this;
         DontDestroyOnLoad(gameObject);
 
-        // 初始化连接
+        router = new ServerMessageRouter();
+        router.Authenticated += auth => sessionToken = auth.SessionToken;
+        router.SessionInvalidated += () => sessionToken = null;
+
+        EventManager.Subscribe("AttemptReconnect", ReconnectNow);
+    }
+
+    void Start()
+    {
         ConnectToServer();
     }
 
-    /// <summary>
-    /// 连接到服务器
-    /// </summary>
+    void Update()
+    {
+        while (mainThreadQueue.TryDequeue(out var action))
+        {
+            action();
+        }
+
+        if (IsConnected && Time.unscaledTime >= nextHeartbeatAt)
+        {
+            nextHeartbeatAt = Time.unscaledTime + HeartbeatInterval;
+            Send(new ClientMessage { Ping = new RepGame.Protocol.Ping { ClientTimeMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() } });
+        }
+    }
+
+    void OnDestroy()
+    {
+        EventManager.Unsubscribe("AttemptReconnect", ReconnectNow);
+        DisconnectFromServer();
+        if (_instance == this) _instance = null;
+    }
+
+    // ------------------------------------------------------------------
+    // 请求 API
+    // ------------------------------------------------------------------
+
+    public void Login(string username, string password) =>
+        Send(new ClientMessage { Login = new LoginRequest { Username = username, Password = password } });
+
+    public void Register(string username, string password) =>
+        Send(new ClientMessage { Register = new RegisterRequest { Username = username, Password = password } });
+
+    public void Ready() => Send(new ClientMessage { Ready = new ReadyRequest() });
+
+    public void Restart() => Send(new ClientMessage { Restart = new RestartRequest() });
+
+    public void PlayCards(string roomId, IEnumerable<string> cardUids)
+    {
+        var req = new PlayCardsRequest { RoomId = roomId ?? "" };
+        req.CardUids.AddRange(cardUids);
+        Send(new ClientMessage { PlayCards = req });
+    }
+
+    public void ComposeCards(string roomId, IEnumerable<string> cardUids)
+    {
+        var req = new ComposeCardsRequest { RoomId = roomId ?? "" };
+        req.CardUids.AddRange(cardUids);
+        Send(new ClientMessage { ComposeCards = req });
+    }
+
+    // ------------------------------------------------------------------
+    // 连接生命周期
+    // ------------------------------------------------------------------
+
     public void ConnectToServer()
     {
-        try
+        if (connecting || connection != null || shuttingDown) return;
+        connecting = true;
+
+        var settings = new ConnectionSettings
         {
-            if (isReconnecting)
-            {
-                Debug.Log("正在重连中，忽略重复连接请求");
-                return;
-            }
+            Host = EnvConfig.GetString("SERVER_HOST", "127.0.0.1"),
+            Port = EnvConfig.GetInt("SERVER_PORT", 9060),
+            UseTls = !string.Equals(EnvConfig.GetString("SERVER_TLS", "true"), "false", StringComparison.OrdinalIgnoreCase),
+            CertSha256 = EnvConfig.GetString("SERVER_CERT_SHA256", ""),
+        };
+        if (!settings.UseTls)
+            Debug.LogWarning("SERVER_TLS=false：连接未加密，仅限本地调试使用");
 
-            if (client != null && client.Connected)
-            {
-                Debug.Log("已经连接到服务器，忽略重复连接请求");
-                return;
-            }
+        var conn = new SecureConnection(settings);
+        conn.MessageReceived += msg => mainThreadQueue.Enqueue(() => router.Route(msg, TakePendingRequest(msg.ReplyTo)));
+        conn.Closed += error => mainThreadQueue.Enqueue(() => OnConnectionClosed(conn, error));
 
-            // 服务器地址从 .env 读取（SERVER_HOST / SERVER_PORT），见项目根目录 .env.example
-            string serverHost = EnvConfig.GetString("SERVER_HOST", "127.0.0.1");
-            int serverPort = EnvConfig.GetInt("SERVER_PORT", 9060);
-            Debug.Log($"正在连接服务器 {serverHost}:{serverPort}");
-            client = new TcpClient(serverHost, serverPort);
+        Debug.Log($"正在连接服务器 {settings.Host}:{settings.Port}（TLS: {settings.UseTls}）");
+        Task.Run(conn.ConnectAsync).ContinueWith(t => mainThreadQueue.Enqueue(() => OnConnectCompleted(conn, t)));
+    }
 
-            stream = client.GetStream();
-            StartCoroutine(CheckServerResponse());
-            Debug.Log("连接到服务器成功");
+    private void OnConnectCompleted(SecureConnection conn, Task task)
+    {
+        connecting = false;
 
-            // 重置重连计数器
-            reconnectAttempts = 0;
-
-            // 触发连接成功事件
-            EventManager.TriggerEvent("ConnectionEstablished");
+        if (task.IsFaulted || task.IsCanceled)
+        {
+            var error = task.Exception?.GetBaseException();
+            string hint = conn.LastSeenCertSha256 != null && string.IsNullOrEmpty(EnvConfig.GetString("SERVER_CERT_SHA256", ""))
+                ? $"（服务器证书指纹 {conn.LastSeenCertSha256}，确认无误后写入 .env 的 SERVER_CERT_SHA256）"
+                : "";
+            Debug.LogError($"连接服务器失败: {error?.Message}{hint}");
+            conn.Dispose();
+            EventManager.TriggerEvent(NetEvents.ConnectionFailed, "无法连接到服务器，请检查网络连接");
+            ScheduleReconnect();
+            return;
         }
-        catch (Exception e)
-        {
-            Debug.LogError($"连接服务器失败: {e.Message}");
-            EventManager.TriggerEvent("ConnectionFailed", "无法连接到服务器，请检查网络连接");
 
-            // 启动自动重连
-            if (!isReconnecting && reconnectAttempts < maxReconnectAttempts)
-            {
-                StartCoroutine(ReconnectCoroutine());
-            }
+        connection = conn;
+        reconnectAttempts = 0;
+        nextHeartbeatAt = Time.unscaledTime + HeartbeatInterval;
+        Debug.Log("已连接到服务器");
+        EventManager.TriggerEvent(NetEvents.ConnectedToServer, "已连接到服务器");
+
+        // 断线前已登录：用会话令牌恢复身份（服务器会推送当前对局状态）
+        if (!string.IsNullOrEmpty(sessionToken))
+        {
+            Send(new ClientMessage { ResumeSession = new ResumeSessionRequest { SessionToken = sessionToken } });
         }
     }
 
-    /// <summary>
-    /// 自动重连协程
-    /// </summary>
-    private IEnumerator ReconnectCoroutine()
+    private void OnConnectionClosed(SecureConnection conn, Exception error)
     {
-        isReconnecting = true;
+        if (conn != connection) return; // 旧连接的迟到通知
+        connection = null;
+        pendingRequests.Clear();
+
+        if (shuttingDown) return;
+        Debug.LogWarning($"与服务器的连接已断开: {error?.Message ?? "服务器关闭了连接"}");
+        EventManager.TriggerEvent(NetEvents.Disconnected, "与服务器的连接已断开，正在重连...");
+        ScheduleReconnect();
+    }
+
+    private void ScheduleReconnect()
+    {
+        if (shuttingDown) return;
         reconnectAttempts++;
+        float delay = Mathf.Min(MaxReconnectDelay, Mathf.Pow(2, reconnectAttempts - 1));
+        Debug.Log($"{delay:0} 秒后进行第 {reconnectAttempts} 次重连");
+        CancelInvoke(nameof(ConnectToServer));
+        Invoke(nameof(ConnectToServer), delay);
+    }
 
-        Debug.Log($"尝试重连，第 {reconnectAttempts} 次尝试，将在 {reconnectInterval} 秒后重试...");
-        EventManager.TriggerEvent("ConnectionRetrying", $"尝试重连 ({reconnectAttempts}/{maxReconnectAttempts})...");
-
-        yield return new WaitForSeconds(reconnectInterval);
-
-        // 尝试重新连接
+    private void ReconnectNow()
+    {
+        if (connection != null || connecting) return;
+        CancelInvoke(nameof(ConnectToServer));
         ConnectToServer();
-
-        isReconnecting = false;
-    }
-    private IEnumerator CheckServerResponse()
-    {
-        while (client != null && client.Connected)
-        {
-            try
-            {
-                if (stream != null && stream.DataAvailable)
-                {
-                    // 读取数据到临时缓冲区
-                    int bytesRead = stream.Read(readBuffer, 0, readBuffer.Length);
-                    if (bytesRead > 0)
-                    {
-                        // 将读取的数据添加到消息缓冲区
-                        for (int i = 0; i < bytesRead; i++)
-                        {
-                            messageBuffer.Add(readBuffer[i]);
-                        }
-
-                        // 检查缓冲区大小，防止内存溢出
-                        if (messageBuffer.Count > MAX_MESSAGE_SIZE)
-                        {
-                            Debug.LogError("接收到的消息过大，清空缓冲区");
-                            messageBuffer.Clear();
-                            continue;
-                        }
-
-                        // 尝试从缓冲区中提取完整的JSON消息
-                        ProcessCompleteMessages();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError($"处理服务器响应时发生错误: {ex.Message}");
-                EventManager.TriggerEvent("NetworkError", "处理响应数据时发生错误");
-
-                // 清空缓冲区以防止数据污染
-                messageBuffer.Clear();
-            }
-            yield return null; // 每帧检测一次
-        }
     }
 
-    /// <summary>
-    /// 从缓冲区中提取并处理完整的JSON消息
-    /// </summary>
-    private void ProcessCompleteMessages()
-    {
-        while (messageBuffer.Count > 0)
-        {
-            // 转换为字符串进行JSON解析
-            string bufferString = Encoding.UTF8.GetString(messageBuffer.ToArray());
-
-            // 查找第一个完整的JSON对象
-            int jsonStart = bufferString.IndexOf('{');
-            if (jsonStart == -1)
-            {
-                // 没有找到JSON开始标记，清空缓冲区
-                messageBuffer.Clear();
-                break;
-            }
-
-            // 从JSON开始位置查找完整的JSON对象
-            int braceCount = 0;
-            int jsonEnd = -1;
-            bool inString = false;
-            bool escapeNext = false;
-
-            for (int i = jsonStart; i < bufferString.Length; i++)
-            {
-                char c = bufferString[i];
-
-                if (escapeNext)
-                {
-                    escapeNext = false;
-                    continue;
-                }
-
-                if (c == '\\' && inString)
-                {
-                    escapeNext = true;
-                    continue;
-                }
-
-                if (c == '"' && !escapeNext)
-                {
-                    inString = !inString;
-                    continue;
-                }
-
-                if (!inString)
-                {
-                    if (c == '{')
-                    {
-                        braceCount++;
-                    }
-                    else if (c == '}')
-                    {
-                        braceCount--;
-                        if (braceCount == 0)
-                        {
-                            jsonEnd = i;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            if (jsonEnd != -1)
-            {
-                // 找到完整的JSON对象
-                string jsonObject = bufferString.Substring(jsonStart, jsonEnd - jsonStart + 1);
-
-                // 从缓冲区中移除已处理的数据
-                int bytesProcessed = Encoding.UTF8.GetByteCount(bufferString.Substring(0, jsonEnd + 1));
-                messageBuffer.RemoveRange(0, Math.Min(bytesProcessed, messageBuffer.Count));
-
-                // 处理这个完整的JSON消息
-                ProcessJsonMessage(jsonObject);
-            }
-            else
-            {
-                // 没有找到完整的JSON对象，等待更多数据
-                break;
-            }
-        }
-    }
-
-    /// <summary>
-    /// 处理单个完整的JSON消息
-    /// </summary>
-    private void ProcessJsonMessage(string jsonObject)
-    {
-        try
-        {
-            Debug.Log($"处理jsonObject数据: {jsonObject}");
-            TcpResponse response = JsonUtility.FromJson<TcpResponse>(jsonObject);
-
-            // 直接从JSON字符串中提取data部分                        
-            string dataContent = TcpMessageHandler.Instance.ExtractDataContent(jsonObject);
-
-            if (response.code != "200")
-            {
-                EventManager.TriggerEvent("NetworkError", response.message);
-                return;
-            }
-
-            EventManager.TriggerEvent(response.responsekey, dataContent);
-        }
-        catch (Exception ex)
-        {
-            Debug.LogError($"解析JSON消息时发生错误: {ex.Message}");
-            Debug.LogError($"问题JSON: {jsonObject}");
-        }
-    }
-
-    // 通用消息发送方法
-    public void SendMessageToServer<T>(string messageType, T data)
-    {
-        // 检查连接状态
-        if (client == null || stream == null || !client.Connected)
-        {
-            Debug.LogWarning("客户端未连接，尝试重新连接...");
-            ConnectToServer();
-
-            // 如果重连失败，返回
-            if (client == null || stream == null || !client.Connected)
-            {
-                Debug.LogError("发送消息失败：客户端未连接");
-                EventManager.TriggerEvent("ConnectionFailed", "连接已断开，无法发送消息");
-                return;
-            }
-        }
-
-        string json;
-        if (data == null || (data is string s && string.IsNullOrEmpty(s)))
-        {
-            json = TcpRequest.Serialize("0", messageType, "");
-        }
-        else
-        {
-            json = TcpRequest<T>.Serialize("0", messageType, data);
-        }
-
-        try
-        {
-            byte[] bytes = Encoding.UTF8.GetBytes(json);
-            stream.Write(bytes, 0, bytes.Length);
-            Debug.Log($"发送消息: {messageType}, 数据: {json}");
-        }
-        catch (Exception e)
-        {
-            Debug.LogError($"发送消息失败: {e.Message}");
-            EventManager.TriggerEvent("ConnectionFailed", "发送消息失败，连接可能已断开");
-
-            // 尝试重新连接并重发消息
-            if (!isReconnecting)
-            {
-                Debug.Log("尝试重新连接并重发消息...");
-                ConnectToServer();
-
-                // 如果重连成功，重发消息
-                if (client != null && client.Connected && stream != null)
-                {
-                    try
-                    {
-                        byte[] bytes = Encoding.UTF8.GetBytes(json);
-                        stream.Write(bytes, 0, bytes.Length);
-                        Debug.Log($"重发消息成功: {messageType}");
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogError($"重发消息失败: {ex.Message}");
-                    }
-                }
-            }
-        }
-    }
-
-    private void OnDestroy()
-    {
-        DisconnectFromServer();
-
-        // 如果当前实例是单例实例，重置单例引用
-        if (_instance == this)
-        {
-            _instance = null;
-        }
-    }    /// <summary>
-         /// 断开与服务器的连接
-         /// </summary>
     public void DisconnectFromServer()
     {
+        shuttingDown = true;
+        CancelInvoke();
+        connection?.Dispose();
+        connection = null;
+        pendingRequests.Clear();
+    }
+
+    // ------------------------------------------------------------------
+
+    private void Send(ClientMessage message)
+    {
+        if (!IsConnected)
+        {
+            Debug.LogWarning($"未连接服务器，丢弃请求 {message.BodyCase}");
+            EventManager.TriggerEvent(NetEvents.RequestFailed, new RequestFailure
+            {
+                Request = ProtocolMapper.ToRequestKind(message.BodyCase),
+                Message = "未连接到服务器，请稍后再试",
+            });
+            ReconnectNow();
+            return;
+        }
+
+        message.Seq = ++nextSeq;
+        if (message.BodyCase != ClientMessage.BodyOneofCase.Ping)
+        {
+            if (pendingRequests.Count > 256) pendingRequests.Clear(); // 防止异常情况下无限堆积
+            pendingRequests[message.Seq] = ProtocolMapper.ToRequestKind(message.BodyCase);
+        }
+
         try
         {
-            if (stream != null)
-            {
-                stream.Close();
-                stream = null;
-            }
-
-            if (client != null)
-            {
-                client.Close();
-                client = null;
-            }
-
-            // 清空消息缓冲区
-            messageBuffer.Clear();
-
-            Debug.Log("已断开与服务器的连接");
+            connection.Send(message);
         }
         catch (Exception e)
         {
-            Debug.LogError($"断开连接时发生错误: {e.Message}");
+            Debug.LogError($"发送 {message.BodyCase} 失败: {e.Message}");
+            connection.Dispose(); // 触发 Closed -> 重连
         }
+    }
+
+    private RequestKind TakePendingRequest(uint seq)
+    {
+        if (seq != 0 && pendingRequests.TryGetValue(seq, out var kind))
+        {
+            pendingRequests.Remove(seq);
+            return kind;
+        }
+        return RequestKind.Unknown;
     }
 }

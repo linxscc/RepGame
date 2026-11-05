@@ -3,6 +3,7 @@ using TMPro;
 using RepGame.Core;
 using UnityEngine.UI;
 using RepGameModels;
+using RepGame.Net;
 
 namespace RepGame.UI
 {
@@ -34,30 +35,21 @@ namespace RepGame.UI
 
         void OnEnable()
         {
-            // 订阅登录结果事件（带参数）
-            EventManager.Subscribe<string>("InitializationCardGame", OnUserReadyResult);
+            EventManager.Subscribe<ResPlayerGameInfo>(NetEvents.GameStarted, OnUserReadyResult);
         }
 
         void OnDisable()
         {
-            // 取消订阅登录结果事件
-            EventManager.Unsubscribe<string>("InitializationCardGame", OnUserReadyResult);
+            EventManager.Unsubscribe<ResPlayerGameInfo>(NetEvents.GameStarted, OnUserReadyResult);
         }
 
         private void OnRestartClicked()
         {
-            // 使用GameTcpClient单例模式
-            GameTcpClient.Instance.SendMessageToServer("UserReady", "");
+            GameTcpClient.Instance.Ready();
         }
 
-        private void OnUserReadyResult(string result)
+        private void OnUserReadyResult(ResPlayerGameInfo playerGameInfo)
         {
-            if (result == null)
-            {
-                infoText.text = "对局已拒绝，请重新开始游戏！";
-                return;
-            }
-            ResPlayerGameInfo playerGameInfo = TcpMessageHandler.Instance.ConvertJsonObject<ResPlayerGameInfo>(result);
 
             EventManager.TriggerEvent("InitGame", playerGameInfo);
             if (playerGameInfo != null)
