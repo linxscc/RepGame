@@ -77,8 +77,11 @@ public class GameTcpClient : MonoBehaviour
                 return;
             }
 
-            client = new TcpClient("127.0.0.1", 9060); // 本地测试
-            // client = new TcpClient("13.237.148.137", 9060);
+            // 服务器地址从 .env 读取（SERVER_HOST / SERVER_PORT），见项目根目录 .env.example
+            string serverHost = EnvConfig.GetString("SERVER_HOST", "127.0.0.1");
+            int serverPort = EnvConfig.GetInt("SERVER_PORT", 9060);
+            Debug.Log($"正在连接服务器 {serverHost}:{serverPort}");
+            client = new TcpClient(serverHost, serverPort);
 
             stream = client.GetStream();
             StartCoroutine(CheckServerResponse());

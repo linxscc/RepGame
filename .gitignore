@@ -51,3 +51,7 @@ output/
 # Ignore all files in the config directory, except keepme.txt
 config/*
 !config/keepme.txt
+
+# Local environment config (template: .env.example)
+.env
+!.env.example
