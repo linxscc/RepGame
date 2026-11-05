@@ -1,3 +1,4 @@
+using RepGame.Core;
 using UnityEngine;
 using RepGame.UI;
 
@@ -25,7 +26,7 @@ public class UIBootstrap : MonoBehaviour
     void Start()
     {
         // 延迟一帧显示默认面板，确保所有面板都已注册
-        Invoke("ShowDefaultPanel", 0.1f);
+        Invoke("ShowDefaultPanel", ConfigTables.Settings.ui.defaultPanelDelay);
     }
 
     private void OnDestroy()

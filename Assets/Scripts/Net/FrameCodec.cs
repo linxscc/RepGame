@@ -9,7 +9,8 @@ namespace RepGame.Net
     public static class FrameCodec
     {
         public const int HeaderSize = 4;
-        public const int MaxFrameSize = 1 << 20; // 1MB
+        /// <summary>单条消息最大字节数；GameTcpClient 连接前会按 client_settings.json 设置</summary>
+        public static int MaxFrameSize { get; set; } = 1 << 20;
 
         public static byte[] Encode(byte[] payload)
         {

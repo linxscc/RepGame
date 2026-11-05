@@ -51,9 +51,12 @@ namespace RepGame.UI
         private Coroutine currentInfoCoroutine;
         private bool isInfoDisplaying = false;
 
-        private float MAX_HEALTH = 100f;
+        private float MAX_HEALTH; // 血量上限：Awake 中取配置的默认值，开局后以服务器为准
         private void Awake()
         {
+            // Unity 不允许在字段初始化器中读取 StreamingAssets，所以在这里取配置
+            MAX_HEALTH = ConfigTables.Settings.gameplay.fallbackMaxHealth;
+
             // 初始化游戏状态管理器
             gameStateManager = new GameStateManager();
             SubscribeToGameStateEvents();
@@ -154,7 +157,7 @@ namespace RepGame.UI
                 if (infoImg != null) infoImg.gameObject.SetActive(false);
 
 
-                Invoke(nameof(ClearStartPanel), 0.5f);
+                Invoke(nameof(ClearStartPanel), ConfigTables.Settings.ui.gameOverPanelDelay);
 
             }
             catch (Exception ex)
@@ -175,7 +178,7 @@ namespace RepGame.UI
 
         private void HandleGameOverRequested(bool isWinner)
         {
-            ShowTimedMessage(isWinner ? "你胜利了！" : "你失败了！", 3.0f);
+            ShowTimedMessage(ConfigTables.Text(isWinner ? UiText.Win : UiText.Lose), ConfigTables.Settings.ui.gameOverMessageDuration);
         }
 
         private void ClearAllCardSelections()
@@ -348,26 +351,17 @@ namespace RepGame.UI
             }
         }
 
+        /// <summary>
+        /// 当前回合玩家超时，服务器已替其打出第一张牌：按普通出牌结果更新界面。
+        /// 如果超时的是自己（更新后轮到对方），额外提示一下。
+        /// </summary>
         private void OnForcePlayCards(ResPlayerGameInfo state)
         {
-            Debug.Log("出牌超时，自动出牌");
-            AutoPlayFirstCard();
-        }
-
-        /// <summary>
-        /// 取消当前选择，选中手牌中的第一张并出牌
-        /// </summary>
-        private void AutoPlayFirstCard()
-        {
-            gameStateManager.DeselectAllCards();
-
-            var firstCard = instantiatedCards.Count > 0 ? instantiatedCards[0].GetComponent<CardItem>() : null;
-            if (firstCard == null || !gameStateManager.HandleCardSelected(firstCard.CardID))
+            gameStateManager.HandlePlayCardResult(state);
+            if (state.Round == "waiting")
             {
-                Debug.LogWarning("没有可自动打出的手牌");
-                return;
+                ShowTimedMessage(ConfigTables.Text(UiText.ForcedPlay), ConfigTables.Settings.ui.damageMessageDuration);
             }
-            OnPlayButtonClicked();
         }
 
         /// <summary>
@@ -656,7 +650,7 @@ namespace RepGame.UI
         /// <param name="message">要显示的消息</param>
         private void ShowDamageMessage(string message)
         {
-            ShowInfoMessage(message, 0.8f);
+            ShowInfoMessage(message, ConfigTables.Settings.ui.damageMessageDuration);
         }
         /// <summary>
         /// 统一的信息显示方法，防止协程冲突

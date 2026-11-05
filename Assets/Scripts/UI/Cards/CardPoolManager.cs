@@ -1,3 +1,4 @@
+using RepGame.Core;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -39,10 +40,12 @@ namespace RepGame.UI
         private HashSet<string> loadedPrefabs = new HashSet<string>();
 
         [Header("对象池配置")]
+        // 实际值在 Awake 中从 client_settings.json 的 ui.cardPoolSize 读取（覆盖 Inspector 中的值）
         [SerializeField] private int defaultPoolSize = 17;
         [SerializeField] private Transform poolContainer;
         private void Awake()
         {
+            defaultPoolSize = ConfigTables.Settings.ui.cardPoolSize;
             if (_instance != null && _instance != this)
             {
                 Destroy(gameObject);

@@ -48,7 +48,7 @@ namespace RepGame.UI
             GameTcpClient.Instance.Ready();
 
             startGameButton.interactable = false;
-            infoText.text = "等待其他玩家准备...";
+            infoText.text = ConfigTables.Text(UiText.MatchWaiting);
         }
         private void OnRequestFailed(RequestFailure failure)
         {
@@ -67,15 +67,15 @@ namespace RepGame.UI
             {
                 // 更新玩家信息
 
-                infoText.text += "匹配成功，创建房间中...";
+                infoText.text += ConfigTables.Text(UiText.MatchFound);
             }
             else
             {
-                infoText.text = "游戏初始化失败，请稍后再试。";
+                infoText.text = ConfigTables.Text(UiText.MatchInitFailed);
             }
 
             // 登录成功后隐藏登录面板，显示开始面板
-            Invoke(nameof(ClearStartPanel), 0.2f);
+            Invoke(nameof(ClearStartPanel), ConfigTables.Settings.ui.matchFoundPanelDelay);
 
         }
 

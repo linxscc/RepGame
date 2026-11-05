@@ -56,13 +56,13 @@ namespace RepGame.UI
             {
                 // 更新玩家信息
 
-                Invoke(nameof(ClearStartPanel), 0.5f);
+                Invoke(nameof(ClearStartPanel), ConfigTables.Settings.ui.rematchPanelDelay);
 
-                infoText.text += "匹配成功，创建房间中...";
+                infoText.text += ConfigTables.Text(UiText.MatchFound);
             }
             else
             {
-                infoText.text = "游戏初始化失败，请稍后再试。";
+                infoText.text = ConfigTables.Text(UiText.MatchInitFailed);
             }
 
 
@@ -72,7 +72,7 @@ namespace RepGame.UI
         private void ClearStartPanel()
         {
             // 隐藏开始面板
-            infoText.text = "游戏结束！";
+            infoText.text = ConfigTables.Text(UiText.MatchGameOver);
             UIPanelController.Instance.HidePanel(PANEL_NAME);
         }
 

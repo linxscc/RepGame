@@ -36,7 +36,7 @@ namespace RepGame.GameLogic
         private string roomId;
         private string username;
         private string currentRound;
-        private float maxHealth = 100f;
+        private float maxHealth = ConfigTables.Settings.gameplay.fallbackMaxHealth;
 
         #endregion
 
@@ -289,7 +289,7 @@ namespace RepGame.GameLogic
         {
             if (result == null)
             {
-                OnMessageRequested?.Invoke("网络连接错误！", 0.5f);
+                OnMessageRequested?.Invoke(ConfigTables.Text(UiText.NetworkError), ConfigTables.Settings.ui.messageDuration);
                 return;
             }
 
@@ -389,7 +389,7 @@ namespace RepGame.GameLogic
         {
             if (result == null)
             {
-                OnMessageRequested?.Invoke("网络连接错误！", 0.5f);
+                OnMessageRequested?.Invoke(ConfigTables.Text(UiText.NetworkError), ConfigTables.Settings.ui.messageDuration);
                 return;
             }
 
@@ -410,7 +410,7 @@ namespace RepGame.GameLogic
                 if (currentLocalCardCount != result.SelfCards.Count)
                 {
                     // 自己进行了合成，显示合成成功消息
-                    OnMessageRequested?.Invoke("卡牌合成成功！", 0.5f);
+                    OnMessageRequested?.Invoke(ConfigTables.Text(UiText.ComposeSucceeded), ConfigTables.Settings.ui.messageDuration);
                     hasShownComposeMessage = true;
                 }
             }
@@ -425,7 +425,7 @@ namespace RepGame.GameLogic
                 if (!hasShownComposeMessage)
                 {
                     // 延迟显示敌方合成消息 0.8 秒
-                    OnDelayedMessageRequested?.Invoke("敌方完成卡牌合成！", 0.5f, 0.5f);
+                    OnDelayedMessageRequested?.Invoke(ConfigTables.Text(UiText.EnemyComposed), ConfigTables.Settings.ui.enemyComposeMessageDelay, ConfigTables.Settings.ui.messageDuration);
                     Debug.Log($"检测到敌方合成：敌方手牌数量 {enemyPlayer.CardsCount} 张");
                 }
             }
@@ -442,7 +442,7 @@ namespace RepGame.GameLogic
         {
             if (result == null)
             {
-                OnMessageRequested?.Invoke("网络连接错误！", 0.5f);
+                OnMessageRequested?.Invoke(ConfigTables.Text(UiText.NetworkError), ConfigTables.Settings.ui.messageDuration);
                 return;
             }
 
@@ -454,13 +454,13 @@ namespace RepGame.GameLogic
                 if (result.DamageInfo != null && result.DamageInfo.Count > 0)
                 {
                     ProcessDamageQueue(result.DamageInfo);
-                    // 0.5秒后显示失败消息
-                    OnDelayedMessageRequested?.Invoke("你失败了！", 0.5f, 3.0f);
+                    // 伤害信息显示完后再显示失败消息
+                    OnDelayedMessageRequested?.Invoke(ConfigTables.Text(UiText.Lose), ConfigTables.Settings.ui.gameOverMessageDelay, ConfigTables.Settings.ui.gameOverMessageDuration);
                 }
                 else
                 {
                     // 直接显示失败消息
-                    OnMessageRequested?.Invoke("你失败了！", 3.0f);
+                    OnMessageRequested?.Invoke(ConfigTables.Text(UiText.Lose), ConfigTables.Settings.ui.gameOverMessageDuration);
                 }
 
                 OnGameOverRequested?.Invoke(false); // 失败
@@ -468,7 +468,7 @@ namespace RepGame.GameLogic
             else
             {
                 // 直接显示胜利消息
-                OnMessageRequested?.Invoke("你胜利了！", 3.0f);
+                OnMessageRequested?.Invoke(ConfigTables.Text(UiText.Win), ConfigTables.Settings.ui.gameOverMessageDuration);
 
                 OnGameOverRequested?.Invoke(true); // 胜利
             }
@@ -614,19 +614,18 @@ namespace RepGame.GameLogic
         /// </summary>
         private string BuildDamageMessage(float damageAmount, BondModel[] triggeredBonds, bool isDamageDealer)
         {
-            string actionText = isDamageDealer ? "造成" : "受到";
-            string damageText = "点伤害";
+            string actionText = ConfigTables.Text(isDamageDealer ? UiText.DamageDealt : UiText.DamageTaken);
 
             // 检查是否有触发的羁绊
             if (triggeredBonds != null && triggeredBonds.Length > 0)
             {
                 var bondNames = triggeredBonds.Select(bond => bond.Name).ToArray();
                 string bondsText = string.Join("、", bondNames);
-                return $"存在{bondsText} 羁绊伤害加成，{actionText}{damageAmount} {damageText}！";
+                return ConfigTables.Text(UiText.DamageSummaryWithBonds, bondsText, actionText, damageAmount);
             }
             else
             {
-                return $"{actionText}伤害 {damageAmount} 点！";
+                return ConfigTables.Text(UiText.DamageSummary, actionText, damageAmount);
             }
         }
 
@@ -751,13 +750,13 @@ namespace RepGame.GameLogic
                 if (i == 0)
                 {
                     // 第一条消息立即显示
-                    OnMessageRequested?.Invoke(message, 0.5f);
+                    OnMessageRequested?.Invoke(message, ConfigTables.Settings.ui.messageDuration);
                 }
                 else
                 {
                     // 后续消息延迟显示
-                    float delay = i * 0.5f; // 每条消息间隔1秒
-                    OnDelayedMessageRequested?.Invoke(message, delay, 0.5f);
+                    float delay = i * ConfigTables.Settings.ui.damageMessageInterval; // 依次间隔显示
+                    OnDelayedMessageRequested?.Invoke(message, delay, ConfigTables.Settings.ui.messageDuration);
                 }
             }
         }
@@ -776,41 +775,41 @@ namespace RepGame.GameLogic
                 case "ATTACKED":
                     if (isSelfDamage)
                     {
-                        message = $"造成了 {damageInfo.DamageValue} 点伤害";
+                        message = ConfigTables.Text(UiText.DealtDamage, damageInfo.DamageValue);
                     }
                     else
                     {
-                        message = $"受到了 {damageInfo.DamageValue} 点伤害";
+                        message = ConfigTables.Text(UiText.TakenDamage, damageInfo.DamageValue);
                     }
                     break;
                 case "RECOVER":
                     if (isSelfDamage)
                     {
-                        message = $"回复了 {damageInfo.DamageValue} 点血量";
+                        message = ConfigTables.Text(UiText.SelfHeal, damageInfo.DamageValue);
                     }
                     else
                     {
-                        message = $"敌方回复了 {damageInfo.DamageValue} 点血量";
+                        message = ConfigTables.Text(UiText.EnemyHeal, damageInfo.DamageValue);
                     }
                     break;
                 case "AOE":
                     if (isSelfDamage)
                     {
-                        message = $"造成了 {damageInfo.DamageValue} 点AOE伤害";
+                        message = ConfigTables.Text(UiText.DealtAoe, damageInfo.DamageValue);
                     }
                     else
                     {
-                        message = $"受到了 {damageInfo.DamageValue} 点AOE伤害";
+                        message = ConfigTables.Text(UiText.TakenAoe, damageInfo.DamageValue);
                     }
                     break;
                 default:
                     if (isSelfDamage)
                     {
-                        message = $"造成了 {damageInfo.DamageValue} 点伤害";
+                        message = ConfigTables.Text(UiText.DealtDamage, damageInfo.DamageValue);
                     }
                     else
                     {
-                        message = $"受到了 {damageInfo.DamageValue} 点伤害";
+                        message = ConfigTables.Text(UiText.TakenDamage, damageInfo.DamageValue);
                     }
                     break;
             }
@@ -820,7 +819,7 @@ namespace RepGame.GameLogic
             {
                 var bondNames = damageInfo.TriggeredBonds.Select(bond => bond.Name).ToArray();
                 string bondsText = string.Join("、", bondNames);
-                message = $"触发{bondsText}羁绊，{message}！";
+                message = ConfigTables.Text(UiText.BondTriggered, bondsText, message);
             }
             else
             {

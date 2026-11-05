@@ -116,7 +116,7 @@ namespace RepGame.UI
         private void ShakeCard()
         {
             // 使用DOTween实现晃动效果
-            transform.DOShakePosition(0.5f, new Vector3(10, 0, 0), 10, 90, false, true);
+            transform.DOShakePosition(ConfigTables.Settings.ui.cardShakeDuration, new Vector3(10, 0, 0), 10, 90, false, true);
         }
 
         private void SetSelectionState(bool selected)

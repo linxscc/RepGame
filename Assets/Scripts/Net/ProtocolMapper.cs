@@ -1,3 +1,4 @@
+using RepGame.Core;
 using System.Collections.Generic;
 using System.Linq;
 using RepGame.Protocol;
@@ -93,20 +94,10 @@ namespace RepGame.Net
             }
         }
 
-        /// <summary>错误码 -> 给玩家看的提示。</summary>
+        /// <summary>错误码 -> 给玩家看的提示（文本见 StreamingAssets/Config/error_messages.json）</summary>
         public static string ToUserMessage(ErrorCode code)
         {
-            switch (code)
-            {
-                case ErrorCode.InvalidCredentials: return "用户名或密码错误";
-                case ErrorCode.UserExists: return "用户名已被注册";
-                case ErrorCode.NotAuthenticated: return "请先登录";
-                case ErrorCode.SessionExpired: return "登录已失效，请重新登录";
-                case ErrorCode.InvalidGameState: return "当前无法进行该操作";
-                case ErrorCode.InvalidCards: return "所选卡牌无效";
-                case ErrorCode.InvalidRequest: return "请求格式错误";
-                default: return "服务器繁忙，请稍后再试";
-            }
+            return ConfigTables.ErrorText(code.ToString());
         }
     }
 }

@@ -1,0 +1,13 @@
+{
+  "_comment": "服务器错误码 -> 玩家看到的提示。code 与协议 proto/repgame/v1/game.proto 中 ErrorCode 枚举的名称一致（去掉 ERROR_CODE_ 前缀，驼峰）。未配置的错误码显示 code 为 Default 的文本。",
+  "entries": [
+    { "code": "InvalidCredentials", "text": "用户名或密码错误", "comment": "登录时用户名不存在或密码错误" },
+    { "code": "UserExists", "text": "用户名已被注册", "comment": "注册时用户名重复" },
+    { "code": "NotAuthenticated", "text": "请先登录", "comment": "未登录就发送了对局请求" },
+    { "code": "SessionExpired", "text": "登录已失效，请重新登录", "comment": "会话令牌过期，或账号在其他设备登录" },
+    { "code": "InvalidGameState", "text": "当前无法进行该操作", "comment": "例如不是自己的回合" },
+    { "code": "InvalidCards", "text": "所选卡牌无效", "comment": "卡牌不在手牌中、重复或数量不合规则" },
+    { "code": "InvalidRequest", "text": "请求格式错误", "comment": "用户名/密码格式不对，或客户端版本不匹配" },
+    { "code": "Default", "text": "服务器繁忙，请稍后再试", "comment": "其他未单独配置的错误（含服务器内部错误）" }
+  ]
+}

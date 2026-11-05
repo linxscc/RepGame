@@ -1,0 +1,65 @@
+{
+  "_comment": "客户端数值配置表。以 _comment 开头的键只是说明，程序会忽略。与服务器相关的数值需和服务器 config/tables/network.yaml 保持一致。",
+
+  "network": {
+    "_comment": "网络连接",
+    "heartbeatIntervalSeconds": 15,
+    "_comment_heartbeatIntervalSeconds": "心跳间隔（秒），必须明显小于服务器 idle_timeout_seconds（45）",
+    "connectTimeoutSeconds": 8,
+    "_comment_connectTimeoutSeconds": "TCP 连接与 TLS 握手各自的超时时间（秒）",
+    "reconnectMaxDelaySeconds": 30,
+    "_comment_reconnectMaxDelaySeconds": "断线重连的最大等待间隔（秒）；重连间隔按 1、2、4、8… 秒递增，不超过该值",
+    "maxFrameBytes": 1048576,
+    "_comment_maxFrameBytes": "单条消息最大字节数，与服务器 max_frame_bytes 一致"
+  },
+
+  "account": {
+    "_comment": "账号输入限制。服务器允许的范围更宽（用户名 3-32、密码 6-72），这里的限制必须落在服务器范围内",
+    "usernameMinLength": 3,
+    "usernameMaxLength": 20,
+    "passwordMinLength": 6,
+    "passwordMaxLength": 24
+  },
+
+  "gameplay": {
+    "_comment": "对局显示相关",
+    "fallbackMaxHealth": 100,
+    "_comment_fallbackMaxHealth": "收到服务器血量之前血条使用的上限；开局后以服务器下发的血量为准"
+  },
+
+  "ui": {
+    "_comment": "界面提示与动画时长（秒）",
+    "messageDuration": 0.5,
+    "_comment_messageDuration": "普通提示（合成成功、网络错误等）的显示时长",
+    "damageMessageDuration": 0.8,
+    "_comment_damageMessageDuration": "伤害/操作失败提示的显示时长",
+    "damageMessageInterval": 0.5,
+    "_comment_damageMessageInterval": "多条伤害信息依次显示时的间隔",
+    "enemyComposeMessageDelay": 0.5,
+    "_comment_enemyComposeMessageDelay": "“敌方完成卡牌合成”提示的延迟",
+    "gameOverMessageDelay": 0.5,
+    "_comment_gameOverMessageDelay": "胜负提示出现前的延迟",
+    "gameOverMessageDuration": 3.0,
+    "_comment_gameOverMessageDuration": "胜负提示的显示时长",
+    "gameOverPanelDelay": 0.5,
+    "_comment_gameOverPanelDelay": "对局结束后弹出结算面板的延迟",
+    "loginToStartPanelDelay": 0.1,
+    "_comment_loginToStartPanelDelay": "登录成功后切换到开始面板的延迟",
+    "registerToLoginPanelDelay": 0.5,
+    "_comment_registerToLoginPanelDelay": "注册成功后返回登录面板的延迟",
+    "matchFoundPanelDelay": 0.2,
+    "_comment_matchFoundPanelDelay": "匹配成功后关闭开始面板的延迟",
+    "rematchPanelDelay": 0.5,
+    "_comment_rematchPanelDelay": "再来一局匹配成功后关闭结算面板的延迟",
+    "defaultPanelDelay": 0.1,
+    "_comment_defaultPanelDelay": "启动后显示默认面板（登录）的延迟，等待所有面板注册完成",
+    "bondTooltipDelay": 0.5,
+    "_comment_bondTooltipDelay": "鼠标悬停羁绊多久后显示说明",
+    "bondTooltipOffset": 150,
+    "_comment_bondTooltipOffset": "羁绊说明框相对鼠标的偏移（像素）",
+    "cardShakeDuration": 0.5,
+    "_comment_cardShakeDuration": "卡牌抖动动画时长",
+    "cardPoolSize": 17,
+    "_comment_cardPoolSize": "每种卡牌预制体在对象池中预先创建的实例数"
+  }
+}

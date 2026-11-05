@@ -60,19 +60,20 @@ public class PanelLoginController : UIBase
         string username = inputUserName.text;
         string password = inputPassword.text;
 
-        if (string.IsNullOrEmpty(username) || username.Length < 3 || username.Length > 20)
+        var account = ConfigTables.Settings.account;
+        if (string.IsNullOrEmpty(username) || username.Length < account.usernameMinLength || username.Length > account.usernameMaxLength)
         {
-            infoText.text = "用户名长度需为3-20位";
+            infoText.text = ConfigTables.Text(UiText.UsernameLength, account.usernameMinLength, account.usernameMaxLength);
             return;
         }
 
-        if (string.IsNullOrEmpty(password) || password.Length < 6 || password.Length > 24)
+        if (string.IsNullOrEmpty(password) || password.Length < account.passwordMinLength || password.Length > account.passwordMaxLength)
         {
-            infoText.text = "密码长度需为6-24位";
+            infoText.text = ConfigTables.Text(UiText.PasswordLength, account.passwordMinLength, account.passwordMaxLength);
             return;
         }
 
-        infoText.text = "登录中...";
+        infoText.text = ConfigTables.Text(UiText.LoggingIn);
         GameTcpClient.Instance.Login(username, password);
     }
     private void OnGoToRegisterClick()
@@ -90,7 +91,7 @@ public class PanelLoginController : UIBase
     {
         UserAccountManager.Instance.SetUsername(username);
         // 登录成功后隐藏登录面板，显示开始面板
-        Invoke(nameof(GotoStartPanel), 0.1f);
+        Invoke(nameof(GotoStartPanel), ConfigTables.Settings.ui.loginToStartPanelDelay);
     }
 
     /// <summary>
@@ -130,10 +131,11 @@ public class PanelLoginController : UIBase
         // 只允许字母、数字、下划线和汉字
         string filtered = Regex.Replace(value, @"[^a-zA-Z0-9_\u4e00-\u9fa5]", "");
 
-        // 限制用户名最多20位
-        if (filtered.Length > 20)
+        // 限制用户名最大长度（client_settings.json）
+        int maxUsername = ConfigTables.Settings.account.usernameMaxLength;
+        if (filtered.Length > maxUsername)
         {
-            filtered = filtered.Substring(0, 20);
+            filtered = filtered.Substring(0, maxUsername);
         }
 
         if (filtered != value)
@@ -147,10 +149,11 @@ public class PanelLoginController : UIBase
         // 只允许字母、数字和@#&*特殊字符
         string filtered = Regex.Replace(value, @"[^a-zA-Z0-9@#&*]", "");
 
-        // 限制密码最多24位
-        if (filtered.Length > 24)
+        // 限制密码最大长度（client_settings.json）
+        int maxPassword = ConfigTables.Settings.account.passwordMaxLength;
+        if (filtered.Length > maxPassword)
         {
-            filtered = filtered.Substring(0, 24);
+            filtered = filtered.Substring(0, maxPassword);
         }
 
         if (filtered != value)

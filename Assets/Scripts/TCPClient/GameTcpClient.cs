@@ -34,8 +34,6 @@ public class GameTcpClient : MonoBehaviour
         }
     }
 
-    private const float HeartbeatInterval = 15f;
-    private const float MaxReconnectDelay = 30f;
 
     private readonly ConcurrentQueue<Action> mainThreadQueue = new ConcurrentQueue<Action>();
     private readonly Dictionary<uint, RequestKind> pendingRequests = new Dictionary<uint, RequestKind>();
@@ -90,7 +88,7 @@ public class GameTcpClient : MonoBehaviour
 
         if (IsConnected && Time.unscaledTime >= nextHeartbeatAt)
         {
-            nextHeartbeatAt = Time.unscaledTime + HeartbeatInterval;
+            nextHeartbeatAt = Time.unscaledTime + ConfigTables.Settings.network.heartbeatIntervalSeconds;
             Send(new ClientMessage { Ping = new RepGame.Protocol.Ping { ClientTimeMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() } });
         }
     }
@@ -145,10 +143,12 @@ public class GameTcpClient : MonoBehaviour
             Port = EnvConfig.GetInt("SERVER_PORT", 9060),
             UseTls = !string.Equals(EnvConfig.GetString("SERVER_TLS", "true"), "false", StringComparison.OrdinalIgnoreCase),
             CertSha256 = EnvConfig.GetString("SERVER_CERT_SHA256", ""),
+            ConnectTimeout = TimeSpan.FromSeconds(ConfigTables.Settings.network.connectTimeoutSeconds),
         };
         if (!settings.UseTls)
             Debug.LogWarning("SERVER_TLS=false：连接未加密，仅限本地调试使用");
 
+        FrameCodec.MaxFrameSize = ConfigTables.Settings.network.maxFrameBytes;
         var conn = new SecureConnection(settings);
         conn.MessageReceived += msg => mainThreadQueue.Enqueue(() => router.Route(msg, TakePendingRequest(msg.ReplyTo)));
         conn.Closed += error => mainThreadQueue.Enqueue(() => OnConnectionClosed(conn, error));
@@ -169,16 +169,16 @@ public class GameTcpClient : MonoBehaviour
                 : "";
             Debug.LogError($"连接服务器失败: {error?.Message}{hint}");
             conn.Dispose();
-            EventManager.TriggerEvent(NetEvents.ConnectionFailed, "无法连接到服务器，请检查网络连接");
+            EventManager.TriggerEvent(NetEvents.ConnectionFailed, ConfigTables.Text(UiText.ConnectionFailed));
             ScheduleReconnect();
             return;
         }
 
         connection = conn;
         reconnectAttempts = 0;
-        nextHeartbeatAt = Time.unscaledTime + HeartbeatInterval;
+        nextHeartbeatAt = Time.unscaledTime + ConfigTables.Settings.network.heartbeatIntervalSeconds;
         Debug.Log("已连接到服务器");
-        EventManager.TriggerEvent(NetEvents.ConnectedToServer, "已连接到服务器");
+        EventManager.TriggerEvent(NetEvents.ConnectedToServer, ConfigTables.Text(UiText.ConnectionConnected));
 
         // 断线前已登录：用会话令牌恢复身份（服务器会推送当前对局状态）
         if (!string.IsNullOrEmpty(sessionToken))
@@ -195,7 +195,7 @@ public class GameTcpClient : MonoBehaviour
 
         if (shuttingDown) return;
         Debug.LogWarning($"与服务器的连接已断开: {error?.Message ?? "服务器关闭了连接"}");
-        EventManager.TriggerEvent(NetEvents.Disconnected, "与服务器的连接已断开，正在重连...");
+        EventManager.TriggerEvent(NetEvents.Disconnected, ConfigTables.Text(UiText.ConnectionLost));
         ScheduleReconnect();
     }
 
@@ -203,7 +203,7 @@ public class GameTcpClient : MonoBehaviour
     {
         if (shuttingDown) return;
         reconnectAttempts++;
-        float delay = Mathf.Min(MaxReconnectDelay, Mathf.Pow(2, reconnectAttempts - 1));
+        float delay = Mathf.Min(ConfigTables.Settings.network.reconnectMaxDelaySeconds, Mathf.Pow(2, reconnectAttempts - 1));
         Debug.Log($"{delay:0} 秒后进行第 {reconnectAttempts} 次重连");
         CancelInvoke(nameof(ConnectToServer));
         Invoke(nameof(ConnectToServer), delay);
@@ -235,7 +235,7 @@ public class GameTcpClient : MonoBehaviour
             EventManager.TriggerEvent(NetEvents.RequestFailed, new RequestFailure
             {
                 Request = ProtocolMapper.ToRequestKind(message.BodyCase),
-                Message = "未连接到服务器，请稍后再试",
+                Message = ConfigTables.Text(UiText.ConnectionNotConnected),
             });
             ReconnectNow();
             return;

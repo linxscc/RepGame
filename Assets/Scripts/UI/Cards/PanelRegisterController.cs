@@ -58,23 +58,24 @@ public class PanelRegisterController : UIBase
         string password = inputPassword.text;
         string repeatPassword = inputRepeatPassword.text;
 
-        if (string.IsNullOrEmpty(username) || username.Length < 3 || username.Length > 20)
+        var account = ConfigTables.Settings.account;
+        if (string.IsNullOrEmpty(username) || username.Length < account.usernameMinLength || username.Length > account.usernameMaxLength)
         {
-            infoText.text = "用户名长度需为3-20位";
+            infoText.text = ConfigTables.Text(UiText.UsernameLength, account.usernameMinLength, account.usernameMaxLength);
             return;
         }
 
-        if (string.IsNullOrEmpty(password) || password.Length < 6 || password.Length > 24)
+        if (string.IsNullOrEmpty(password) || password.Length < account.passwordMinLength || password.Length > account.passwordMaxLength)
         {
-            infoText.text = "密码长度需为6-24位";
+            infoText.text = ConfigTables.Text(UiText.PasswordLength, account.passwordMinLength, account.passwordMaxLength);
             return;
         }        // 验证两次输入的密码是否一致
         if (password != repeatPassword)
         {
-            infoText.text = "两次输入的密码不一致";
+            infoText.text = ConfigTables.Text(UiText.PasswordMismatch);
             return;
         }
-        infoText.text = "注册中...";
+        infoText.text = ConfigTables.Text(UiText.Registering);
         GameTcpClient.Instance.Register(username, password);
     }
     private void OnGoToLoginClick()
@@ -89,8 +90,8 @@ public class PanelRegisterController : UIBase
 
     private void OnRegisterSucceeded(string username)
     {
-        infoText.text = "注册成功，请登录";
-        Invoke(nameof(OnGoToLoginClick), 0.5f);
+        infoText.text = ConfigTables.Text(UiText.RegisterSucceeded);
+        Invoke(nameof(OnGoToLoginClick), ConfigTables.Settings.ui.registerToLoginPanelDelay);
     }
 
     private void OnRequestFailed(RequestFailure failure)
@@ -106,10 +107,11 @@ public class PanelRegisterController : UIBase
         // 只允许字母、数字、下划线和汉字
         string filtered = Regex.Replace(value, @"[^a-zA-Z0-9_\u4e00-\u9fa5]", "");
 
-        // 限制用户名最多20位
-        if (filtered.Length > 20)
+        // 限制用户名最大长度（client_settings.json）
+        int maxUsername = ConfigTables.Settings.account.usernameMaxLength;
+        if (filtered.Length > maxUsername)
         {
-            filtered = filtered.Substring(0, 20);
+            filtered = filtered.Substring(0, maxUsername);
         }
 
         if (filtered != value)
@@ -123,10 +125,11 @@ public class PanelRegisterController : UIBase
         // 只允许字母、数字和@#&*特殊字符
         string filtered = Regex.Replace(value, @"[^a-zA-Z0-9@#&*]", "");
 
-        // 限制密码最多24位
-        if (filtered.Length > 24)
+        // 限制密码最大长度（client_settings.json）
+        int maxPassword = ConfigTables.Settings.account.passwordMaxLength;
+        if (filtered.Length > maxPassword)
         {
-            filtered = filtered.Substring(0, 24);
+            filtered = filtered.Substring(0, maxPassword);
         }
 
         TMP_InputField inputField = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.GetComponent<TMP_InputField>();

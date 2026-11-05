@@ -1,3 +1,4 @@
+using RepGame.Core;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -99,7 +100,7 @@ namespace RepGame.UI
         private IEnumerator HoverTimer()
         {
             // 等待0.5秒
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(ConfigTables.Settings.ui.bondTooltipDelay);
 
             // 如果仍在悬停状态，显示提示文本
             if (isHovering && tooltipPrefab != null)
@@ -159,7 +160,7 @@ namespace RepGame.UI
             {
                 // 设置位置在鼠标左侧（偏移一定距离）
                 Vector3 tooltipPosition = mousePosition;
-                tooltipPosition.x -= 150f; // 向左偏移150像素
+                tooltipPosition.x -= ConfigTables.Settings.ui.bondTooltipOffset; // 向左偏移（client_settings.json）
 
                 // 确保提示框不会超出屏幕左边界
                 if (tooltipPosition.x < 0)
@@ -191,15 +192,10 @@ namespace RepGame.UI
         {
             string cardNamesText = CardNames != null && CardNames.Count > 0
                 ? string.Join(", ", CardNames)
-                : "无";
+                : ConfigTables.Text(UiText.BondNone);
 
-            return $"<b>{Name}</b>\n" +
-                   $"等级: {Level}\n" +
-                   $"伤害: {Damage}\n" +
-                   $"卡牌: {cardNamesText}\n" +
-                   $"技能: {Skill}\n" +
-                   $"描述: {Description}\n" +
-                   $"状态: {(IsActived ? "已激活" : "未激活")}";
+            string status = ConfigTables.Text(IsActived ? UiText.BondActive : UiText.BondInactive);
+            return $"<b>{Name}</b>\n" + ConfigTables.Text(UiText.BondTooltip, Level, Damage, cardNamesText, Skill, Description, status);
         }
 
         private void HideTooltip()
