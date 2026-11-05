@@ -31,6 +31,8 @@ namespace RepGame.GameLogic
 
         private List<Card> selectedCards;
         private Dictionary<string, Card> cardModelsById;
+        // 服务器最近一次下发的手牌，用于请求被拒绝时恢复本地显示
+        private List<Card> lastServerHand = new List<Card>();
         private string roomId;
         private string username;
         private string currentRound;
@@ -72,6 +74,7 @@ namespace RepGame.GameLogic
 
             // 初始化卡牌数据
             cardModelsById.Clear();
+            lastServerHand = gameInfo.SelfCards != null ? new List<Card>(gameInfo.SelfCards) : new List<Card>();
             if (gameInfo.SelfCards != null)
             {
                 foreach (var card in gameInfo.SelfCards)
@@ -159,6 +162,30 @@ namespace RepGame.GameLogic
             selectedCards.Clear();
 
             OnClearCardSelection?.Invoke();
+            OnButtonVisibilityUpdate?.Invoke();
+            OnBondDisplayUpdate?.Invoke();
+        }
+
+        /// <summary>
+        /// 取消所有选中（只清选择状态，不删除卡牌数据），用于“清除选择”按钮
+        /// </summary>
+        public void DeselectAllCards()
+        {
+            selectedCards.Clear();
+            OnClearCardSelection?.Invoke();
+            OnButtonVisibilityUpdate?.Invoke();
+            OnBondDisplayUpdate?.Invoke();
+        }
+
+        /// <summary>
+        /// 出牌/合成被服务器拒绝时，把本地手牌恢复为服务器最近一次下发的状态
+        /// </summary>
+        public void RestoreLastServerHand()
+        {
+            UpdateCardModelsFromList(lastServerHand);
+            selectedCards.Clear();
+            OnClearCardSelection?.Invoke();
+            OnHandCardsUpdated?.Invoke(new List<Card>(lastServerHand));
             OnButtonVisibilityUpdate?.Invoke();
             OnBondDisplayUpdate?.Invoke();
         }
@@ -650,6 +677,7 @@ namespace RepGame.GameLogic
 
             // 清空现有数据
             cardModelsById.Clear();
+            lastServerHand = new List<Card>(cards);
 
             // 重新构建卡牌数据字典
             foreach (var card in cards)

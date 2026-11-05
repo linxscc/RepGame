@@ -29,7 +29,6 @@ namespace RepGame.UI
         private Transform cardContainer;
         private Transform playContainer;
         private Transform enemyCardContainer;
-        private CardUIManager cardManager;
 
         // UI组件
         private Image bloodBar;
@@ -53,7 +52,7 @@ namespace RepGame.UI
         private bool isInfoDisplaying = false;
 
         private float MAX_HEALTH = 100f;
-        private void Start()
+        private void Awake()
         {
             // 初始化游戏状态管理器
             gameStateManager = new GameStateManager();
@@ -62,6 +61,11 @@ namespace RepGame.UI
             // 查找Panel和组件
             panelMain = FindGameObject(PANEL_NAME);
             InitializeComponents();
+        }
+
+        private void OnEnable()
+        {
+            // 与 OnDisable 成对，面板隐藏后再次显示也能重新收到事件
             SubscribeEvents();
         }
         private void InitializeComponents()
@@ -190,6 +194,7 @@ namespace RepGame.UI
             EventManager.Subscribe<ResPlayerGameInfo>(NetEvents.CardsComposed, OnComposeCardResult);
             EventManager.Subscribe<ResPlayerGameInfo>(NetEvents.ForcePlay, OnForcePlayCards);
             EventManager.Subscribe<ResPlayerGameInfo>(NetEvents.GameOver, OnGameOver);
+            EventManager.Subscribe<ResPlayerGameInfo>(NetEvents.GameResumed, OnGameResumed);
             EventManager.Subscribe<RequestFailure>(NetEvents.RequestFailed, OnRequestFailed);
         }
         private void OnDisable()
@@ -211,6 +216,7 @@ namespace RepGame.UI
             EventManager.Unsubscribe<ResPlayerGameInfo>(NetEvents.CardsComposed, OnComposeCardResult);
             EventManager.Unsubscribe<ResPlayerGameInfo>(NetEvents.ForcePlay, OnForcePlayCards);
             EventManager.Unsubscribe<ResPlayerGameInfo>(NetEvents.GameOver, OnGameOver);
+            EventManager.Unsubscribe<ResPlayerGameInfo>(NetEvents.GameResumed, OnGameResumed);
             EventManager.Unsubscribe<RequestFailure>(NetEvents.RequestFailed, OnRequestFailed);
         }
         private void UpdateButtonVisibility()
@@ -298,7 +304,7 @@ namespace RepGame.UI
         }
         private void OnClrButtonClicked()
         {
-            ClearSelectedCards();
+            gameStateManager.DeselectAllCards();
         }
         private void OnCompButtonClicked()
         {
@@ -345,7 +351,35 @@ namespace RepGame.UI
         private void OnForcePlayCards(ResPlayerGameInfo state)
         {
             Debug.Log("出牌超时，自动出牌");
-            cardManager.AutoPlayFirstCard();
+            AutoPlayFirstCard();
+        }
+
+        /// <summary>
+        /// 取消当前选择，选中手牌中的第一张并出牌
+        /// </summary>
+        private void AutoPlayFirstCard()
+        {
+            gameStateManager.DeselectAllCards();
+
+            var firstCard = instantiatedCards.Count > 0 ? instantiatedCards[0].GetComponent<CardItem>() : null;
+            if (firstCard == null || !gameStateManager.HandleCardSelected(firstCard.CardID))
+            {
+                Debug.LogWarning("没有可自动打出的手牌");
+                return;
+            }
+            OnPlayButtonClicked();
+        }
+
+        /// <summary>
+        /// 断线重连后服务器下发完整对局状态：重建手牌和血量
+        /// </summary>
+        private void OnGameResumed(ResPlayerGameInfo state)
+        {
+            float maxHealth = MAX_HEALTH;
+            InitGame(state);
+            // Init 会把当前血量当作上限，重连时保留原上限
+            MAX_HEALTH = Mathf.Max(maxHealth, state.Health);
+            UpdateHealthBars(state);
         }
         private void OnGameOver(ResPlayerGameInfo playerGameInfo)
         {
@@ -611,6 +645,8 @@ namespace RepGame.UI
         {
             if (failure.Request == RequestKind.PlayCards || failure.Request == RequestKind.ComposeCards)
             {
+                // 发送时已在本地移除了这些牌，服务器拒绝后按最近一次服务器手牌恢复
+                gameStateManager.RestoreLastServerHand();
                 ShowDamageMessage(failure.Message);
             }
         }

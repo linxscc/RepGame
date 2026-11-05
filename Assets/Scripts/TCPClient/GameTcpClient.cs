@@ -77,7 +77,15 @@ public class GameTcpClient : MonoBehaviour
     {
         while (mainThreadQueue.TryDequeue(out var action))
         {
-            action();
+            try
+            {
+                action();
+            }
+            catch (Exception e)
+            {
+                // 单个处理器出错不能影响后续消息
+                Debug.LogException(e);
+            }
         }
 
         if (IsConnected && Time.unscaledTime >= nextHeartbeatAt)

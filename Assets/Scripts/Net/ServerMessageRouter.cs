@@ -82,8 +82,10 @@ namespace RepGame.Net
             switch (m.GameState.Reason)
             {
                 case GameStateReason.GameStarted:
-                case GameStateReason.Reconnected:
                     EventManager.TriggerEvent(NetEvents.GameStarted, info);
+                    break;
+                case GameStateReason.Reconnected:
+                    EventManager.TriggerEvent(NetEvents.GameResumed, info);
                     break;
                 case GameStateReason.CardsComposed:
                     EventManager.TriggerEvent(NetEvents.CardsComposed, info);

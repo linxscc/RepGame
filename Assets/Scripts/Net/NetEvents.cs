@@ -22,7 +22,8 @@ namespace RepGame.Net
         public const string RequestFailed = "Net.RequestFailed";
 
         // ---- 对局，参数：ResPlayerGameInfo ----
-        public const string GameStarted = "Net.GameStarted";      // 匹配成功或断线重连回到对局
+        public const string GameStarted = "Net.GameStarted";      // 匹配成功，新对局开始
+        public const string GameResumed = "Net.GameResumed";      // 断线重连后回到进行中的对局（完整状态）
         public const string CardsPlayed = "Net.CardsPlayed";
         public const string CardsComposed = "Net.CardsComposed";
         public const string ForcePlay = "Net.ForcePlay";          // 出牌超时，需要立即出牌
