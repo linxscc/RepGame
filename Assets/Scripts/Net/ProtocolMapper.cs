@@ -1,84 +1,13 @@
 using RepGame.Core;
-using System.Collections.Generic;
-using System.Linq;
 using RepGame.Protocol;
-using RepGameModels;
-using PbCard = RepGame.Protocol.Card;
-using DomainCard = RepGameModels.Card;
-using PbDamageInfo = RepGame.Protocol.DamageInfo;
-using DomainDamageInfo = RepGameModels.DamageInfo;
 
 namespace RepGame.Net
 {
     /// <summary>
-    /// 协议消息 -> 领域模型 的转换，协议类型只在网络层内部使用。
+    /// 协议相关的小工具：请求类型识别、错误码转提示文本。
     /// </summary>
     public static class ProtocolMapper
     {
-        public static ResPlayerGameInfo ToPlayerGameInfo(GameState s)
-        {
-            return new ResPlayerGameInfo
-            {
-                Room_Id = s.RoomId,
-                Username = s.Username,
-                Round = s.Round,
-                Health = (float)s.Health,
-                SelfCards = s.SelfCards.Select(ToCard).ToList(),
-                OtherPlayers = s.OtherPlayers.Select(o => new OtherPlayerGameInfo
-                {
-                    Username = o.Username,
-                    Round = o.Round,
-                    Health = (float)o.Health,
-                    CardsCount = o.CardsCount,
-                }).ToList(),
-                DamageInfo = s.DamageInfo.Select(ToDamageInfo).ToList(),
-            };
-        }
-
-        public static DomainCard ToCard(PbCard c)
-        {
-            return new DomainCard
-            {
-                UID = c.Uid,
-                ID = c.Id,
-                Name = c.Name,
-                Damage = (float)c.Damage,
-                TargetName = c.HasTargetName ? c.TargetName : null,
-                Level = c.Level,
-            };
-        }
-
-        public static BondModel ToBond(Bond b)
-        {
-            return new BondModel
-            {
-                ID = b.Id,
-                Name = b.Name,
-                Level = b.Level,
-                CardNames = b.CardNames.ToList(),
-                Damage = (float)b.Damage,
-                Description = b.Description,
-                Skill = b.Skill,
-            };
-        }
-
-        public static List<BondModel> ToBonds(BondList list)
-        {
-            return list.Bonds.Select(ToBond).ToList();
-        }
-
-        private static DomainDamageInfo ToDamageInfo(PbDamageInfo d)
-        {
-            return new DomainDamageInfo
-            {
-                DamageSource = d.Source,
-                DamageTarget = d.Target,
-                DamageType = d.Type,
-                DamageValue = (float)d.Value,
-                TriggeredBonds = d.TriggeredBonds.Select(ToBond).ToList(),
-            };
-        }
-
         public static RequestKind ToRequestKind(ClientMessage.BodyOneofCase body)
         {
             switch (body)
@@ -87,9 +16,6 @@ namespace RepGame.Net
                 case ClientMessage.BodyOneofCase.Register: return RequestKind.Register;
                 case ClientMessage.BodyOneofCase.ResumeSession: return RequestKind.ResumeSession;
                 case ClientMessage.BodyOneofCase.Ready: return RequestKind.Ready;
-                case ClientMessage.BodyOneofCase.Restart: return RequestKind.Restart;
-                case ClientMessage.BodyOneofCase.PlayCards: return RequestKind.PlayCards;
-                case ClientMessage.BodyOneofCase.ComposeCards: return RequestKind.ComposeCards;
                 case ClientMessage.BodyOneofCase.GameAction: return RequestKind.GameAction;
                 case ClientMessage.BodyOneofCase.CancelMatch: return RequestKind.CancelMatch;
                 default: return RequestKind.Unknown;

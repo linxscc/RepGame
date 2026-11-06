@@ -2,10 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using RepGame.UI;
-using RepGameModels;
 using RepGame.Core;
 using RepGame;
-using RepGame.GameLogic;
 using RepGame.Net;
 using System.Text.RegularExpressions;
 
@@ -21,7 +19,6 @@ public class PanelLoginController : UIBase
     public const string PANEL_NAME = "Panel_Login";
     public const string REGISTER_PANEL_NAME = "Panel_Register";
     public const string START_PANEL_NAME = "Panel_Start";
-    public const string MAIN_PANEL_NAME = "Panel_Main";
 
     void Awake()
     {
@@ -42,14 +39,14 @@ public class PanelLoginController : UIBase
     {
         EventManager.Subscribe<string>(NetEvents.LoginSucceeded, OnLoginSucceeded);
         EventManager.Subscribe<RequestFailure>(NetEvents.RequestFailed, OnRequestFailed);
-        EventManager.Subscribe<ResPlayerGameInfo>(NetEvents.GameResumed, OnGameResumed);
+        RepGame.Chess.ChessSession.Instance.ConfigReceived += OnMatchConfig;
     }
 
     void OnDisable()
     {
         EventManager.Unsubscribe<string>(NetEvents.LoginSucceeded, OnLoginSucceeded);
         EventManager.Unsubscribe<RequestFailure>(NetEvents.RequestFailed, OnRequestFailed);
-        EventManager.Unsubscribe<ResPlayerGameInfo>(NetEvents.GameResumed, OnGameResumed);
+        RepGame.Chess.ChessSession.Instance.ConfigReceived -= OnMatchConfig;
     }
 
     private void OnLoginClick()
@@ -87,17 +84,13 @@ public class PanelLoginController : UIBase
     }
 
     /// <summary>
-    /// 客户端重启后登录，而该账号仍有进行中的对局：跳过开始面板，直接回到对局
+    /// 登录后该账号仍有进行中的对局：服务器直接下发对局数据，由对局界面接管，不再跳到开始面板
     /// </summary>
-    private void OnGameResumed(ResPlayerGameInfo state)
+    private void OnMatchConfig(RepGame.Protocol.MatchConfig _)
     {
         CancelInvoke(nameof(GotoStartPanel));
         inputPassword.text = string.Empty;
         infoText.text = "";
-
-        UIPanelController.Instance.ShowPanel(MAIN_PANEL_NAME, hideOthers: true);
-        // 主面板激活后已完成订阅，再转交给它重建对局
-        EventManager.TriggerEvent(NetEvents.GameResumed, state);
     }
 
     private void OnRequestFailed(RequestFailure failure)

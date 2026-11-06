@@ -87,36 +87,6 @@ namespace RepGame.Core
         public const string Registering = "account.registering";
         public const string RegisterSucceeded = "account.registerSucceeded";
         public const string Nickname = "account.nickname";
-
-        public const string MatchWaiting = "match.waiting";
-        public const string MatchFound = "match.found";
-        public const string MatchInitFailed = "match.initFailed";
-        public const string MatchGameOver = "match.gameOver";
-
-        public const string NetworkError = "game.networkError";
-        public const string ComposeSucceeded = "game.composeSucceeded";
-        public const string EnemyComposed = "game.enemyComposed";
-        public const string Win = "game.win";
-        public const string Lose = "game.lose";
-        public const string ForcedPlay = "game.forcedPlay";
-        public const string RequestTimeout = "game.requestTimeout";
-
-        public const string DamageDealt = "damage.dealt";
-        public const string DamageTaken = "damage.taken";
-        public const string DamageSummaryWithBonds = "damage.summaryWithBonds";
-        public const string DamageSummary = "damage.summary";
-        public const string DealtDamage = "damage.dealtDamage";
-        public const string TakenDamage = "damage.takenDamage";
-        public const string SelfHeal = "damage.selfHeal";
-        public const string EnemyHeal = "damage.enemyHeal";
-        public const string DealtAoe = "damage.dealtAoe";
-        public const string TakenAoe = "damage.takenAoe";
-        public const string BondTriggered = "damage.bondTriggered";
-
-        public const string BondTooltip = "bond.tooltip";
-        public const string BondActive = "bond.active";
-        public const string BondInactive = "bond.inactive";
-        public const string BondNone = "bond.none";
     }
 
     public static class ConfigTables

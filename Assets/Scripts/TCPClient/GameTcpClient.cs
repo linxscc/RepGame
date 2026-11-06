@@ -119,27 +119,11 @@ public class GameTcpClient : MonoBehaviour
 
     public void Ready() => Send(new ClientMessage { Ready = new ReadyRequest() });
 
-    public void Restart() => Send(new ClientMessage { Restart = new RestartRequest() });
-
     /// <summary>取消匹配（离开匹配队列）</summary>
     public void CancelMatch() => Send(new ClientMessage { CancelMatch = new CancelMatchRequest() });
 
     /// <summary>新版对局的所有操作（见 RepGame.Chess.ChessActions）</summary>
     public void SendGameAction(GameAction action) => Send(new ClientMessage { GameAction = action });
-
-    public void PlayCards(string roomId, IEnumerable<string> cardUids)
-    {
-        var req = new PlayCardsRequest { RoomId = roomId ?? "" };
-        req.CardUids.AddRange(cardUids);
-        Send(new ClientMessage { PlayCards = req });
-    }
-
-    public void ComposeCards(string roomId, IEnumerable<string> cardUids)
-    {
-        var req = new ComposeCardsRequest { RoomId = roomId ?? "" };
-        req.CardUids.AddRange(cardUids);
-        Send(new ClientMessage { ComposeCards = req });
-    }
 
     // ------------------------------------------------------------------
     // 连接生命周期

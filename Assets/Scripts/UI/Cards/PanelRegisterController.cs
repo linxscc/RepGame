@@ -2,7 +2,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using RepGame.UI;
-using RepGameModels;
 using RepGame.Core;
 using RepGame;
 using RepGame.Net;

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using RepGameModels;
 
 namespace RepGame.Net
 {
@@ -24,17 +23,6 @@ namespace RepGame.Net
         /// <summary>请求被服务器拒绝，参数：<see cref="RequestFailure"/></summary>
         public const string RequestFailed = "Net.RequestFailed";
 
-        // ---- 对局，参数：ResPlayerGameInfo ----
-        public const string GameStarted = "Net.GameStarted";      // 匹配成功，新对局开始
-        public const string GameResumed = "Net.GameResumed";      // 断线重连后回到进行中的对局（完整状态）
-        public const string CardsPlayed = "Net.CardsPlayed";
-        public const string CardsComposed = "Net.CardsComposed";
-        public const string ForcePlay = "Net.ForcePlay";          // 出牌超时，需要立即出牌
-        public const string GameOver = "Net.GameOver";
-
-        /// <summary>羁绊表，参数：List&lt;BondModel&gt;</summary>
-        public const string BondsReceived = "Net.BondsReceived";
-
         /// <summary>对手掉线/重连，参数：<see cref="PlayerPresenceInfo"/></summary>
         public const string PlayerPresenceChanged = "Net.PlayerPresenceChanged";
     }
@@ -46,9 +34,6 @@ namespace RepGame.Net
         Register,
         ResumeSession,
         Ready,
-        Restart,
-        PlayCards,
-        ComposeCards,
         GameAction,
         CancelMatch,
     }

@@ -105,7 +105,7 @@ namespace RepGame.Chess.UI
 
         private void OnRequestFailed(RequestFailure failure)
         {
-            if (failure.Request == RequestKind.Ready || failure.Request == RequestKind.Restart) Hide();
+            if (failure.Request == RequestKind.Ready) Hide();
         }
 
         private void Update()

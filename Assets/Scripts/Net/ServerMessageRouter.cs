@@ -30,8 +30,6 @@ namespace RepGame.Net
                 { ServerMessage.BodyOneofCase.Error, OnError },
                 { ServerMessage.BodyOneofCase.AuthResult, (m, _) => OnAuthResult(m) },
                 { ServerMessage.BodyOneofCase.RegisterResult, (m, _) => EventManager.TriggerEvent(NetEvents.RegisterSucceeded, m.RegisterResult.Username) },
-                { ServerMessage.BodyOneofCase.BondList, (m, _) => EventManager.TriggerEvent(NetEvents.BondsReceived, ProtocolMapper.ToBonds(m.BondList)) },
-                { ServerMessage.BodyOneofCase.GameState, (m, _) => OnGameState(m) },
                 { ServerMessage.BodyOneofCase.PlayerPresence, (m, _) => OnPlayerPresence(m) },
                 { ServerMessage.BodyOneofCase.MatchConfig, (m, _) => RepGame.Chess.ChessSession.Instance.OnMatchConfig(m.MatchConfig) },
                 { ServerMessage.BodyOneofCase.MatchState, (m, _) => RepGame.Chess.ChessSession.Instance.OnMatchState(m.MatchState) },
@@ -87,32 +85,6 @@ namespace RepGame.Net
             if (request == RequestKind.GameAction)
             {
                 RepGame.Chess.ChessSession.Instance.OnActionFailed(failure.Message);
-            }
-        }
-
-        private static void OnGameState(ServerMessage m)
-        {
-            var info = ProtocolMapper.ToPlayerGameInfo(m.GameState);
-            switch (m.GameState.Reason)
-            {
-                case GameStateReason.GameStarted:
-                    EventManager.TriggerEvent(NetEvents.GameStarted, info);
-                    break;
-                case GameStateReason.Reconnected:
-                    EventManager.TriggerEvent(NetEvents.GameResumed, info);
-                    break;
-                case GameStateReason.CardsComposed:
-                    EventManager.TriggerEvent(NetEvents.CardsComposed, info);
-                    break;
-                case GameStateReason.ForcedPlay:
-                    EventManager.TriggerEvent(NetEvents.ForcePlay, info);
-                    break;
-                case GameStateReason.GameOver:
-                    EventManager.TriggerEvent(NetEvents.GameOver, info);
-                    break;
-                default:
-                    EventManager.TriggerEvent(NetEvents.CardsPlayed, info);
-                    break;
             }
         }
 
