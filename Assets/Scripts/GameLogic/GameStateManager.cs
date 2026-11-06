@@ -24,6 +24,8 @@ namespace RepGame.GameLogic
         public event Action OnButtonVisibilityUpdate;
         public event Action OnBondDisplayUpdate;
         public event Action OnGameDataClear; // 游戏数据清理事件
+        /// <summary>“等待服务器结果”状态变化（true=已发出出牌/合成，尚未收到结果）</summary>
+        public event Action<bool> OnAwaitingServerChanged;
 
         #endregion
 
@@ -36,6 +38,8 @@ namespace RepGame.GameLogic
         private string roomId;
         private string username;
         private string currentRound;
+        // 已发出出牌/合成请求、尚未收到服务器结果。期间不允许再次提交，避免快速点击重复发送
+        private bool awaitingServer;
         private float maxHealth = ConfigTables.Settings.gameplay.fallbackMaxHealth;
 
         #endregion
@@ -67,6 +71,7 @@ namespace RepGame.GameLogic
         /// </summary>
         public void InitializeGame(ResPlayerGameInfo gameInfo)
         {
+            SetAwaitingServer(false);
             roomId = gameInfo.Room_Id;
             username = gameInfo.Username;
             currentRound = gameInfo.Round;
@@ -182,6 +187,7 @@ namespace RepGame.GameLogic
         /// </summary>
         public void RestoreLastServerHand()
         {
+            SetAwaitingServer(false);
             UpdateCardModelsFromList(lastServerHand);
             selectedCards.Clear();
             OnClearCardSelection?.Invoke();
@@ -217,6 +223,42 @@ namespace RepGame.GameLogic
         /// <summary>
         /// 检查是否可以合成
         /// </summary>
+        /// <summary>是否正在等待服务器对出牌/合成的结果</summary>
+        public bool IsAwaitingServer => awaitingServer;
+
+        /// <summary>现在能否提交出牌：有选中卡牌、轮到自己、且没有未完成的请求</summary>
+        public bool CanSubmitPlay()
+        {
+            return !awaitingServer && CanPlayCards();
+        }
+
+        /// <summary>现在能否提交合成：满足合成条件且没有未完成的请求</summary>
+        public bool CanSubmitCompose()
+        {
+            return !awaitingServer && CanCompose();
+        }
+
+        /// <summary>
+        /// 出牌/合成请求已发出。出牌会立即结束自己的回合（本地先切换为等待，
+        /// 以服务器下发的状态为准），在收到结果前不允许再次提交。
+        /// </summary>
+        public void MarkActionSent(bool endsTurn)
+        {
+            if (endsTurn)
+            {
+                currentRound = "waiting";
+            }
+            SetAwaitingServer(true);
+        }
+
+        private void SetAwaitingServer(bool value)
+        {
+            if (awaitingServer == value) return;
+            awaitingServer = value;
+            OnAwaitingServerChanged?.Invoke(value);
+            OnButtonVisibilityUpdate?.Invoke();
+        }
+
         public bool CanCompose()
         {
             if (selectedCards.Count < 3)
@@ -287,6 +329,7 @@ namespace RepGame.GameLogic
         /// </summary>
         public void HandlePlayCardResult(ResPlayerGameInfo result)
         {
+            SetAwaitingServer(false);
             if (result == null)
             {
                 OnMessageRequested?.Invoke(ConfigTables.Text(UiText.NetworkError), ConfigTables.Settings.ui.messageDuration);
@@ -387,6 +430,7 @@ namespace RepGame.GameLogic
         /// </summary>
         public void HandleComposeCardResult(ResPlayerGameInfo result)
         {
+            SetAwaitingServer(false);
             if (result == null)
             {
                 OnMessageRequested?.Invoke(ConfigTables.Text(UiText.NetworkError), ConfigTables.Settings.ui.messageDuration);
@@ -440,6 +484,7 @@ namespace RepGame.GameLogic
         /// </summary>
         public void HandleGameOver(ResPlayerGameInfo result)
         {
+            SetAwaitingServer(false);
             if (result == null)
             {
                 OnMessageRequested?.Invoke(ConfigTables.Text(UiText.NetworkError), ConfigTables.Settings.ui.messageDuration);

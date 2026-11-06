@@ -113,6 +113,7 @@ namespace RepGame.UI
             gameStateManager.OnButtonVisibilityUpdate += UpdateButtonVisibility;
             gameStateManager.OnBondDisplayUpdate += UpdateBondDisplay;
             gameStateManager.OnGameDataClear += HandleGameDataClear;
+            gameStateManager.OnAwaitingServerChanged += HandleAwaitingServerChanged;
         }
 
         #region GameStateManager Event Handlers
@@ -226,27 +227,43 @@ namespace RepGame.UI
         {
             bool hasSelectedCards = gameStateManager.HasSelectedCards();
 
-            // CLR按钮：只要有选中的卡牌就激活并显示
+            // CLR按钮：只要有选中的卡牌就显示（任何时候都可以调整选牌）
             clrButton.gameObject.SetActive(hasSelectedCards);
             clrButton.interactable = hasSelectedCards;
 
-            // Play按钮：有选中卡牌时显示，但只有在自己回合时才激活
-            if (hasSelectedCards)
-            {
-                playButton.gameObject.SetActive(true);
-                // 判断是否是自己的回合
-                bool isMyTurn = gameStateManager.IsMyTurn();
-                playButton.interactable = isMyTurn;
-            }
-            else
-            {
-                playButton.gameObject.SetActive(false);
-            }
+            // Play按钮：只有轮到自己、有选中卡牌、且上一次请求已有结果时才显示。
+            // 出牌后（等待对手回合）仍然可以选牌到出牌区，但不会出现出牌按钮。
+            bool canPlay = gameStateManager.CanSubmitPlay();
+            playButton.gameObject.SetActive(canPlay);
+            playButton.interactable = canPlay;
 
-            // COMP按钮：当选中卡牌中存在三张或以上同名卡牌时才激活并显示
-            bool canCompose = gameStateManager.CanCompose();
+            // COMP按钮：满足合成条件且没有未完成的请求时显示
+            bool canCompose = gameStateManager.CanSubmitCompose();
             compButton.gameObject.SetActive(canCompose);
             compButton.interactable = canCompose;
+        }
+
+        /// <summary>
+        /// 请求发出后开始计时；在超时时间内收到服务器结果则取消计时
+        /// </summary>
+        private void HandleAwaitingServerChanged(bool awaiting)
+        {
+            CancelInvoke(nameof(OnServerResponseTimeout));
+            if (awaiting)
+            {
+                Invoke(nameof(OnServerResponseTimeout), ConfigTables.Settings.network.requestTimeoutSeconds);
+            }
+        }
+
+        /// <summary>
+        /// 长时间没有收到出牌/合成结果（例如网络中断）：恢复为服务器最近一次下发的手牌，允许重新操作
+        /// </summary>
+        private void OnServerResponseTimeout()
+        {
+            if (!gameStateManager.IsAwaitingServer) return;
+            Debug.LogWarning("等待服务器出牌/合成结果超时，恢复手牌");
+            gameStateManager.RestoreLastServerHand();
+            ShowDamageMessage(ConfigTables.Text(UiText.RequestTimeout));
         }
         private void InitGame(ResPlayerGameInfo resPlayerGameInfo)
         {
@@ -272,6 +289,13 @@ namespace RepGame.UI
         }
         private void OnPlayButtonClicked()
         {
+            // 同一帧内的重复点击、非自己回合、或上一次请求未返回时都不再发送
+            if (!gameStateManager.CanSubmitPlay())
+            {
+                return;
+            }
+            playButton.interactable = false;
+
             if (gameStateManager.HasSelectedCards())
             {
                 // 使用游戏状态管理器处理出牌逻辑
@@ -295,8 +319,9 @@ namespace RepGame.UI
                         }
                     }
 
-                    // 清除选择列表
+                    // 清除选择列表，并进入“等待服务器结果”状态（出牌结束本回合）
                     gameStateManager.ClearSelectedCards();
+                    gameStateManager.MarkActionSent(endsTurn: true);
 
                 }
             }
@@ -311,6 +336,13 @@ namespace RepGame.UI
         }
         private void OnCompButtonClicked()
         {
+            // 防止重复点击：上一次请求未返回时不再发送
+            if (!gameStateManager.CanSubmitCompose())
+            {
+                return;
+            }
+            compButton.interactable = false;
+
             // 使用游戏状态管理器处理合成逻辑
             var composeResult = gameStateManager.CreateComposeCardRequest();
             if (composeResult.request != null)
@@ -346,8 +378,9 @@ namespace RepGame.UI
                     }
                 }
 
-                // 从游戏状态管理器中清除选中的卡牌
+                // 从游戏状态管理器中清除选中的卡牌，并进入“等待服务器结果”状态（合成不结束回合）
                 gameStateManager.ClearSelectedCards();
+                gameStateManager.MarkActionSent(endsTurn: false);
             }
         }
 

@@ -10,7 +10,9 @@
     "reconnectMaxDelaySeconds": 30,
     "_comment_reconnectMaxDelaySeconds": "断线重连的最大等待间隔（秒）；重连间隔按 1、2、4、8… 秒递增，不超过该值",
     "maxFrameBytes": 1048576,
-    "_comment_maxFrameBytes": "单条消息最大字节数，与服务器 max_frame_bytes 一致"
+    "_comment_maxFrameBytes": "单条消息最大字节数，与服务器 max_frame_bytes 一致",
+    "requestTimeoutSeconds": 10,
+    "_comment_requestTimeoutSeconds": "出牌/合成后等待服务器结果的最长时间（秒）；超时会恢复手牌并允许重新操作"
   },
 
   "account": {

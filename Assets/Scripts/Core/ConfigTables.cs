@@ -31,6 +31,7 @@ namespace RepGame.Core
             public float connectTimeoutSeconds = 8f;     // 连接/握手超时
             public float reconnectMaxDelaySeconds = 30f; // 重连最大间隔
             public int maxFrameBytes = 1 << 20;          // 单条消息最大字节数
+            public float requestTimeoutSeconds = 10f;    // 出牌/合成等待服务器结果的最长时间
         }
 
         [Serializable]
@@ -96,6 +97,7 @@ namespace RepGame.Core
         public const string Win = "game.win";
         public const string Lose = "game.lose";
         public const string ForcedPlay = "game.forcedPlay";
+        public const string RequestTimeout = "game.requestTimeout";
 
         public const string DamageDealt = "damage.dealt";
         public const string DamageTaken = "damage.taken";

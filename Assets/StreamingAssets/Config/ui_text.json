@@ -24,6 +24,7 @@
     { "key": "game.win", "text": "你胜利了！", "comment": "" },
     { "key": "game.lose", "text": "你失败了！", "comment": "" },
     { "key": "game.forcedPlay", "text": "回合超时，已自动出牌", "comment": "自己回合超时，服务器代为出牌" },
+    { "key": "game.requestTimeout", "text": "服务器响应超时，已恢复手牌", "comment": "出牌/合成后长时间没有收到服务器结果" },
 
     { "key": "damage.dealt", "text": "造成", "comment": "伤害汇总中的动作词（我方出牌）" },
     { "key": "damage.taken", "text": "受到", "comment": "伤害汇总中的动作词（敌方出牌）" },
