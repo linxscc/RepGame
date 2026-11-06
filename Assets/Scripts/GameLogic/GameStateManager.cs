@@ -867,15 +867,13 @@ namespace RepGame.GameLogic
                 }
             }
 
-            // 检查本地字典中是否有服务器没有的卡牌
-            foreach (var localCardPair in cardModelsById)
+            // 本地有、服务器没有的卡牌属于正常变化，不算不一致：
+            // 服务器是权威方，超时自动出牌、合成、对局结算都会在客户端不知情时移除手牌，
+            // 下面的同步会直接以服务器手牌为准。
+            int removedByServer = cardModelsById.Keys.Count(uid => !serverCards.Any(sc => sc.UID == uid));
+            if (removedByServer > 0)
             {
-                bool foundInServer = serverCards.Any(sc => sc.UID == localCardPair.Key);
-                if (!foundInServer)
-                {
-                    Debug.LogWarning($"本地存在服务器没有的卡牌: {localCardPair.Value.Name} (UID: {localCardPair.Key})");
-                    inconsistentCount++;
-                }
+                Debug.Log($"服务器已移除 {removedByServer} 张本地手牌（出牌/合成），按服务器数据同步");
             }
 
             if (inconsistentCount > 0)
