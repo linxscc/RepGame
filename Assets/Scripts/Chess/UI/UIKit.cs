@@ -89,10 +89,10 @@ namespace RepGame.Chess.UI
         public static Image Panel(Transform parent, string name, Color fill, Color border, float borderWidth = 2f)
         {
             var skin = ChessUISkin.Instance;
-            var outer = Image(parent, name, border, skin.rounded);
+            var outer = Image(parent, name, border, skin.Rounded);
             if (borderWidth > 0)
             {
-                var inner = Image(outer.transform, "Fill", fill, skin.rounded);
+                var inner = Image(outer.transform, "Fill", fill, skin.Rounded);
                 Fill(inner.rectTransform, borderWidth);
             }
             else
@@ -106,8 +106,8 @@ namespace RepGame.Chess.UI
         public static Image Circle(Transform parent, string name, Color fill, Color ring, float ringWidth = 2.5f)
         {
             var skin = ChessUISkin.Instance;
-            var outer = Image(parent, name, ring, skin.circle);
-            var inner = Image(outer.transform, "Fill", fill, skin.circle);
+            var outer = Image(parent, name, ring, skin.Circle);
+            var inner = Image(outer.transform, "Fill", fill, skin.Circle);
             Fill(inner.rectTransform, ringWidth);
             return outer;
         }
@@ -117,7 +117,7 @@ namespace RepGame.Chess.UI
         {
             var rt = Rect(parent, name);
             var t = rt.gameObject.AddComponent<TextMeshProUGUI>();
-            var font = ChessUISkin.Instance.font;
+            var font = ChessUISkin.Instance.UIFont;
             if (font != null) t.font = font;
             t.text = text;
             t.fontSize = size;

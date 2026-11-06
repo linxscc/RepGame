@@ -54,5 +54,7 @@ namespace RepGame.Chess
             });
 
         public static void SkipVault() => Send(new GameAction { SkipVault = new SkipVault() });
+
+        public static void Surrender() => Send(new GameAction { Surrender = new Surrender() });
     }
 }

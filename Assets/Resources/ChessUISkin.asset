@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: ChessUISkin
   m_EditorClassIdentifier: 
   font: {fileID: 11400000, guid: 9e1ec243f466f354a8610c5082b02449, type: 2}
+  sourceFont: {fileID: 12800000, guid: 80dbd25d080863f42bca89b28ffb12d7, type: 3}
   rounded: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
   circle: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   cardBack: {fileID: 21300000, guid: e80972fa1af5c490f2e99ca83a89c4d2, type: 3}

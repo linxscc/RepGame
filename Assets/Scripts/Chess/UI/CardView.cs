@@ -21,7 +21,7 @@ namespace RepGame.Chess.UI
             rt.sizeDelta = new Vector2(w, h);
 
             var art = skin.Card(card.Name);
-            var artImg = UIKit.Image(frame.transform, "Art", art != null ? Color.white : Theme.Water, art != null ? art : skin.rounded);
+            var artImg = UIKit.Image(frame.transform, "Art", art != null ? Color.white : Theme.Water, art != null ? art : skin.Rounded);
             artImg.preserveAspect = false;
             var art_rt = artImg.rectTransform;
             art_rt.anchorMin = new Vector2(0, 0);

@@ -34,6 +34,8 @@ namespace RepGame.Chess.UI
         private OpponentPopover opponentBoard;
         private Toast toast;
         private RectTransform enemyRelics;
+        private RectTransform surrenderButton;
+        private ConfirmPopup confirm;
 
         public static ChessBattleScreen Create()
         {
@@ -119,6 +121,14 @@ namespace RepGame.Chess.UI
             opponentBoard = new OpponentPopover(popupLayer);
             gameOver = new GameOverPopup(popupLayer, Rematch, BackToLobby);
             toast = new Toast(tipLayer);
+            confirm = new ConfirmPopup(popupLayer);
+
+            var giveUp = UIKit.Button(baseLayer, "Surrender", Theme.WithAlpha(Theme.Paper, 0.9f), Theme.InkSoft,
+                Fmt.T("chess.surrender", "认输"), 16, Theme.InkSoft, () => confirm.Show(
+                    Fmt.T("chess.surrender.confirm", "确定认输吗？本局将直接判负。"),
+                    Fmt.T("chess.surrender", "认输"), ChessActions.Surrender));
+            surrenderButton = (RectTransform)giveUp.transform;
+            UIKit.Place(surrenderButton, 1920 - 32 - 88, 28, 88, 38);
 
             enemyHud.Avatar.gameObject.AddComponent<Button>().onClick.AddListener(() => opponentBoard.Toggle(ChessSession.Instance.State));
         }
@@ -167,6 +177,7 @@ namespace RepGame.Chess.UI
                 UIKit.Hover(icon.gameObject, () => RelicIcon.ShowTip(tooltip, new RelicSlot { RelicKey = r.RelicKey, Value = r.Value, TradeChoice = r.TradeChoice }, x - 100, 84), () => tooltip.Hide(null));
             }
 
+            surrenderButton.gameObject.SetActive(st.Phase != MatchPhase.Over);
             timer.Tick(st);
             bonds.Render(st);
             board.Render(st);
@@ -197,6 +208,8 @@ namespace RepGame.Chess.UI
 
         private void OnOver(MatchOver over)
         {
+            confirm.Hide();
+            surrenderButton.gameObject.SetActive(false);
             picker.Hide();
             shop.SetOpen(false);
             gameOver.Show(over);
