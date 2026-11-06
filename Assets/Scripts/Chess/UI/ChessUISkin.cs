@@ -45,7 +45,7 @@ namespace RepGame.Chess.UI
         public float cutsceneIntro = 0.4f;     // 淡入
         public float stepMinSeconds = 0.12f;   // 每个计分步骤最短时长
         public float stepMaxSeconds = 0.6f;    // 每个计分步骤最长时长
-        public float verdictHold = 0.9f;       // 胜负字样停留
+        public float verdictHold = 1.5f;       // 积分算完后停留多久再淡出（含胜负字样）
         public float cutsceneOutro = 0.6f;     // 淡出
         public float fireFlightSeconds = 0.6f; // 火球飞行时间
         public float fireArcHeight = 220f;     // 火球弧线高度（像素）

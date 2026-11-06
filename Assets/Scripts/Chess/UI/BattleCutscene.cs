@@ -197,6 +197,7 @@ namespace RepGame.Chess.UI
                 firing = false;
                 selfHud.Release();
                 enemyHud.Release();
+                ChessActions.SettleDone(); // 伤害演完：本回合结束，服务器进入下一阶段
             });
         }
 

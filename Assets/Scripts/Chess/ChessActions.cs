@@ -56,5 +56,8 @@ namespace RepGame.Chess
         public static void SkipVault() => Send(new GameAction { SkipVault = new SkipVault() });
 
         public static void Surrender() => Send(new GameAction { Surrender = new Surrender() });
+
+        /// <summary>结算过场（含扣血动画）播放完毕，服务器据此提前进入下一阶段。</summary>
+        public static void SettleDone() => Send(new GameAction { SettleDone = new SettleDone() });
     }
 }

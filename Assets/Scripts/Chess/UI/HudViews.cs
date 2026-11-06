@@ -150,7 +150,8 @@ namespace RepGame.Chess.UI
 
         public void Tick(MatchState st)
         {
-            var left = ChessSession.Instance.SecondsLeft();
+            // 结算阶段不显示倒计时：过场和扣血演完后会直接进入下一回合
+            var left = st != null && st.Phase == MatchPhase.Settle ? -1 : ChessSession.Instance.SecondsLeft();
             seconds.text = left < 0 ? "" : left.ToString();
             ring.color = left >= 0 && left <= 5 ? Theme.Red : Theme.Ink;
             if (st == null) return;

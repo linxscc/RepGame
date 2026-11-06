@@ -106,7 +106,7 @@ MonoBehaviour:
   cutsceneIntro: 0.4
   stepMinSeconds: 0.12
   stepMaxSeconds: 0.6
-  verdictHold: 0.9
+  verdictHold: 1.5
   cutsceneOutro: 0.6
   fireFlightSeconds: 0.6
   fireArcHeight: 220
