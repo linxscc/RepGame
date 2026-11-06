@@ -152,12 +152,19 @@ namespace RepGame.Chess.UI
             for (int i = t.childCount - 1; i >= 0; i--) UnityEngine.Object.Destroy(t.GetChild(i).gameObject);
         }
 
+        /// <summary>
+        /// 取组件，没有就添加。不能写成 GetComponent&lt;T&gt;() ?? AddComponent&lt;T&gt;()：
+        /// 编辑器里缺失的组件是“假 null”对象，?? 不会把它当成 null。
+        /// </summary>
+        public static T GetOrAdd<T>(GameObject go) where T : Component =>
+            go.TryGetComponent<T>(out var c) ? c : go.AddComponent<T>();
+
         /// <summary>给任意 Graphic 挂悬停回调（用于提示框）。</summary>
         public static HoverRelay Hover(GameObject go, Action enter, Action exit)
         {
             var g = go.GetComponent<Graphic>();
             if (g != null) g.raycastTarget = true;
-            var h = go.GetComponent<HoverRelay>() ?? go.AddComponent<HoverRelay>();
+            var h = GetOrAdd<HoverRelay>(go);
             h.Enter = enter;
             h.Exit = exit;
             return h;

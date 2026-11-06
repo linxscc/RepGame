@@ -65,7 +65,7 @@ namespace RepGame.Chess.UI
             {
                 if (!(mb is Graphic) && !(mb is Mask) && !(mb is RectMask2D)) mb.enabled = false;
             }
-            var cg = copy.GetComponent<CanvasGroup>() ?? copy.AddComponent<CanvasGroup>();
+            var cg = UIKit.GetOrAdd<CanvasGroup>(copy);
             cg.alpha = 0.9f;
             cg.blocksRaycasts = false;
             ghost.localScale = Vector3.one * 1.06f;
@@ -126,7 +126,7 @@ namespace RepGame.Chess.UI
         {
             if (Controller == null || (CanDrag != null && !CanDrag())) return;
             dragging = true;
-            group = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
+            group = UIKit.GetOrAdd<CanvasGroup>(gameObject);
             group.alpha = 0.35f;
             Controller.Begin((RectTransform)transform, e);
         }
