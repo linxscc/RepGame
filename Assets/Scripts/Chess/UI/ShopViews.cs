@@ -163,13 +163,12 @@ namespace RepGame.Chess.UI
                 {
                     var line = ChessSession.Instance.Line(slot.LineKey);
                     var preview = new ChessCard { Name = line.StarNames[0], LineKey = slot.LineKey, Star = 1, Points = line.Points, SellPrice = slot.Cost };
-                    rt = CardView.Build(cardsRow, preview, 170, cardH);
-                    // 卡下方一行：价格 · 已有张数（卡面右上角留给羁绊标签）
-                    var owned = slot.Owned > 0 ? $"  <color=#2F7A72>已有 {slot.Owned}</color>" : "";
-                    var costColor = slot.Cost >= 3 ? "#C8322A" : slot.Cost == 2 ? "#2F7A72" : "#111111";
-                    var cost = UIKit.Text(cardsRow, "Cost", $"<color={costColor}>{slot.Cost} 金</color>{owned}", 16, Theme.Ink, TextAlignmentOptions.Center, true);
-                    cost.richText = true;
-                    UIKit.Place(cost.rectTransform, x, cardH + 4, 170, 24);
+                    rt = CardView.Build(cardsRow, preview, 170, cardH, true, slot.Cost); // 价格在卡面左上角
+                    if (slot.Owned > 0)
+                    {
+                        var own = UIKit.Text(cardsRow, "Owned", $"已有 {slot.Owned}", 15, Theme.CyanDeep, TextAlignmentOptions.Center, true);
+                        UIKit.Place(own.rectTransform, x, cardH + 4, 170, 24);
+                    }
                     var btn = rt.gameObject.AddComponent<Button>();
                     btn.targetGraphic = rt.GetComponent<Image>();
                     btn.onClick.AddListener(() => ChessActions.BuyCard(index));

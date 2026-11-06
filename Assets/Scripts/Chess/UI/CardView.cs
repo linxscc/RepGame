@@ -11,7 +11,8 @@ namespace RepGame.Chess.UI
     /// </summary>
     public static class CardView
     {
-        public static RectTransform Build(Transform parent, ChessCard card, float w, float h, bool showPoints = true)
+        /// <param name="cost">商店价格；大于 0 时在左上角显示金币价格。</param>
+        public static RectTransform Build(Transform parent, ChessCard card, float w, float h, bool showPoints = true, int cost = 0)
         {
             var skin = ChessUISkin.Instance;
             var border = card.Star >= 3 ? Theme.Gold : Theme.Ink;
@@ -33,16 +34,31 @@ namespace RepGame.Chess.UI
                 UIKit.Text(artImg.transform, "Placeholder", card.Name, Mathf.Max(13, w * 0.14f), Theme.InkSoft);
             }
 
+            // 左上角：商店价格（金币）
+            if (cost > 0)
+            {
+                var coin = UIKit.Circle(frame.transform, "Cost", Theme.GoldPaper, Theme.Gold, 2f);
+                var ct = coin.rectTransform;
+                ct.anchorMin = ct.anchorMax = new Vector2(0, 1);
+                ct.pivot = new Vector2(0, 1);
+                ct.sizeDelta = new Vector2(w * 0.24f, w * 0.24f);
+                ct.anchoredPosition = new Vector2(5, -5);
+                UIKit.Text(coin.transform, "Gold", cost.ToString(), w * 0.13f,
+                    cost >= 3 ? Theme.Red : cost == 2 ? Theme.CyanDeep : Theme.GoldText, TextAlignmentOptions.Center, true);
+            }
+
+            // 右上角：星级，下面竖排羁绊标签
+            float starH = Mathf.Max(14, w * 0.13f);
             var stars = UIKit.Text(frame.transform, "Stars", new string('★', card.Star), Mathf.Max(11, w * 0.11f), Theme.Red,
-                TextAlignmentOptions.TopLeft, true);
-            stars.rectTransform.offsetMin = new Vector2(8, 0);
-            stars.rectTransform.offsetMax = new Vector2(0, -6);
+                TextAlignmentOptions.TopRight, true);
+            stars.rectTransform.offsetMin = new Vector2(0, 0);
+            stars.rectTransform.offsetMax = new Vector2(-6, -4);
 
             // 右上角：本卡的两个羁绊（行当、出身），竖排小标签
             var line = ChessSession.Instance.Line(card.LineKey);
             if (line != null)
             {
-                float tagW = Mathf.Max(16, w * 0.17f), tagH = Mathf.Max(30, w * 0.34f), y = 5;
+                float tagW = Mathf.Max(16, w * 0.17f), tagH = Mathf.Max(30, w * 0.34f), y = 6 + starH;
                 foreach (var key in new[] { line.TradeKey, line.OriginKey })
                 {
                     var bond = ChessSession.Instance.Bond(key);
