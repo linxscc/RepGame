@@ -12,6 +12,7 @@
     { "key": "account.loggingIn", "text": "登录中...", "comment": "" },
     { "key": "account.registering", "text": "注册中...", "comment": "" },
     { "key": "account.registerSucceeded", "text": "注册成功，请登录", "comment": "" },
+    { "key": "account.nickname", "text": "玩家：{0}", "comment": "开始界面右上角的昵称显示，{0}=玩家昵称" },
 
     { "key": "match.waiting", "text": "正在匹配对手...", "comment": "点击开始后；等待一会儿没有真人对手时会自动匹配机器人" },
     { "key": "match.found", "text": "匹配成功，创建房间中...", "comment": "" },

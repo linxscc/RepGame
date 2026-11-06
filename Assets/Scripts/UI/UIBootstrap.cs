@@ -8,11 +8,12 @@ using RepGame.UI;
 /// </summary>
 public class UIBootstrap : MonoBehaviour
 {
-    [Tooltip("要在初始化时显示的默认面板")]
+    [Tooltip("要在初始化时显示的默认面板（开始界面；未登录时会在其上弹出登录窗口）")]
     [SerializeField]
-    private string defaultPanelName = "Panel_Login";
+    private string defaultPanelName = "Panel_Start";
 
     private ConnectionStatusPresenter connectionStatus;
+    private AccountSessionPresenter accountSession;
 
     private void Awake()
     {
@@ -21,6 +22,9 @@ public class UIBootstrap : MonoBehaviour
 
         // 连接状态需要在所有面板隐藏时也能收到，所以挂在常驻的引导对象上
         connectionStatus = new ConnectionStatusPresenter();
+
+        // 登录态也可能在任意界面下变化（会话过期、被顶号），同样挂在常驻对象上
+        accountSession = new AccountSessionPresenter();
     }
 
     void Start()
@@ -32,6 +36,7 @@ public class UIBootstrap : MonoBehaviour
     private void OnDestroy()
     {
         connectionStatus?.Dispose();
+        accountSession?.Dispose();
     }
 
     private void ShowDefaultPanel()

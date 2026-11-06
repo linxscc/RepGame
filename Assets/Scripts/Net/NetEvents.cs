@@ -18,6 +18,9 @@ namespace RepGame.Net
         public const string LoginSucceeded = "Net.LoginSucceeded";
         public const string RegisterSucceeded = "Net.RegisterSucceeded";
 
+        /// <summary>登录态失效（会话过期、账号在其他设备登录、未登录就发起请求），参数：string 原因</summary>
+        public const string LoggedOut = "Net.LoggedOut";
+
         /// <summary>请求被服务器拒绝，参数：<see cref="RequestFailure"/></summary>
         public const string RequestFailed = "Net.RequestFailed";
 

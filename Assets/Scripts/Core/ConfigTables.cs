@@ -85,6 +85,7 @@ namespace RepGame.Core
         public const string LoggingIn = "account.loggingIn";
         public const string Registering = "account.registering";
         public const string RegisterSucceeded = "account.registerSucceeded";
+        public const string Nickname = "account.nickname";
 
         public const string MatchWaiting = "match.waiting";
         public const string MatchFound = "match.found";

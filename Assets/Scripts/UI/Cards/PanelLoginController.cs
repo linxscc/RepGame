@@ -89,8 +89,7 @@ public class PanelLoginController : UIBase
     }
     private void OnLoginSucceeded(string username)
     {
-        UserAccountManager.Instance.SetUsername(username);
-        // 登录成功后隐藏登录面板，显示开始面板
+        // 登录态由 AccountSessionPresenter 记录；这里只关闭登录弹窗，回到下面的开始界面
         Invoke(nameof(GotoStartPanel), ConfigTables.Settings.ui.loginToStartPanelDelay);
     }
 

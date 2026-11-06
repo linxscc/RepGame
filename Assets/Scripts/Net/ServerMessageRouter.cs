@@ -66,6 +66,10 @@ namespace RepGame.Net
             {
                 SessionInvalidated?.Invoke();
             }
+            if (m.Error.Code == ErrorCode.SessionExpired || m.Error.Code == ErrorCode.NotAuthenticated)
+            {
+                EventManager.TriggerEvent(NetEvents.LoggedOut, ProtocolMapper.ToUserMessage(m.Error.Code));
+            }
 
             var failure = new RequestFailure
             {
