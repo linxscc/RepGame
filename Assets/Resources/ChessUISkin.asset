@@ -94,7 +94,61 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 2192b3283e9c4b0d96ec935ba6b725ce, type: 3}
   - name: "\u9ec4\u5dfe\u529b\u58eb"
     sprite: {fileID: 21300000, guid: 487557d4f26449c7a01870d1388cd271, type: 3}
-  relicIcons: []
+  relicIcons:
+  - name: furnace
+    sprite: {fileID: 21300000, guid: 93a347fec05341e0bad8581957ce08d5, type: 3}
+  - name: heirloom
+    sprite: {fileID: 21300000, guid: ce36dfe29f2b44ada207dc35ce306120, type: 3}
+  - name: master_seal
+    sprite: {fileID: 21300000, guid: 4dbbfb5255d349adba3bc8f75c00b81a, type: 3}
+  - name: graduation
+    sprite: {fileID: 21300000, guid: 45956fd1e77b43e7963ced7e0e222a5b, type: 3}
+  - name: fellowship
+    sprite: {fileID: 21300000, guid: 7503260afac04183846d85c3a9acdaac, type: 3}
+  - name: sect_token
+    sprite: {fileID: 21300000, guid: e20ba016244546248aba20fc01b5d17f, type: 3}
+  - name: eclectic
+    sprite: {fileID: 21300000, guid: bd02134d230647dfaa1b0fd1a9f99745, type: 3}
+  - name: secret_art
+    sprite: {fileID: 21300000, guid: 56f3f44418fa4734a6ab6456bc20e4c6, type: 3}
+  - name: lone_wolf
+    sprite: {fileID: 21300000, guid: 01e8f2d91e49498d8bde187b87fad364, type: 3}
+  - name: lean
+    sprite: {fileID: 21300000, guid: 9cba248c02414fbc997a0f75f678710e, type: 3}
+  - name: vanguard
+    sprite: {fileID: 21300000, guid: eee56092dfc146a89c819e4dc450822c, type: 3}
+  - name: multitude
+    sprite: {fileID: 21300000, guid: 48b9b4e7b216486aa1e7d9fd91980a36, type: 3}
+  - name: new_wave
+    sprite: {fileID: 21300000, guid: 2bfaa2d2e12a4de7b1c7932e989d6d7b, type: 3}
+  - name: rearguard
+    sprite: {fileID: 21300000, guid: b8c8cc02aead46dc8896a378e98b4aec, type: 3}
+  - name: hidden
+    sprite: {fileID: 21300000, guid: 4d44986299b84b2484fbaa89cef97683, type: 3}
+  - name: storehouse
+    sprite: {fileID: 21300000, guid: b3397a9d30bc4d19844d11a51b754a8b, type: 3}
+  - name: treasure
+    sprite: {fileID: 21300000, guid: 3048469246194607a7fe9e268b41e89d, type: 3}
+  - name: piggy
+    sprite: {fileID: 21300000, guid: dd05847d80494f73a7bede1aa6cbaf1c, type: 3}
+  - name: thrifty
+    sprite: {fileID: 21300000, guid: 40f49549c71d401eb0cecb1bd63a6c36, type: 3}
+  - name: accountant
+    sprite: {fileID: 21300000, guid: be230d67e7a043c3a8c5d5128192d972, type: 3}
+  - name: grudge
+    sprite: {fileID: 21300000, guid: 0ee3440994144b1fa3ebd8284c6f1790, type: 3}
+  - name: momentum
+    sprite: {fileID: 21300000, guid: e77b3fc622fa48239fe3e63561f30588, type: 3}
+  - name: last_stand
+    sprite: {fileID: 21300000, guid: 0763347b81184e3885f27fb793785384, type: 3}
+  - name: tailwind
+    sprite: {fileID: 21300000, guid: ee1e115a29e24cd986e9ff13d73c5f14, type: 3}
+  - name: literary_pen
+    sprite: {fileID: 21300000, guid: 3446c1931c21418aa07bc98e5db32528, type: 3}
+  - name: mirror
+    sprite: {fileID: 21300000, guid: fd8a36f513354ee988fee415fb515309, type: 3}
+  - name: rubbing
+    sprite: {fileID: 21300000, guid: d1ddcf828ec2443db2c7ba826f241628, type: 3}
   voidBackground: {fileID: 21300000, guid: aba2e9f669974a18bcaf6f0c4986d214, type: 3}
   voidMist: {fileID: 21300000, guid: 0ddeeda955894bca9bf3c92b94732593, type: 3}
   fireball: {fileID: 21300000, guid: 9ee756c01b9f4d7aaca8f79aecaaaf33, type: 3}
