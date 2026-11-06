@@ -93,6 +93,7 @@ namespace RepGame.Chess.UI
             if (xpFill != null) xpFill.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(xp01 < 0 ? 1 : xp01), 1);
             if (shownHp < 0)
             {
+                DOTween.Kill(this);
                 ShowHp(hp);
                 return;
             }
@@ -117,7 +118,8 @@ namespace RepGame.Chess.UI
 
         private void AnimateHp()
         {
-            if (Mathf.Approximately(shownHp, targetHp)) return;
+            // 还没收到过血量（新建或重连后的第一帧）时不做动画，否则会从 -1 走向默认的 0 并停在那里
+            if (shownHp < 0 || Mathf.Approximately(shownHp, targetHp)) return;
             DOTween.Kill(this);
             DOTween.To(() => shownHp, ShowHp, targetHp, ChessUISkin.Instance.hpDrainSeconds).SetEase(Ease.OutCubic).SetTarget(this);
         }

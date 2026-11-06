@@ -1,3 +1,7 @@
+using System.Collections;
+using System.Text;
+using RepGame.Core;
+using RepGame.Net;
 using RepGame.Protocol;
 using RepGame.UI;
 using UnityEngine;
@@ -36,6 +40,12 @@ namespace RepGame.Chess.UI
         private RectTransform enemyRelics;
         private RectTransform surrenderButton;
         private ConfirmPopup confirm;
+        private LoadingScreen loader;
+        private Coroutine loading;
+        private bool stateReady;      // 本次加载后已收到并画好对局数据
+        private bool resuming;        // 断线后等待恢复对局
+        private bool configSinceReconnect;
+        private const float ResumeTimeoutSeconds = 10f;
 
         public static ChessBattleScreen Create()
         {
@@ -55,10 +65,15 @@ namespace RepGame.Chess.UI
             s.RoundSettled += OnRound;
             s.MatchEnded += OnOver;
             s.ActionFailed += OnFailed;
+            loader = new LoadingScreen(transform);
+            EventManager.Subscribe<string>(NetEvents.Disconnected, OnDisconnected);
+            EventManager.Subscribe<string>(NetEvents.ConnectedToServer, OnReconnected);
         }
 
         private void OnDestroy()
         {
+            EventManager.Unsubscribe<string>(NetEvents.Disconnected, OnDisconnected);
+            EventManager.Unsubscribe<string>(NetEvents.ConnectedToServer, OnReconnected);
             var s = ChessSession.Instance;
             s.ConfigReceived -= OnConfig;
             s.StateChanged -= OnState;
@@ -150,12 +165,104 @@ namespace RepGame.Chess.UI
             picker.Hide();
             if (UIPanelController.Instance != null) UIPanelController.Instance.HideAllPanels();
             UIFx.In(canvas.gameObject, UIFx.Style.Fade, 0.4f);
+
+            // 加载界面盖住对局界面，直到资源和对局数据都就绪
+            configSinceReconnect = true;
+            loader.Begin(resuming ? "正在恢复对局" : "进入对局");
+            loader.SetProgress(0.3f, "对局配置已加载");
+            stateReady = false;
+            if (loading != null) StopCoroutine(loading);
+            loading = StartCoroutine(Load(config));
         }
 
         private void OnState(MatchState previous, MatchState st)
         {
             if (!UIFx.IsShown(canvas.gameObject)) OnConfig(ChessSession.Instance.Config);
             Render(st);
+            stateReady = true;
+        }
+
+        // ---------- 加载 / 断线重连 ----------
+
+        /// <summary>预载卡图、法宝图标和要用到的文字，再等第一份对局数据画好，然后撤掉加载界面。</summary>
+        private IEnumerator Load(MatchConfig config)
+        {
+            var skin = ChessUISkin.Instance;
+            var text = new StringBuilder("0123456789+-×/·%★ ");
+            int total = Mathf.Max(1, config.Lines.Count + config.Relics.Count), done = 0;
+            foreach (var l in config.Lines)
+            {
+                foreach (var n in l.StarNames)
+                {
+                    skin.Card(n);
+                    text.Append(n);
+                }
+                text.Append(l.Name).Append(l.LegendDesc);
+                if (++done % 4 == 0)
+                {
+                    loader.SetProgress(0.3f + 0.4f * done / total, "加载卡牌资源");
+                    yield return null;
+                }
+            }
+            foreach (var r in config.Relics)
+            {
+                skin.RelicIcon(r.Key);
+                text.Append(r.Name).Append(r.Desc);
+                if (++done % 4 == 0)
+                {
+                    loader.SetProgress(0.3f + 0.4f * done / total, "加载法宝");
+                    yield return null;
+                }
+            }
+            foreach (var b in config.Trades) text.Append(b.Name).Append(b.Desc);
+            foreach (var b in config.Origins) text.Append(b.Name).Append(b.Desc);
+            foreach (var f in config.Families) text.Append(f.Name).Append(f.Desc);
+            loader.SetProgress(0.75f, "准备文字");
+            yield return null;
+            var font = skin.UIFont;
+            if (font != null) font.TryAddCharacters(text.ToString());
+
+            float waited = 0;
+            while (!stateReady && waited < ResumeTimeoutSeconds)
+            {
+                loader.SetProgress(0.85f, "同步对局数据");
+                waited += Time.unscaledDeltaTime;
+                yield return null;
+            }
+            yield return null; // 让布局完成一帧
+            yield return null;
+            resuming = false;
+            loading = null;
+            loader.Finish();
+        }
+
+        private void OnDisconnected(string _)
+        {
+            if (!UIFx.IsShown(canvas.gameObject) || ChessSession.Instance.Over != null) return;
+            resuming = true;
+            configSinceReconnect = false;
+            if (loading != null) StopCoroutine(loading);
+            loading = null;
+            loader.Begin("连接断开，正在重连");
+            loader.SetProgress(0.05f, "正在连接服务器");
+        }
+
+        private void OnReconnected(string _)
+        {
+            if (!resuming) return;
+            loader.SetProgress(0.15f, "正在恢复对局");
+            StartCoroutine(ResumeTimeout());
+        }
+
+        /// <summary>重连后一段时间仍没收到对局配置：对局已不存在（例如服务器重启），回到大厅。</summary>
+        private IEnumerator ResumeTimeout()
+        {
+            yield return new WaitForSecondsRealtime(ResumeTimeoutSeconds);
+            if (!resuming || configSinceReconnect) yield break;
+            resuming = false;
+            loader.Cancel();
+            BackToLobby();
+            Debug.LogWarning("重连后没有收到对局数据，对局可能已结束");
         }
 
         private void Render(MatchState st)
