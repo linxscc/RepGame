@@ -53,6 +53,19 @@ namespace RepGame.Chess.UI
         public float impactScale = 2.4f;       // 命中爆炸放大倍数
         public float hpDrainSeconds = 0.7f;    // 血条下降时长
 
+        [Header("结算过场：画面")]
+        [Range(0, 1)] public float veilAlpha = 0.55f;   // 云雾遮罩的不透明度（1 = 完全挡住对局界面）
+        [Range(0, 1)] public float mistAlpha = 0.7f;    // 飘入的云团不透明度
+        public float scoreFontSize = 162f;              // 中间双方积分的字号
+        public float scoreShakeAngle = 8f;              // 积分增长时的晃动角度
+        public float scoreShakeOffset = 14f;            // 积分增长时的晃动位移（像素）
+
+        [Header("界面过渡")]
+        public float uiInSeconds = 0.22f;      // 弹窗/面板/按钮出现
+        public float uiOutSeconds = 0.16f;     // 消失
+        public float uiPopFrom = 0.92f;        // 出现时从多大放大到 1
+        public float uiSlideDistance = 40f;    // 顶部浮条滑入距离（像素）
+
         private TMP_FontAsset runtimeFont;
         private Sprite smoothCircle;
         private Sprite smoothRounded;

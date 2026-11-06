@@ -80,7 +80,7 @@ namespace RepGame.Chess.UI
             if (searching || GameTcpClient.Instance == null) return;
             searching = true;
             startedAt = Time.unscaledTime;
-            box.gameObject.SetActive(true);
+            UIFx.In(box.gameObject, UIFx.Style.DropIn);
             Tick();
             GameTcpClient.Instance.Ready();
         }
@@ -95,7 +95,7 @@ namespace RepGame.Chess.UI
         private void Hide()
         {
             searching = false;
-            box.gameObject.SetActive(false);
+            UIFx.Out(box.gameObject, UIFx.Style.DropIn);
         }
 
         private void OnServerState(bool serverSearching)

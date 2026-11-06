@@ -97,13 +97,13 @@ namespace RepGame.UI
                 {
                     if (panel.Key != panelName)
                     {
-                        panel.Value.SetActive(false);
+                        RepGame.Chess.UI.UIFx.Out(panel.Value);
                     }
                 }
             }
 
             // 显示目标面板
-            panels[panelName].SetActive(true);
+            RepGame.Chess.UI.UIFx.In(panels[panelName]);
             currentActivePanel = panelName;
 
         }
@@ -120,7 +120,7 @@ namespace RepGame.UI
                 return;
             }
 
-            panels[panelName].SetActive(false);
+            RepGame.Chess.UI.UIFx.Out(panels[panelName]);
 
             // 如果隐藏的是当前激活的面板，清除当前面板记录
             if (currentActivePanel == panelName)
@@ -136,7 +136,7 @@ namespace RepGame.UI
         {
             foreach (var panel in panels)
             {
-                panel.Value.SetActive(false);
+                RepGame.Chess.UI.UIFx.Out(panel.Value, RepGame.Chess.UI.UIFx.Style.Fade);
             }
             currentActivePanel = "";
         }
@@ -179,7 +179,7 @@ namespace RepGame.UI
                 return false;
             }
 
-            return panels[panelName].activeSelf;
+            return RepGame.Chess.UI.UIFx.IsShown(panels[panelName]);
         }
 
         /// <summary>

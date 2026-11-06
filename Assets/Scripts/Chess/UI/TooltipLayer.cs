@@ -59,7 +59,7 @@ namespace RepGame.Chess.UI
             x = Mathf.Clamp(x, 8, 1920 - width - 8);
             y = Mathf.Clamp(y, 8, 1080 - 160);
             box.anchoredPosition = new Vector2(x, -y);
-            box.gameObject.SetActive(true);
+            UIFx.In(box.gameObject, UIFx.Style.Fade, 0.12f);
             box.SetAsLastSibling();
         }
 
@@ -67,7 +67,7 @@ namespace RepGame.Chess.UI
         {
             if (who == null || who == owner)
             {
-                box.gameObject.SetActive(false);
+                UIFx.Out(box.gameObject, UIFx.Style.Fade, null, 0.1f);
                 owner = null;
             }
         }

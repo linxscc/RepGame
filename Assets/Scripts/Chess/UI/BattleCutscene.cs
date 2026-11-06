@@ -17,7 +17,8 @@ namespace RepGame.Chess.UI
     public sealed class BattleCutscene
     {
         private const float CardW = 120, CardH = 180, CardGap = 16;
-        private const float EnemyRowY = 300, SelfRowY = 760;
+        private const float EnemyRowY = 220, SelfRowY = 860;
+        private const float SelfScoreX = 600, EnemyScoreX = 1320, ScoreY = 520;
 
         private readonly RectTransform layer;     // 弹出层：过场画面
         private readonly RectTransform fxLayer;   // 火焰与伤害数字（在 HUD 之上）
@@ -51,31 +52,35 @@ namespace RepGame.Chess.UI
             var group = root.gameObject.AddComponent<CanvasGroup>();
             group.alpha = 0;
 
-            // 虚空背景：有贴图用贴图（再压一层暗色保证文字清晰），没有就用纯墨色
+            // 云雾遮罩：半透明，对局界面仍隐约可见；整层随 CanvasGroup 淡入淡出
             var skin = ChessUISkin.Instance;
-            var bg = UIKit.Image(root, "Void", skin.voidBackground != null ? Color.white : Theme.WithAlpha(Theme.Ink, 0.93f), skin.voidBackground, raycast: true);
-            UIKit.Fill(bg.rectTransform);
-            bg.gameObject.AddComponent<Button>().onClick.AddListener(Skip);
-            if (skin.voidBackground != null)
-            {
-                var shade = UIKit.Image(root, "Shade", Theme.WithAlpha(Theme.Ink, 0.45f));
-                UIKit.Fill(shade.rectTransform);
-            }
+            var catcher = UIKit.Image(root, "Catcher", Color.clear, raycast: true);   // 点击任意处跳过
+            UIKit.Fill(catcher.rectTransform);
+            catcher.gameObject.AddComponent<Button>().onClick.AddListener(Skip);
+            var veil = UIKit.Image(root, "Veil", skin.voidBackground != null ? Theme.WithAlpha(Color.white, skin.veilAlpha) : Theme.WithAlpha(Theme.Ink, skin.veilAlpha),
+                skin.voidBackground);
+            UIKit.Fill(veil.rectTransform);
+            // 云团从两侧飘入，然后缓慢漂移
             var mistSprite = skin.voidMist != null ? skin.voidMist : skin.Circle;
-            foreach (var (x, y, s, a) in new[] { (420f, 320f, 900f, 0.07f), (1500f, 760f, 1100f, 0.06f), (960f, 540f, 600f, 0.05f) })
+            var mistTint = skin.voidMist != null ? Color.white : Theme.Cyan;
+            foreach (var (x, y, s, from) in new[] { (260f, 260f, 1000f, -500f), (1660f, 300f, 900f, 500f), (300f, 860f, 1000f, -500f), (1640f, 820f, 1100f, 500f) })
             {
-                var tint = skin.voidMist != null ? Theme.WithAlpha(Color.white, Mathf.Min(1, a * 4)) : Theme.WithAlpha(Theme.Cyan, a);
-                var mist = UIKit.Image(root, "Mist", tint, mistSprite);
+                var mist = UIKit.Image(root, "Mist", Theme.WithAlpha(mistTint, skin.voidMist != null ? skin.mistAlpha : skin.mistAlpha * 0.1f), mistSprite);
                 UIKit.PlaceCenter(mist.rectTransform, x, y, s, s * 0.6f);
-                mist.rectTransform.DOAnchorPosX(mist.rectTransform.anchoredPosition.x + 60, 6f).SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo).SetTarget(root);
+                var rt = mist.rectTransform;
+                var targetX = rt.anchoredPosition.x;
+                rt.anchoredPosition += new Vector2(from, 0);
+                rt.DOAnchorPosX(targetX, skin.cutsceneIntro + 0.6f).SetEase(Ease.OutCubic).SetTarget(root)
+                    .OnComplete(() => rt.DOAnchorPosX(targetX + (from < 0 ? 50 : -50), 6f).SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo).SetTarget(root));
+                mist.DOFade(0, skin.cutsceneIntro + 0.6f).From().SetTarget(root);
             }
             var title = UIKit.Text(root, "Title", $"第 {rr.Round} 回合 · 交锋", 30, Theme.Paper, TextAlignmentOptions.Center, true);
             UIKit.PlaceCenter(title.rectTransform, 960, 46, 600, 44);
             var hint = UIKit.Text(root, "Hint", "点击跳过", 14, Theme.WithAlpha(Theme.Paper, 0.5f), TextAlignmentOptions.Right);
             UIKit.Place(hint.rectTransform, 1600, 30, 280, 24);
 
-            var enemy = new Side(root, rr.Opponent, EnemyRowY, 150, true);
-            var self = new Side(root, rr.Self, SelfRowY, 930, false);
+            var enemy = new Side(root, rr.Opponent, EnemyRowY, EnemyScoreX, true);
+            var self = new Side(root, rr.Self, SelfRowY, SelfScoreX, false);
 
             var verdict = UIKit.Text(root, "Verdict", "", 96, Theme.Red, TextAlignmentOptions.Center, true);
             UIKit.PlaceCenter(verdict.rectTransform, 960, 530, 600, 120);
@@ -280,7 +285,7 @@ namespace RepGame.Chess.UI
                 public bool Open;
             }
 
-            public Side(RectTransform root, SideResult side, float rowY, float scoreY, bool enemy)
+            public Side(RectTransform root, SideResult side, float rowY, float scoreX, bool enemy)
             {
                 this.side = side;
                 var n = side.Board.Count;
@@ -296,14 +301,18 @@ namespace RepGame.Chess.UI
                     var back = Back(holder);
                     cards[c.Uid] = new Flip { Root = holder, Back = back, Face = face };
                 }
-                var who = UIKit.Text(root, "Who", enemy ? $"对手 · {side.Username}" : "我方", 18, Theme.WithAlpha(Theme.Paper, 0.75f), TextAlignmentOptions.Center);
-                UIKit.PlaceCenter(who.rectTransform, 960, scoreY - (enemy ? 48 : -48), 500, 26);
-                scoreText = UIKit.Text(root, "Score", "0", 54, enemy ? Theme.Paper : Theme.Hex("#FFD27A"), TextAlignmentOptions.Center, true);
-                UIKit.PlaceCenter(scoreText.rectTransform, 960, scoreY, 500, 64);
-                formula = UIKit.Text(root, "Formula", "点数 0 × 倍率 1", 16, Theme.WithAlpha(Theme.Paper, 0.7f), TextAlignmentOptions.Left);
-                UIKit.Place(formula.rectTransform, 1220, scoreY - 12, 300, 26);
-                ticker = UIKit.Text(root, "Ticker", "", 20, Theme.Hex("#FFD27A"), TextAlignmentOptions.Right, true);
-                UIKit.Place(ticker.rectTransform, 400, scoreY - 14, 300, 30);
+                // 积分区：双方并排在画面中央（我方左、对手右），名字在上，算式和当前步骤在下
+                var skin = ChessUISkin.Instance;
+                var who = UIKit.Text(root, "Who", enemy ? $"对手 · {side.Username}" : "我方", 26, Theme.Paper, TextAlignmentOptions.Center, true);
+                UIKit.PlaceCenter(who.rectTransform, scoreX, ScoreY - skin.scoreFontSize * 0.62f, 560, 34);
+                scoreText = UIKit.Text(root, "Score", "0", skin.scoreFontSize, enemy ? Theme.Paper : Theme.Hex("#FFD27A"), TextAlignmentOptions.Center, true);
+                scoreText.outlineWidth = 0.12f;
+                scoreText.outlineColor = Theme.Ink;
+                UIKit.PlaceCenter(scoreText.rectTransform, scoreX, ScoreY, 640, skin.scoreFontSize * 1.1f);
+                formula = UIKit.Text(root, "Formula", "点数 0 × 倍率 1", 24, Theme.Paper, TextAlignmentOptions.Center);
+                UIKit.PlaceCenter(formula.rectTransform, scoreX, ScoreY + skin.scoreFontSize * 0.62f, 560, 32);
+                ticker = UIKit.Text(root, "Ticker", "", 28, Theme.Hex("#FFD27A"), TextAlignmentOptions.Center, true);
+                UIKit.PlaceCenter(ticker.rectTransform, scoreX, ScoreY + skin.scoreFontSize * 0.62f + 38, 560, 36);
 
                 // 合并同一来源的连续步骤，避免一张卡挂很多小步骤时动画过长
                 var steps = side.Score.Steps;
@@ -369,11 +378,24 @@ namespace RepGame.Chess.UI
                         ticker.alpha = 1;
                         formula.text = $"点数 {Fmt.Num(ev.Points)} × 倍率 {Fmt.Num(ev.Mult)}";
                         var target = (float)Math.Floor(ev.Points * ev.Mult);
-                        DOTween.To(() => shown, v => { shown = v; scoreText.text = Fmt.Score(v); }, target, Mathf.Max(0.1f, per * 0.8f));
+                        var dur = Mathf.Max(0.1f, per * 0.8f);
+                        if (target > shown) Shake(dur);
+                        DOTween.To(() => shown, v => { shown = v; scoreText.text = Fmt.Score(v); }, target, dur);
                     });
                     seq.AppendInterval(Mathf.Max(0.05f, per - 0.1f));
                 }
                 return seq;
+            }
+
+            /// <summary>积分增长时数字晃动：先结束上一次晃动（回到原位），再左右摆动 + 轻微弹缩。</summary>
+            private void Shake(float duration)
+            {
+                var skin = ChessUISkin.Instance;
+                var rt = scoreText.rectTransform;
+                rt.DOKill(true);
+                rt.DOShakeRotation(duration, new Vector3(0, 0, skin.scoreShakeAngle), 14, 90, true).SetTarget(rt);
+                rt.DOShakeAnchorPos(duration, skin.scoreShakeOffset, 18, 90, false, true).SetTarget(rt);
+                rt.DOPunchScale(Vector3.one * 0.12f, duration, 6, 0.6f).SetTarget(rt);
             }
 
             /// <summary>演出结束（或被跳过）时，确保所有卡翻开、显示最终分数。</summary>
@@ -385,6 +407,7 @@ namespace RepGame.Chess.UI
                     f.Back.gameObject.SetActive(false);
                     f.Face.gameObject.SetActive(true);
                 }
+                scoreText.rectTransform.DOKill(true);
                 shown = (float)side.Score.Score;
                 scoreText.text = Fmt.Score(side.Score.Score);
                 formula.text = $"点数 {Fmt.Num(side.Score.Points)} × 倍率 {Fmt.Num(side.Score.Mult)}";

@@ -259,12 +259,13 @@ namespace RepGame.Chess.UI
 
         public void Render(ScoreBreakdown preview, bool visible)
         {
-            root.gameObject.SetActive(visible && preview != null && preview.Score > 0);
-            if (!root.gameObject.activeSelf)
+            if (!(visible && preview != null && preview.Score > 0))
             {
+                UIFx.Out(root.gameObject, UIFx.Style.Fade); // 淡出；入场由 Animate 负责
                 shown = -1;
                 return;
             }
+            UIFx.ShowNow(root.gameObject);
             score.text = Fmt.Score(preview.Score);
             formula.text = $"点数 {Fmt.Num(preview.Points)} × 倍率 {Fmt.Num(preview.Mult)}";
             if (preview.Score != shown)

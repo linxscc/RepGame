@@ -113,3 +113,12 @@ MonoBehaviour:
   trailInterval: 0.04
   impactScale: 2.4
   hpDrainSeconds: 0.7
+  veilAlpha: 0.55
+  mistAlpha: 0.7
+  scoreFontSize: 162
+  scoreShakeAngle: 8
+  scoreShakeOffset: 14
+  uiInSeconds: 0.22
+  uiOutSeconds: 0.16
+  uiPopFrom: 0.92
+  uiSlideDistance: 40

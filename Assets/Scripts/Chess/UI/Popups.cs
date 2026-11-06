@@ -27,11 +27,11 @@ namespace RepGame.Chess.UI
             root.gameObject.SetActive(false);
         }
 
-        public bool Visible => root.gameObject.activeSelf;
+        public bool Visible => UIFx.IsShown(root.gameObject);
 
         public void Hide()
         {
-            root.gameObject.SetActive(false);
+            UIFx.Out(root.gameObject, UIFx.Style.Fade);
             shownKey = null;
         }
 
@@ -48,7 +48,7 @@ namespace RepGame.Chess.UI
             if (shownKey == key && Visible) return;
             shownKey = key;
             UIKit.Clear(root);
-            root.gameObject.SetActive(true);
+            UIFx.In(root.gameObject, UIFx.Style.Fade);
             tooltip.Hide(null);
             if (dim)
             {
@@ -77,6 +77,8 @@ namespace RepGame.Chess.UI
                 b.targetGraphic = card;
                 var click = o.Click;
                 b.onClick.AddListener(() => click());
+                // 选项卡依次弹出
+                card.rectTransform.DOScale(1f, 0.32f).From(0.82f).SetEase(Ease.OutBack).SetDelay(0.05f + i * 0.07f);
                 var tag = UIKit.Text(card.transform, "Tag", o.Tag ?? "", 14, o.Ring, TextAlignmentOptions.TopRight, true);
                 tag.rectTransform.offsetMax = new Vector2(-18, -16);
                 if (o.RelicKey != null)
@@ -177,10 +179,11 @@ namespace RepGame.Chess.UI
             if (shownKey == key && Visible) return;
             shownKey = key;
             UIKit.Clear(root);
-            root.gameObject.SetActive(true);
+            UIFx.In(root.gameObject, UIFx.Style.Fade);
             var bg = UIKit.Panel(root, "WaitBg", Theme.WithAlpha(Theme.Paper, 0.9f), Theme.Ink, 1.5f);
             UIKit.PlaceCenter(bg.rectTransform, 960, 250, 520, 56);
             UIKit.Text(bg.transform, "Text", text, 20, Theme.Ink);
+            bg.rectTransform.DOScale(1f, 0.28f).From(0.85f).SetEase(Ease.OutBack);
         }
     }
 
@@ -201,16 +204,17 @@ namespace RepGame.Chess.UI
             root.gameObject.SetActive(false);
         }
 
-        public void Hide() => root.gameObject.SetActive(false);
+        public void Hide() => UIFx.Out(root.gameObject, UIFx.Style.Fade);
 
         public void Show(MatchOver over)
         {
             UIKit.Clear(root);
-            root.gameObject.SetActive(true);
+            UIFx.In(root.gameObject, UIFx.Style.Fade, 0.35f);
             var dim = UIKit.Image(root, "Dim", Theme.Dim, raycast: true);
             UIKit.Fill(dim.rectTransform);
             var panel = UIKit.Panel(root, "Panel", Theme.Paper, Theme.Ink, 2.5f);
             UIKit.PlaceCenter(panel.rectTransform, 960, 520, 640, 420);
+            panel.rectTransform.DOScale(1f, 0.45f).From(0.7f).SetEase(Ease.OutBack).SetDelay(0.1f);
             var word = over.Result > 0 ? Fmt.T("game.win", "你胜利了！") : over.Result < 0 ? Fmt.T("game.lose", "你失败了！") : Fmt.T("chess.draw", "平局");
             var t = UIKit.Text(panel.transform, "Result", word, 56, over.Result > 0 ? Theme.Red : Theme.Ink, TextAlignmentOptions.Top, true);
             UIKit.Place(t.rectTransform, 0, 50, 640, 80);
@@ -241,12 +245,12 @@ namespace RepGame.Chess.UI
             root.gameObject.SetActive(false);
         }
 
-        public void Hide() => root.gameObject.SetActive(false);
+        public void Hide() => UIFx.Out(root.gameObject, UIFx.Style.Fade);
 
         public void Show(string message, string okLabel, Action onOk)
         {
             UIKit.Clear(root);
-            root.gameObject.SetActive(true);
+            UIFx.In(root.gameObject, UIFx.Style.Fade);
             root.SetAsLastSibling();
             var dim = UIKit.Image(root, "Dim", Theme.Dim, raycast: true);
             UIKit.Fill(dim.rectTransform);
@@ -254,6 +258,7 @@ namespace RepGame.Chess.UI
             var panel = UIKit.Panel(root, "Panel", Theme.Paper, Theme.Ink, 2.5f);
             panel.raycastTarget = true;
             UIKit.PlaceCenter(panel.rectTransform, 960, 520, 520, 240);
+            panel.rectTransform.DOScale(1f, 0.3f).From(0.85f).SetEase(Ease.OutBack);
             var text = UIKit.Text(panel.transform, "Message", message, 22, Theme.Ink, TextAlignmentOptions.Center, true);
             UIKit.Place(text.rectTransform, 30, 30, 460, 100);
             var ok = UIKit.Button(panel.transform, "Ok", Theme.Red, Theme.Ink, okLabel, 20, Theme.Paper, () => { Hide(); onOk(); });
@@ -276,9 +281,9 @@ namespace RepGame.Chess.UI
 
         public void Toggle(MatchState st)
         {
-            if (root.gameObject.activeSelf || st == null)
+            if (UIFx.IsShown(root.gameObject) || st == null)
             {
-                root.gameObject.SetActive(false);
+                UIFx.Out(root.gameObject);
                 return;
             }
             UIKit.Clear(root);
@@ -289,7 +294,7 @@ namespace RepGame.Chess.UI
             var panel = UIKit.Panel(root, "Panel", Theme.Paper, Theme.Ink, 2f);
             UIKit.Fill(panel.rectTransform);
             panel.raycastTarget = true;
-            panel.gameObject.AddComponent<Button>().onClick.AddListener(() => root.gameObject.SetActive(false));
+            panel.gameObject.AddComponent<Button>().onClick.AddListener(() => UIFx.Out(root.gameObject));
             var title = UIKit.Text(root, "Title", $"{o.Username} · 上回合得分 {Fmt.Score(o.LastScore)}", 16, Theme.Ink, TextAlignmentOptions.TopLeft, true);
             UIKit.Place(title.rectTransform, 20, 14, 600, 24);
             float x = 20;
@@ -304,6 +309,7 @@ namespace RepGame.Chess.UI
                 UIKit.Place(rt, x, 56, 76, 108);
                 x += 84;
             }
+            UIFx.In(root.gameObject);
         }
     }
 

@@ -114,14 +114,14 @@ namespace RepGame.Chess.UI
             DOTween.Kill(drawer);
             if (open)
             {
-                dim.gameObject.SetActive(true);
+                UIFx.In(dim.gameObject, UIFx.Style.Fade);
                 drawer.gameObject.SetActive(true);
                 drawer.anchoredPosition = new Vector2(DrawerX, -1080);
                 drawer.DOAnchorPos(new Vector2(DrawerX, -(1080 - DrawerH)), 0.25f).SetEase(Ease.OutCubic).SetTarget(drawer);
             }
             else
             {
-                dim.gameObject.SetActive(false);
+                UIFx.Out(dim.gameObject, UIFx.Style.Fade);
                 drawer.DOAnchorPos(new Vector2(DrawerX, -1080), 0.2f).SetEase(Ease.InCubic).SetTarget(drawer)
                     .OnComplete(() => drawer.gameObject.SetActive(false));
             }
@@ -135,8 +135,8 @@ namespace RepGame.Chess.UI
             var prep = st.Phase == MatchPhase.Prep;
             goldText.text = self.Gold.ToString();
             interestText.text = self.Interest > 0 ? $"利息 +{self.Interest}" : "金";
-            goldButton.gameObject.SetActive(prep || st.Phase == MatchPhase.Vault);
-            readyButton.gameObject.SetActive(prep);
+            UIFx.Toggle(goldButton.gameObject, prep || st.Phase == MatchPhase.Vault);
+            UIFx.Toggle(readyButton.gameObject, prep);
             readyLabel.text = self.Ready ? Fmt.T("chess.ready.cancel", "取消就绪") : Fmt.T("chess.ready", "就 绪");
             ((Image)readyButton.targetGraphic).transform.GetChild(0).GetComponent<Image>().color = self.Ready ? Theme.InkSoft : Theme.Red;
             if (!prep) SetOpen(false);

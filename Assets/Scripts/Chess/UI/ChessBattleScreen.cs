@@ -149,12 +149,12 @@ namespace RepGame.Chess.UI
             cutscene.Stop();
             picker.Hide();
             if (UIPanelController.Instance != null) UIPanelController.Instance.HideAllPanels();
-            canvas.gameObject.SetActive(true);
+            UIFx.In(canvas.gameObject, UIFx.Style.Fade, 0.4f);
         }
 
         private void OnState(MatchState previous, MatchState st)
         {
-            if (!canvas.gameObject.activeSelf) OnConfig(ChessSession.Instance.Config);
+            if (!UIFx.IsShown(canvas.gameObject)) OnConfig(ChessSession.Instance.Config);
             Render(st);
         }
 
@@ -178,7 +178,7 @@ namespace RepGame.Chess.UI
                 UIKit.Hover(icon.gameObject, () => RelicIcon.ShowTip(tooltip, new RelicSlot { RelicKey = r.RelicKey, Value = r.Value, TradeChoice = r.TradeChoice }, x - 100, 84), () => tooltip.Hide(null));
             }
 
-            surrenderButton.gameObject.SetActive(st.Phase != MatchPhase.Over);
+            UIFx.Toggle(surrenderButton.gameObject, st.Phase != MatchPhase.Over);
             timer.Tick(st);
             bonds.Render(st);
             board.Render(st);
@@ -208,7 +208,7 @@ namespace RepGame.Chess.UI
         private void OnOver(MatchOver over)
         {
             confirm.Hide();
-            surrenderButton.gameObject.SetActive(false);
+            UIFx.Out(surrenderButton.gameObject);
             picker.Hide();
             shop.SetOpen(false);
             gameOver.Show(over);
@@ -236,7 +236,7 @@ namespace RepGame.Chess.UI
         private void BackToLobby()
         {
             gameOver.Hide();
-            canvas.gameObject.SetActive(false);
+            UIFx.Out(canvas.gameObject, UIFx.Style.Fade, null, 0.3f);
             ChessSession.Instance.Clear();
             if (UIPanelController.Instance != null) UIPanelController.Instance.ShowPanel(LobbyPanel, true);
         }
