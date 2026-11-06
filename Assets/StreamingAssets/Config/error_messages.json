@@ -8,6 +8,11 @@
     { "code": "InvalidGameState", "text": "当前无法进行该操作", "comment": "例如不是自己的回合" },
     { "code": "InvalidCards", "text": "所选卡牌无效", "comment": "卡牌不在手牌中、重复或数量不合规则" },
     { "code": "InvalidRequest", "text": "请求格式错误", "comment": "用户名/密码格式不对，或客户端版本不匹配" },
+    { "code": "NotEnoughGold", "text": "金币不足", "comment": "买卡、刷新、买经验、买法宝时金币不够" },
+    { "code": "BenchFull", "text": "备战席已满", "comment": "买卡时备战席满了且不会触发合成" },
+    { "code": "RelicSlotsFull", "text": "法宝栏已满，请先卖掉一件", "comment": "" },
+    { "code": "MaxLevel", "text": "已达到最高等级", "comment": "" },
+    { "code": "InvalidChoice", "text": "无效的选择", "comment": "栏位、卡牌或选项不存在，或布局不合法" },
     { "code": "Default", "text": "服务器繁忙，请稍后再试", "comment": "其他未单独配置的错误（含服务器内部错误）" }
   ]
 }

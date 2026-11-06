@@ -42,6 +42,29 @@
     { "key": "bond.tooltip", "text": "等级: {0}\n伤害: {1}\n卡牌: {2}\n技能: {3}\n描述: {4}\n状态: {5}", "comment": "羁绊悬停说明。{0}=等级 {1}=伤害 {2}=卡牌 {3}=技能 {4}=描述 {5}=状态" },
     { "key": "bond.active", "text": "已激活", "comment": "" },
     { "key": "bond.inactive", "text": "未激活", "comment": "" },
-    { "key": "bond.none", "text": "无", "comment": "羁绊没有关联卡牌时显示" }
+    { "key": "bond.none", "text": "无", "comment": "羁绊没有关联卡牌时显示" },
+
+    { "key": "chess.phase.family", "text": "选择家世", "comment": "" },
+    { "key": "chess.phase.prep", "text": "第 {0} 回合 · 阶段伤害 {1}", "comment": "{0}=回合 {1}=本回合阶段伤害" },
+    { "key": "chess.phase.settle", "text": "第 {0} 回合 · 结算", "comment": "{0}=回合" },
+    { "key": "chess.phase.vault", "text": "第 {0} 回合 · 宝库", "comment": "{0}=回合" },
+    { "key": "chess.shop.title", "text": "商店", "comment": "" },
+    { "key": "chess.ready", "text": "就 绪", "comment": "" },
+    { "key": "chess.ready.cancel", "text": "取消就绪", "comment": "" },
+    { "key": "chess.family.title", "text": "选择家世", "comment": "" },
+    { "key": "chess.family.subtitle", "text": "整局生效 · 倒计时结束后随机选择", "comment": "" },
+    { "key": "chess.family.waiting", "text": "已选择：{0}，等待对手…", "comment": "{0}=家世名" },
+    { "key": "chess.vault.title", "text": "宝库 · 三选一", "comment": "" },
+    { "key": "chess.vault.subtitle", "text": "免费拿 1 件法宝 · 倒计时结束后随机选择", "comment": "" },
+    { "key": "chess.vault.skip", "text": "放弃，换金币", "comment": "" },
+    { "key": "chess.vault.waiting", "text": "等待对手选择…", "comment": "" },
+    { "key": "chess.trade.title", "text": "选择行当", "comment": "" },
+    { "key": "chess.trade.subtitle", "text": "这件法宝需要选定一个行当", "comment": "" },
+    { "key": "chess.sell.title", "text": "法宝栏已满", "comment": "" },
+    { "key": "chess.sell.subtitle", "text": "选一件卖掉，给新法宝腾位置", "comment": "" },
+    { "key": "chess.cancel", "text": "取消", "comment": "" },
+    { "key": "chess.draw", "text": "平局", "comment": "" },
+    { "key": "chess.rematch", "text": "再来一局", "comment": "" },
+    { "key": "chess.lobby", "text": "返回大厅", "comment": "" }
   ]
 }

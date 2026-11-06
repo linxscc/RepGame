@@ -25,6 +25,9 @@ public class UIBootstrap : MonoBehaviour
 
         // 登录态也可能在任意界面下变化（会话过期、被顶号），同样挂在常驻对象上
         accountSession = new AccountSessionPresenter();
+
+        // 新版对局界面：代码构建，收到 MatchConfig 后自动显示
+        RepGame.Chess.UI.ChessBattleScreen.Create();
     }
 
     void Start()

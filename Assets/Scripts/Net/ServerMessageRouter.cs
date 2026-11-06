@@ -33,6 +33,10 @@ namespace RepGame.Net
                 { ServerMessage.BodyOneofCase.BondList, (m, _) => EventManager.TriggerEvent(NetEvents.BondsReceived, ProtocolMapper.ToBonds(m.BondList)) },
                 { ServerMessage.BodyOneofCase.GameState, (m, _) => OnGameState(m) },
                 { ServerMessage.BodyOneofCase.PlayerPresence, (m, _) => OnPlayerPresence(m) },
+                { ServerMessage.BodyOneofCase.MatchConfig, (m, _) => RepGame.Chess.ChessSession.Instance.OnMatchConfig(m.MatchConfig) },
+                { ServerMessage.BodyOneofCase.MatchState, (m, _) => RepGame.Chess.ChessSession.Instance.OnMatchState(m.MatchState) },
+                { ServerMessage.BodyOneofCase.RoundResult, (m, _) => RepGame.Chess.ChessSession.Instance.OnRoundResult(m.RoundResult) },
+                { ServerMessage.BodyOneofCase.MatchOver, (m, _) => RepGame.Chess.ChessSession.Instance.OnMatchOver(m.MatchOver) },
             };
         }
 
@@ -52,6 +56,7 @@ namespace RepGame.Net
         private static void OnWelcome(ServerMessage m)
         {
             Debug.Log($"服务器协议版本 {m.Welcome.ProtocolVersion}");
+            RepGame.Chess.ChessSession.Instance.OnWelcome(m.Welcome.ServerTimeMs);
         }
 
         private void OnAuthResult(ServerMessage m)
@@ -78,6 +83,10 @@ namespace RepGame.Net
             };
             Debug.LogWarning($"请求失败 [{failure.Request}] {m.Error.Code}: {m.Error.Message}");
             EventManager.TriggerEvent(NetEvents.RequestFailed, failure);
+            if (request == RequestKind.GameAction)
+            {
+                RepGame.Chess.ChessSession.Instance.OnActionFailed(failure.Message);
+            }
         }
 
         private static void OnGameState(ServerMessage m)

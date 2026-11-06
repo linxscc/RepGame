@@ -49,6 +49,7 @@ namespace RepGame.Net
         Restart,
         PlayCards,
         ComposeCards,
+        GameAction,
     }
 
     public sealed class RequestFailure

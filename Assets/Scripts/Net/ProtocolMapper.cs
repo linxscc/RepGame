@@ -90,6 +90,7 @@ namespace RepGame.Net
                 case ClientMessage.BodyOneofCase.Restart: return RequestKind.Restart;
                 case ClientMessage.BodyOneofCase.PlayCards: return RequestKind.PlayCards;
                 case ClientMessage.BodyOneofCase.ComposeCards: return RequestKind.ComposeCards;
+                case ClientMessage.BodyOneofCase.GameAction: return RequestKind.GameAction;
                 default: return RequestKind.Unknown;
             }
         }
