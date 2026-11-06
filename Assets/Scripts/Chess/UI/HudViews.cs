@@ -266,7 +266,7 @@ namespace RepGame.Chess.UI
                 return;
             }
             score.text = Fmt.Score(preview.Score);
-            formula.text = $"{Fmt.Num(preview.Points)} 点 × {Fmt.Num(preview.Mult)} 倍";
+            formula.text = $"点数 {Fmt.Num(preview.Points)} × 倍率 {Fmt.Num(preview.Mult)}";
             if (preview.Score != shown)
             {
                 shown = preview.Score;

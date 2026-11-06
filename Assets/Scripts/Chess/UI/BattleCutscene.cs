@@ -300,7 +300,7 @@ namespace RepGame.Chess.UI
                 UIKit.PlaceCenter(who.rectTransform, 960, scoreY - (enemy ? 48 : -48), 500, 26);
                 scoreText = UIKit.Text(root, "Score", "0", 54, enemy ? Theme.Paper : Theme.Hex("#FFD27A"), TextAlignmentOptions.Center, true);
                 UIKit.PlaceCenter(scoreText.rectTransform, 960, scoreY, 500, 64);
-                formula = UIKit.Text(root, "Formula", "0 点 × 1 倍", 16, Theme.WithAlpha(Theme.Paper, 0.7f), TextAlignmentOptions.Left);
+                formula = UIKit.Text(root, "Formula", "点数 0 × 倍率 1", 16, Theme.WithAlpha(Theme.Paper, 0.7f), TextAlignmentOptions.Left);
                 UIKit.Place(formula.rectTransform, 1220, scoreY - 12, 300, 26);
                 ticker = UIKit.Text(root, "Ticker", "", 20, Theme.Hex("#FFD27A"), TextAlignmentOptions.Right, true);
                 UIKit.Place(ticker.rectTransform, 400, scoreY - 14, 300, 30);
@@ -318,8 +318,8 @@ namespace RepGame.Chess.UI
                         j++;
                     }
                     var last = steps[j - 1];
-                    var label = s.Kind == ScoreStepKind.Points ? $"{s.Source} +{Fmt.Num(add)} 点"
-                        : s.Kind == ScoreStepKind.AddMult ? $"{s.Source} +{Fmt.Num(add)} 倍" : $"{s.Source} ×{Fmt.Num(times)}";
+                    var label = s.Kind == ScoreStepKind.Points ? $"{s.Source} 点数 +{Fmt.Num(add)}"
+                        : s.Kind == ScoreStepKind.AddMult ? $"{s.Source} 倍率 +{Fmt.Num(add)}" : $"{s.Source} 倍率 ×{Fmt.Num(times)}";
                     Events.Add(new Event { CardUid = s.CardUid, Label = label, Points = last.Points, Mult = last.Mult });
                     i = j;
                 }
@@ -367,7 +367,7 @@ namespace RepGame.Chess.UI
                     {
                         ticker.text = ev.Label;
                         ticker.alpha = 1;
-                        formula.text = $"{Fmt.Num(ev.Points)} 点 × {Fmt.Num(ev.Mult)} 倍";
+                        formula.text = $"点数 {Fmt.Num(ev.Points)} × 倍率 {Fmt.Num(ev.Mult)}";
                         var target = (float)Math.Floor(ev.Points * ev.Mult);
                         DOTween.To(() => shown, v => { shown = v; scoreText.text = Fmt.Score(v); }, target, Mathf.Max(0.1f, per * 0.8f));
                     });
@@ -387,7 +387,7 @@ namespace RepGame.Chess.UI
                 }
                 shown = (float)side.Score.Score;
                 scoreText.text = Fmt.Score(side.Score.Score);
-                formula.text = $"{Fmt.Num(side.Score.Points)} 点 × {Fmt.Num(side.Score.Mult)} 倍";
+                formula.text = $"点数 {Fmt.Num(side.Score.Points)} × 倍率 {Fmt.Num(side.Score.Mult)}";
                 ticker.text = "";
             }
 
