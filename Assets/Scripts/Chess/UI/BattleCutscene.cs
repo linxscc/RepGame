@@ -100,13 +100,14 @@ namespace RepGame.Chess.UI
                 UIKit.PlaceCenter(stamp.rectTransform, 960, 530, 320, 320);
             }
 
-            // 时间预算：到服务器下一阶段前演完，留出火焰攻击的时间
+            // 时间预算：按步骤数分配，每步再额外放慢 stepExtraSeconds；服务器的结算上限足够长，
+            // 双方播完后客户端会发 SettleDone 提前结束
             var total = Mathf.Clamp((rr.NextPhaseAtMs - ChessSession.Instance.ServerNowMs) / 1000f, 4f, 12f);
             float intro = skin.cutsceneIntro, verdictT = skin.verdictHold, outro = Mathf.Max(0.1f, skin.cutsceneOutro);
             var fire = skin.fireFlightSeconds + 1.2f;
             var reveal = Mathf.Max(2f, total - intro - verdictT - outro - fire);
             var steps = Mathf.Max(1, Mathf.Max(enemy.Events.Count, self.Events.Count));
-            var per = Mathf.Clamp(reveal / steps, skin.stepMinSeconds, skin.stepMaxSeconds);
+            var per = Mathf.Clamp(reveal / steps, skin.stepMinSeconds, skin.stepMaxSeconds) + skin.stepExtraSeconds;
 
             master = DOTween.Sequence().SetTarget(root);
             master.Append(group.DOFade(1, intro));
@@ -291,12 +292,18 @@ namespace RepGame.Chess.UI
             public readonly List<Event> Events = new List<Event>();
             private readonly Dictionary<string, Flip> cards = new Dictionary<string, Flip>();
             private readonly TextMeshProUGUI scoreText, formula, ticker;
+            private readonly RectTransform bonusBox;          // 积分外侧：正在结算的羁绊 / 法宝
+            private readonly CanvasGroup bonusGroup;
+            private readonly TextMeshProUGUI bonusKind, bonusName, bonusValue;
+            private readonly float bonusX, bonusFrom;
+            private bool bonusShown;
             private readonly SideResult side;
             private float shown;
 
             public struct Event
             {
-                public string CardUid, Label;
+                public string CardUid, Label, Source, Change;
+                public int Phase;
                 public double Points, Mult;
             }
 
@@ -335,6 +342,29 @@ namespace RepGame.Chess.UI
                 ticker = UIKit.Text(root, "Ticker", "", 28, Theme.Hex("#FFD27A"), TextAlignmentOptions.Center, true);
                 UIKit.PlaceCenter(ticker.rectTransform, scoreX, ScoreY + skin.scoreFontSize * 0.62f + 38, 560, 36);
 
+                // 羁绊 / 法宝结算提示：我方在积分左侧，对手在积分右侧；金色流光文字
+                bonusX = enemy ? scoreX + 450 : scoreX - 450;
+                bonusFrom = enemy ? 60 : -60;
+                bonusBox = UIKit.Rect(root, "Bonus");
+                UIKit.PlaceCenter(bonusBox, bonusX, ScoreY, 300, 170);
+                bonusGroup = bonusBox.gameObject.AddComponent<CanvasGroup>();
+                bonusGroup.alpha = 0;
+                bonusGroup.blocksRaycasts = false;
+                bonusKind = UIKit.Text(bonusBox, "Kind", "", 22, Theme.WithAlpha(Theme.Paper, 0.85f), TextAlignmentOptions.Center);
+                UIKit.PlaceCenter(bonusKind.rectTransform, 150, 22, 300, 30);
+                bonusName = UIKit.Text(bonusBox, "Name", "", 52, Theme.Hex("#FFD27A"), TextAlignmentOptions.Center, true);
+                bonusName.outlineWidth = 0.15f;
+                bonusName.outlineColor = Theme.Ink;
+                bonusName.enableWordWrapping = false;
+                bonusName.enableAutoSizing = true;
+                bonusName.fontSizeMin = 28;
+                bonusName.fontSizeMax = 52;
+                UIKit.PlaceCenter(bonusName.rectTransform, 150, 82, 300, 70);
+                bonusName.gameObject.AddComponent<ShimmerText>();
+                bonusValue = UIKit.Text(bonusBox, "Value", "", 30, Theme.Hex("#FFD27A"), TextAlignmentOptions.Center, true);
+                UIKit.PlaceCenter(bonusValue.rectTransform, 150, 145, 300, 40);
+                bonusValue.gameObject.AddComponent<ShimmerText>();
+
                 // 合并同一来源的连续步骤，避免一张卡挂很多小步骤时动画过长
                 var steps = side.Score.Steps;
                 for (int i = 0; i < steps.Count;)
@@ -348,9 +378,13 @@ namespace RepGame.Chess.UI
                         j++;
                     }
                     var last = steps[j - 1];
-                    var label = s.Kind == ScoreStepKind.Points ? $"{s.Source} 战力 +{Fmt.Num(add)}"
-                        : s.Kind == ScoreStepKind.AddMult ? $"{s.Source} 气势 +{Fmt.Num(add)}" : $"{s.Source} 气势 ×{Fmt.Num(times)}";
-                    Events.Add(new Event { CardUid = s.CardUid, Label = label, Points = last.Points, Mult = last.Mult });
+                    var change = s.Kind == ScoreStepKind.Points ? $"战力 +{Fmt.Num(add)}"
+                        : s.Kind == ScoreStepKind.AddMult ? $"气势 +{Fmt.Num(add)}" : $"气势 ×{Fmt.Num(times)}";
+                    Events.Add(new Event
+                    {
+                        CardUid = s.CardUid, Label = $"{s.Source} {change}", Source = s.Source, Change = change, Phase = s.Phase,
+                        Points = last.Points, Mult = last.Mult,
+                    });
                     i = j;
                 }
             }
@@ -395,8 +429,17 @@ namespace RepGame.Chess.UI
                     }
                     seq.AppendCallback(() =>
                     {
-                        ticker.text = ev.Label;
-                        ticker.alpha = 1;
+                        if (ev.Phase == PhaseBond || ev.Phase == PhaseRelic)
+                        {
+                            ShowBonus(ev);
+                            ticker.text = "";
+                        }
+                        else
+                        {
+                            HideBonus();
+                            ticker.text = ev.Label;
+                            ticker.alpha = 1;
+                        }
                         formula.text = $"战力 {Fmt.Num(ev.Points)} × 气势 {Fmt.Num(ev.Mult)}";
                         var target = (float)Math.Floor(ev.Points * ev.Mult);
                         var dur = Mathf.Max(0.1f, per * 0.8f);
@@ -406,6 +449,40 @@ namespace RepGame.Chess.UI
                     seq.AppendInterval(Mathf.Max(0.05f, per - 0.1f));
                 }
                 return seq;
+            }
+
+            private const int PhaseBond = 3, PhaseRelic = 5; // ScoreStep.phase：3 羁绊 5 法宝
+
+            /// <summary>在积分外侧显示正在结算的羁绊 / 法宝：首次滑入，之后每步轻弹一下。</summary>
+            private void ShowBonus(Event ev)
+            {
+                bonusKind.text = ev.Phase == PhaseBond ? "羁 绊" : "法 宝";
+                bonusName.text = ev.Source;
+                bonusValue.text = ev.Change;
+                DOTween.Kill(bonusBox);
+                if (!bonusShown)
+                {
+                    bonusShown = true;
+                    bonusBox.anchoredPosition = new Vector2(bonusX + bonusFrom, -ScoreY);
+                    bonusBox.localScale = Vector3.one;
+                    bonusBox.DOAnchorPos(new Vector2(bonusX, -ScoreY), 0.3f).SetEase(Ease.OutCubic).SetTarget(bonusBox);
+                    bonusGroup.DOFade(1, 0.25f).SetTarget(bonusBox);
+                }
+                else
+                {
+                    bonusBox.anchoredPosition = new Vector2(bonusX, -ScoreY);
+                    bonusGroup.alpha = 1;
+                    bonusBox.localScale = Vector3.one;
+                    bonusBox.DOPunchScale(Vector3.one * 0.12f, 0.3f, 6, 0.6f).SetTarget(bonusBox);
+                }
+            }
+
+            private void HideBonus()
+            {
+                if (!bonusShown) return;
+                bonusShown = false;
+                DOTween.Kill(bonusBox);
+                bonusGroup.DOFade(0, 0.25f).SetTarget(bonusBox);
             }
 
             /// <summary>积分增长时数字晃动：先结束上一次晃动（回到原位），再左右摆动 + 轻微弹缩。</summary>
@@ -433,6 +510,7 @@ namespace RepGame.Chess.UI
                 scoreText.text = Fmt.Score(side.Score.Score);
                 formula.text = $"战力 {Fmt.Num(side.Score.Points)} × 气势 {Fmt.Num(side.Score.Mult)}";
                 ticker.text = "";
+                HideBonus();
             }
 
             public void Highlight()
