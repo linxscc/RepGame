@@ -132,7 +132,7 @@ namespace RepGame.Chess.UI
             scoreDock = new ScoreDockView(baseLayer);
 
             picker = new PickPopup(popupLayer, tooltip);
-            shop = new ShopView(baseLayer, popupLayer, drag, tooltip, picker);
+            shop = new ShopView(baseLayer, popupLayer, drag, tooltip);
             cutscene = new BattleCutscene(popupLayer, fxLayer, selfHud, enemyHud);
             opponentBoard = new OpponentPopover(popupLayer);
             gameOver = new GameOverPopup(popupLayer, Rematch, BackToLobby);

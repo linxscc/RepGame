@@ -11,7 +11,10 @@ namespace RepGame.Chess.UI
     /// </summary>
     public sealed class ShopView
     {
-        private const float DrawerX = 160, DrawerW = 1600, DrawerH = 360;
+        // 抽屉宽度为原来的 2/3，水平居中；只卖卡（法宝只能从宝库获得）
+        private const float DrawerW = 1067, DrawerX = (1920 - DrawerW) / 2, DrawerH = 340;
+        private const float CardW = 150, CardH = 196, CardStep = 162;
+        private const float ButtonW = 180;
 
         private readonly RectTransform goldButton;
         private readonly TextMeshProUGUI goldText;
@@ -21,20 +24,17 @@ namespace RepGame.Chess.UI
         private readonly RectTransform dim;
         private readonly RectTransform drawer;
         private readonly RectTransform cardsRow;
-        private readonly TextMeshProUGUI drawerGold;
         private readonly TextMeshProUGUI drawerInfo;
         private readonly TextMeshProUGUI refreshLabel;
         private readonly TextMeshProUGUI lockLabel;
         private readonly TextMeshProUGUI xpLabel;
         private readonly TooltipLayer tooltip;
-        private readonly PickPopup picker;
         private MatchState state;
         private bool open;
 
-        public ShopView(RectTransform baseLayer, RectTransform popupLayer, DragController drag, TooltipLayer tooltip, PickPopup picker)
+        public ShopView(RectTransform baseLayer, RectTransform popupLayer, DragController drag, TooltipLayer tooltip)
         {
             this.tooltip = tooltip;
-            this.picker = picker;
 
             // 金币按钮
             var gold = UIKit.Circle(baseLayer, "GoldButton", Theme.Paper, Theme.Gold, 3f);
@@ -70,23 +70,21 @@ namespace RepGame.Chess.UI
             var title = UIKit.Text(drawer, "Title", Fmt.T("chess.shop.title", "商店"), 26, Theme.Ink, TextAlignmentOptions.TopLeft, true);
             UIKit.Place(title.rectTransform, 28, 20, 200, 40);
             drawerInfo = UIKit.Text(drawer, "Info", "", 14, Theme.InkSoft, TextAlignmentOptions.Left);
-            UIKit.Place(drawerInfo.rectTransform, 120, 26, 900, 24);
-            drawerGold = UIKit.Text(drawer, "Gold", "", 24, Theme.GoldText, TextAlignmentOptions.Right, true);
-            UIKit.Place(drawerGold.rectTransform, DrawerW - 260, 20, 160, 36);
+            UIKit.Place(drawerInfo.rectTransform, 120, 26, 700, 24);
             var close = UIKit.Button(drawer, "Close", Theme.Paper, Theme.Ink, "×", 22, Theme.Ink, () => SetOpen(false));
             UIKit.Place((RectTransform)close.transform, DrawerW - 72, 16, 44, 44);
 
             cardsRow = UIKit.Rect(drawer, "Cards");
-            UIKit.Place(cardsRow, 28, 76, 1200, 260);
+            UIKit.Place(cardsRow, 28, 80, CardStep * 5, CardH + 30);
 
             var refresh = UIKit.Button(drawer, "Refresh", Theme.Red, Theme.Ink, "", 18, Theme.Paper, ChessActions.Refresh);
-            UIKit.Place((RectTransform)refresh.transform, DrawerW - 218, 86, 190, 58);
+            UIKit.Place((RectTransform)refresh.transform, DrawerW - ButtonW - 28, 86, ButtonW, 56);
             refreshLabel = UIKit.Text(refresh.transform, "Label", "", 18, Theme.Paper, bold: true);
             var xp = UIKit.Button(drawer, "Xp", Theme.Paper, Theme.Ink, "", 18, Theme.Ink, ChessActions.BuyXp);
-            UIKit.Place((RectTransform)xp.transform, DrawerW - 218, 156, 190, 58);
+            UIKit.Place((RectTransform)xp.transform, DrawerW - ButtonW - 28, 154, ButtonW, 56);
             xpLabel = UIKit.Text(xp.transform, "Label", "", 18, Theme.Ink, bold: true);
             var lockB = UIKit.Button(drawer, "Lock", Theme.Cyan, Theme.Ink, "", 18, Theme.Ink, () => ChessActions.Lock(!(state?.Self.ShopLocked ?? false)));
-            UIKit.Place((RectTransform)lockB.transform, DrawerW - 218, 226, 190, 58);
+            UIKit.Place((RectTransform)lockB.transform, DrawerW - ButtonW - 28, 222, ButtonW, 56);
             lockLabel = UIKit.Text(lockB.transform, "Label", "", 18, Theme.Ink, bold: true);
 
             dim.gameObject.SetActive(false);
@@ -141,7 +139,6 @@ namespace RepGame.Chess.UI
             ((Image)readyButton.targetGraphic).transform.GetChild(0).GetComponent<Image>().color = self.Ready ? Theme.InkSoft : Theme.Red;
             if (!prep) SetOpen(false);
 
-            drawerGold.text = $"{self.Gold} 金";
             drawerInfo.text = $"{self.Level} 级 · 拖卡或法宝到这里出售";
             refreshLabel.text = self.FreeRefreshes > 0 ? $"刷新 · 免费 ×{self.FreeRefreshes}" : $"刷新 · {cfg?.RefreshCost ?? 2} 金";
             xpLabel.text = self.XpToNext == 0 ? "已满级" : $"经验 · {cfg?.XpCost ?? 4} 金";
@@ -154,20 +151,19 @@ namespace RepGame.Chess.UI
                 var slot = self.Shop[i];
                 var index = i;
                 RectTransform rt;
-                const float cardH = 222;
                 if (string.IsNullOrEmpty(slot.LineKey))
                 {
-                    rt = CardView.Empty(cardsRow, 170, cardH);
+                    rt = CardView.Empty(cardsRow, CardW, CardH);
                 }
                 else
                 {
                     var line = ChessSession.Instance.Line(slot.LineKey);
                     var preview = new ChessCard { Name = line.StarNames[0], LineKey = slot.LineKey, Star = 1, Points = line.Points, SellPrice = slot.Cost };
-                    rt = CardView.Build(cardsRow, preview, 170, cardH, true, slot.Cost); // 价格在卡面左上角
+                    rt = CardView.Build(cardsRow, preview, CardW, CardH, true, slot.Cost); // 价格在卡面左上角
                     if (slot.Owned > 0)
                     {
                         var own = UIKit.Text(cardsRow, "Owned", $"已有 {slot.Owned}", 15, Theme.CyanDeep, TextAlignmentOptions.Center, true);
-                        UIKit.Place(own.rectTransform, x, cardH + 4, 170, 24);
+                        UIKit.Place(own.rectTransform, x, CardH + 4, CardW, 24);
                     }
                     var btn = rt.gameObject.AddComponent<Button>();
                     btn.targetGraphic = rt.GetComponent<Image>();
@@ -179,36 +175,8 @@ namespace RepGame.Chess.UI
                         tooltip.Show(preview, px, 1080 - DrawerH - 150, 280, head, sub, text);
                     }, () => tooltip.Hide(preview));
                 }
-                UIKit.Place(rt, x, 0, 170, cardH);
-                x += 186;
-            }
-
-            // 法宝位
-            x += 20;
-            var key = self.ShopRelicKey;
-            var relicSlot = UIKit.Panel(cardsRow, "RelicSlot", string.IsNullOrEmpty(key) ? Theme.WithAlpha(Theme.Paper, 0.4f) : Theme.GoldPaper,
-                string.IsNullOrEmpty(key) ? Theme.WithAlpha(Theme.Ink, 0.3f) : Theme.Rarity(ChessSession.Instance.Relic(key)?.Rarity ?? 0), 2.5f);
-            UIKit.Place(relicSlot.rectTransform, x, 0, 200, 250);
-            if (!string.IsNullOrEmpty(key))
-            {
-                var info = ChessSession.Instance.Relic(key);
-                var price = ChessSession.Instance.RelicPrice(key);
-                var head = UIKit.Text(relicSlot.transform, "Price", $"{price} 金 · {ChessSession.Instance.Rarity(info.Rarity)?.Name}", 14, Theme.GoldText, TextAlignmentOptions.Top, true);
-                head.rectTransform.offsetMax = new Vector2(0, -12);
-                var icon = RelicIcon.Build(relicSlot.transform, key, 88);
-                UIKit.PlaceCenter(icon, 100, 112, 88, 88);
-                var name = UIKit.Text(relicSlot.transform, "Name", info.Name, 19, Theme.Ink, TextAlignmentOptions.Bottom, true);
-                name.rectTransform.offsetMin = new Vector2(0, 18);
-                relicSlot.raycastTarget = true;
-                var btn = relicSlot.gameObject.AddComponent<Button>();
-                btn.targetGraphic = relicSlot;
-                btn.onClick.AddListener(() =>
-                {
-                    if (info.NeedsTradeChoice) picker.ChooseTrade(ChessActions.BuyRelic);
-                    else ChessActions.BuyRelic(-1);
-                });
-                var px = DrawerX + 28 + x;
-                UIKit.Hover(relicSlot.gameObject, () => RelicIcon.ShowInfoTip(tooltip, relicSlot, key, px - 40, 1080 - DrawerH - 140), () => tooltip.Hide(relicSlot));
+                UIKit.Place(rt, x, 0, CardW, CardH);
+                x += CardStep;
             }
         }
     }
