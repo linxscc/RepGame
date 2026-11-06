@@ -15,8 +15,7 @@ namespace RepGame.Chess.UI
         public static RectTransform Build(Transform parent, ChessCard card, float w, float h, bool showPoints = true, int cost = 0)
         {
             var skin = ChessUISkin.Instance;
-            var border = card.Star >= 3 ? Theme.Gold : Theme.Ink;
-            var frame = UIKit.Panel(parent, "Card_" + card.Name, Theme.StarPaper(card.Star), border, card.Star >= 3 ? 3f : 2f);
+            var frame = UIKit.Panel(parent, "Card_" + card.Name, Theme.StarPaper(card.Star), Theme.StarBorder(card.Star), 3f);
             frame.raycastTarget = true;
             var rt = frame.rectTransform;
             rt.sizeDelta = new Vector2(w, h);
