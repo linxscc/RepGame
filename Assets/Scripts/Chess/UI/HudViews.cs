@@ -184,7 +184,9 @@ namespace RepGame.Chess.UI
         {
             UIKit.Clear(root);
             var s = ChessSession.Instance;
+            // 只显示出阵卡已激活的羁绊（达到至少一档）
             var all = st.Self.TradeBonds.Concat(st.Self.OriginBonds)
+                .Where(b => b.Tier >= 0)
                 .OrderByDescending(b => b.Tier).ThenByDescending(b => b.Count).ToList();
             float y = 0;
             foreach (var bc in all)
@@ -192,20 +194,14 @@ namespace RepGame.Chess.UI
                 var info = s.Bond(bc.Key);
                 if (info == null) continue;
                 var top = bc.Tier >= 0 && bc.Tier == info.Tiers.Count - 1;
-                var on = bc.Tier >= 0;
-                var ring = top ? Theme.Gold : on ? Theme.Ink : Theme.WithAlpha(Theme.Ink, 0.35f);
-                var fillC = top ? Theme.WithAlpha(Theme.Gold, 0.2f) : on ? Theme.WithAlpha(Theme.Cyan, 0.7f) : Theme.Clear;
+                var ring = top ? Theme.Gold : Theme.Ink;
+                var fillC = top ? Theme.WithAlpha(Theme.Gold, 0.2f) : Theme.WithAlpha(Theme.Cyan, 0.7f);
                 var icon = UIKit.Circle(root, "Bond_" + bc.Key, fillC, ring, 2.5f);
                 UIKit.Place(icon.rectTransform, 0, y, 50, 50);
                 UIKit.Text(icon.transform, "Char", info.Name.Substring(0, 1), 21, Theme.Ink, bold: true);
                 var next = info.Tiers.Count > 0 ? info.Tiers[Mathf.Min(bc.Tier + 1, info.Tiers.Count - 1)].At : 0;
                 var count = UIKit.Text(root, "Count", $"{bc.Count}/{next}", 15, Theme.Ink, TextAlignmentOptions.Left, true);
                 UIKit.Place(count.rectTransform, 58, y + 13, 60, 24);
-                if (!on)
-                {
-                    icon.color = Theme.WithAlpha(icon.color, 0.55f);
-                    count.alpha = 0.55f;
-                }
                 var captured = bc;
                 var iconY = 170 + y;
                 var relay = UIKit.Hover(icon.gameObject, () => ShowTip(captured, info, iconY), () => tooltip.Hide(info));
