@@ -20,78 +20,28 @@ MonoBehaviour:
   avatarMe: {fileID: 21300000, guid: 090d187ad4d9ea592cf3175f31b3cd3e, type: 3}
   avatarEnemy: {fileID: 21300000, guid: 778c5f0d85f2dd375493b924f29aa7ad, type: 3}
   cards:
-  - name: "BG"
-    sprite: {fileID: 21300000, guid: 5c516293d4444144c8d2b415cd669cbc, type: 3}
   - name: "\u4e66\u8839"
     sprite: {fileID: 21300000, guid: 0ec5b0e0e617402abcf44fa6b6f65b3e, type: 3}
-  - name: "\u4f0f\u864e\u91d1\u521a"
-    sprite: {fileID: 21300000, guid: b3507bc1c8b949a7a9c0afa114a73d85, type: 3}
-  - name: "\u5211\u5929"
-    sprite: {fileID: 21300000, guid: 86fb9c0417b341c19136377722918448, type: 3}
-  - name: "\u5224\u5b98"
-    sprite: {fileID: 21300000, guid: ede2cb60a04e47349c0ece96448cf274, type: 3}
   - name: "\u53c2\u5a03"
     sprite: {fileID: 21300000, guid: 7b3d3acc164b456b80425f7e8611842f, type: 3}
-  - name: "\u53e5\u8292"
-    sprite: {fileID: 21300000, guid: d37a74809ca547a9bb73c2616d5f7154, type: 3}
-  - name: "\u540e\u571f"
-    sprite: {fileID: 21300000, guid: 3cbb9ce2e0da489182d9d15bcce770bd, type: 3}
-  - name: "\u571f\u5730\u516c"
-    sprite: {fileID: 21300000, guid: cfd1814558d648b4876bccf48e63dab6, type: 3}
-  - name: "\u5730\u85cf\u738b"
-    sprite: {fileID: 21300000, guid: 530b8678dc1b460bbf8f5f57966af5ce, type: 3}
   - name: "\u58a8\u7075"
     sprite: {fileID: 21300000, guid: b4aaab6ce9d34b58bdca5bf150bf3a8d, type: 3}
-  - name: "\u591c\u53c9"
-    sprite: {fileID: 21300000, guid: b5354f6b5829476387877f3162a741b8, type: 3}
-  - name: "\u5973\u5a32"
-    sprite: {fileID: 21300000, guid: b32985e69b604a6790553729941ffd30, type: 3}
-  - name: "\u6587\u660c\u5e1d\u541b"
-    sprite: {fileID: 21300000, guid: e2a8749a77ee4d81b8e7d1b8c2dce513, type: 3}
   - name: "\u6728\u9b45"
     sprite: {fileID: 21300000, guid: cc6216487027442fa2c3eaf226740511, type: 3}
   - name: "\u6728\u9c7c\u6c99\u5f25"
     sprite: {fileID: 21300000, guid: 784b15915c0e4974bd09b76f87ee34ed, type: 3}
-  - name: "\u69d0\u6811\u59e5\u59e5"
-    sprite: {fileID: 21300000, guid: 6007dbc5588449679cd9949f5a7f5d58, type: 3}
-  - name: "\u6bd5\u65b9"
-    sprite: {fileID: 21300000, guid: 0aeab849eb2c4eb1862f051d8c7a8d33, type: 3}
   - name: "\u6ce5\u5076"
     sprite: {fileID: 21300000, guid: 8e9adda0ccf54c4181ce4ae1b84f87d6, type: 3}
-  - name: "\u7075\u829d\u4ed9"
-    sprite: {fileID: 21300000, guid: 821f7366005f4dcab4df9df6cc07fe94, type: 3}
   - name: "\u7089\u7cbe"
     sprite: {fileID: 21300000, guid: 2b917b798489400cbe5a6e1a7d61dd25, type: 3}
-  - name: "\u738b\u7075\u5b98"
-    sprite: {fileID: 21300000, guid: 5f82b1256a2147159358dc6af77ac563, type: 3}
-  - name: "\u753b\u76ae"
-    sprite: {fileID: 21300000, guid: fa0bd2e5e28d49529cfc55b535d1f270, type: 3}
-  - name: "\u771f\u6b66\u5927\u5e1d"
-    sprite: {fileID: 21300000, guid: 3f88da5f2c1f4ba783d23021508ab11a, type: 3}
-  - name: "\u77f3\u6562\u5f53"
-    sprite: {fileID: 21300000, guid: 82653498717d4edab19593bf312a6e09, type: 3}
-  - name: "\u795d\u878d"
-    sprite: {fileID: 21300000, guid: d92c602ee7da405eb07b1506938df1ad, type: 3}
   - name: "\u7a3b\u8349\u7cbe"
     sprite: {fileID: 21300000, guid: c13c5ce5d6854551a66ba5db839eaba6, type: 3}
-  - name: "\u7ec7\u5973"
-    sprite: {fileID: 21300000, guid: 3400e5a1838642d68a5e22a8f81cffe4, type: 3}
-  - name: "\u836f\u738b"
-    sprite: {fileID: 21300000, guid: f6d3a6f2cd6248b383d356f8c2b8dd99, type: 3}
-  - name: "\u8d75\u516c\u660e"
-    sprite: {fileID: 21300000, guid: a088bf0fddf74fd4875460f4724e07b7, type: 3}
-  - name: "\u8fd0\u8d22\u9b3c"
-    sprite: {fileID: 21300000, guid: f28820ebe2244ba5a2102dfb763d551e, type: 3}
   - name: "\u91d1\u87fe"
     sprite: {fileID: 21300000, guid: b4e150c43ff941f6b07b47a7f685b90a, type: 3}
-  - name: "\u960e\u7f57\u738b"
-    sprite: {fileID: 21300000, guid: 624f7f3155c0412c983012c2be0e109e, type: 3}
   - name: "\u9634\u5175"
     sprite: {fileID: 21300000, guid: 4a78c6f0c38241c88da4ddc6e947fee7, type: 3}
   - name: "\u9b3c\u5dee"
     sprite: {fileID: 21300000, guid: e73adc1c02fc42859b1bb4f85ae1a37a, type: 3}
-  - name: "\u9b41\u661f"
-    sprite: {fileID: 21300000, guid: 2192b3283e9c4b0d96ec935ba6b725ce, type: 3}
   - name: "\u9ec4\u5dfe\u529b\u58eb"
     sprite: {fileID: 21300000, guid: 487557d4f26449c7a01870d1388cd271, type: 3}
   relicIcons:
