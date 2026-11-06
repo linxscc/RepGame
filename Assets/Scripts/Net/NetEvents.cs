@@ -50,6 +50,7 @@ namespace RepGame.Net
         PlayCards,
         ComposeCards,
         GameAction,
+        CancelMatch,
     }
 
     public sealed class RequestFailure

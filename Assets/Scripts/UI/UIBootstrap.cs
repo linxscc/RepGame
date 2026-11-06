@@ -28,6 +28,7 @@ public class UIBootstrap : MonoBehaviour
 
         // 新版对局界面：代码构建，收到 MatchConfig 后自动显示
         RepGame.Chess.UI.ChessBattleScreen.Create();
+        RepGame.Chess.UI.MatchmakingBar.Create();
     }
 
     void Start()

@@ -67,6 +67,7 @@
     { "key": "chess.rematch", "text": "再来一局", "comment": "" },
     { "key": "chess.lobby", "text": "返回大厅", "comment": "" },
     { "key": "chess.surrender", "text": "认输", "comment": "对局中右上角的认输按钮" },
+    { "key": "chess.matching", "text": "正在匹配对手  {0:00}:{1:00}", "comment": "开始游戏后上方的匹配计时框，{0}=分 {1}=秒" },
     { "key": "chess.surrender.confirm", "text": "确定认输吗？本局将直接判负。", "comment": "认输二次确认" }
   ]
 }

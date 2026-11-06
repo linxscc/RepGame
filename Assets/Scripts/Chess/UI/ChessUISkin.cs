@@ -31,6 +31,28 @@ namespace RepGame.Chess.UI
         public List<NamedSprite> cards = new List<NamedSprite>();
         public List<NamedSprite> relicIcons = new List<NamedSprite>();
 
+        [Header("结算过场：贴图（留空时用代码画的简单形状占位）")]
+        public Sprite voidBackground;   // 虚空背景（铺满全屏）
+        public Sprite voidMist;         // 虚空中漂浮的雾气 / 墨云
+        public Sprite fireball;         // 火球本体
+        public Sprite fireTrail;        // 拖尾火星
+        public Sprite impactBurst;      // 命中爆炸
+        public Sprite verdictWin;       // “胜”字样
+        public Sprite verdictLose;      // “负”字样
+        public Sprite verdictDraw;      // “平”字样
+
+        [Header("结算过场：节奏（秒）")]
+        public float cutsceneIntro = 0.4f;     // 淡入
+        public float stepMinSeconds = 0.12f;   // 每个计分步骤最短时长
+        public float stepMaxSeconds = 0.6f;    // 每个计分步骤最长时长
+        public float verdictHold = 0.9f;       // 胜负字样停留
+        public float cutsceneOutro = 0.3f;     // 淡出
+        public float fireFlightSeconds = 0.6f; // 火球飞行时间
+        public float fireArcHeight = 220f;     // 火球弧线高度（像素）
+        public float trailInterval = 0.04f;    // 拖尾火星的间隔（占飞行进度的比例）
+        public float impactScale = 2.4f;       // 命中爆炸放大倍数
+        public float hpDrainSeconds = 0.7f;    // 血条下降时长
+
         private TMP_FontAsset runtimeFont;
         private Sprite smoothCircle;
         private Sprite smoothRounded;

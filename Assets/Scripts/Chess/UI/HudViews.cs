@@ -80,12 +80,53 @@ namespace RepGame.Chess.UI
             }
         }
 
+        private float shownHp = -1;
+        private int targetHp;
+        private int max = 100;
+        private bool frozen;
+
         public void Set(int hp, int maxHp, string info, float xp01 = -1)
         {
-            hpText.text = $"{hp} / {maxHp}";
             infoText.text = info;
-            fill.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(maxHp > 0 ? (float)hp / maxHp : 0), 1);
+            max = maxHp;
+            targetHp = hp;
             if (xpFill != null) xpFill.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(xp01 < 0 ? 1 : xp01), 1);
+            if (shownHp < 0)
+            {
+                ShowHp(hp);
+                return;
+            }
+            if (!frozen) AnimateHp();
+        }
+
+        /// <summary>过场动画期间保持旧血量，等攻击命中后再下降。</summary>
+        public void Freeze() => frozen = true;
+
+        public void Release()
+        {
+            frozen = false;
+            AnimateHp();
+        }
+
+        /// <summary>受击：头像震动。</summary>
+        public void Hit()
+        {
+            DOTween.Complete(Avatar);
+            Avatar.DOShakeAnchorPos(0.45f, 14f, 30, 90, false, true).SetTarget(Avatar);
+        }
+
+        private void AnimateHp()
+        {
+            if (Mathf.Approximately(shownHp, targetHp)) return;
+            DOTween.Kill(this);
+            DOTween.To(() => shownHp, ShowHp, targetHp, ChessUISkin.Instance.hpDrainSeconds).SetEase(Ease.OutCubic).SetTarget(this);
+        }
+
+        private void ShowHp(float hp)
+        {
+            shownHp = hp;
+            hpText.text = $"{Mathf.RoundToInt(hp)} / {max}";
+            fill.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(max > 0 ? hp / max : 0), 1);
         }
     }
 

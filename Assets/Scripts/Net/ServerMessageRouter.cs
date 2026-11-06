@@ -37,6 +37,7 @@ namespace RepGame.Net
                 { ServerMessage.BodyOneofCase.MatchState, (m, _) => RepGame.Chess.ChessSession.Instance.OnMatchState(m.MatchState) },
                 { ServerMessage.BodyOneofCase.RoundResult, (m, _) => RepGame.Chess.ChessSession.Instance.OnRoundResult(m.RoundResult) },
                 { ServerMessage.BodyOneofCase.MatchOver, (m, _) => RepGame.Chess.ChessSession.Instance.OnMatchOver(m.MatchOver) },
+                { ServerMessage.BodyOneofCase.Matchmaking, (m, _) => RepGame.Chess.ChessSession.Instance.OnMatchmaking(m.Matchmaking.Searching) },
             };
         }
 

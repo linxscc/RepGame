@@ -94,3 +94,22 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 2192b3283e9c4b0d96ec935ba6b725ce, type: 3}
   - name: "\u9ec4\u5dfe\u529b\u58eb"
     sprite: {fileID: 21300000, guid: 487557d4f26449c7a01870d1388cd271, type: 3}
+  relicIcons: []
+  voidBackground: {fileID: 0}
+  voidMist: {fileID: 0}
+  fireball: {fileID: 0}
+  fireTrail: {fileID: 0}
+  impactBurst: {fileID: 0}
+  verdictWin: {fileID: 0}
+  verdictLose: {fileID: 0}
+  verdictDraw: {fileID: 0}
+  cutsceneIntro: 0.4
+  stepMinSeconds: 0.12
+  stepMaxSeconds: 0.6
+  verdictHold: 0.9
+  cutsceneOutro: 0.3
+  fireFlightSeconds: 0.6
+  fireArcHeight: 220
+  trailInterval: 0.04
+  impactScale: 2.4
+  hpDrainSeconds: 0.7

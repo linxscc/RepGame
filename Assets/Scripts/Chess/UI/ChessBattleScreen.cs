@@ -17,7 +17,7 @@ namespace RepGame.Chess.UI
         private const string LobbyPanel = "Panel_Start";
 
         private Canvas canvas;
-        private RectTransform baseLayer, dragLayer, popupLayer, tipLayer;
+        private RectTransform baseLayer, dragLayer, popupLayer, fxLayer, tipLayer;
 
         private TooltipLayer tooltip;
         private DragController drag;
@@ -29,7 +29,7 @@ namespace RepGame.Chess.UI
         private ScoreDockView scoreDock;
         private ShopView shop;
         private PickPopup picker;
-        private SettlePopup settle;
+        private BattleCutscene cutscene;
         private GameOverPopup gameOver;
         private OpponentPopover opponentBoard;
         private Toast toast;
@@ -99,6 +99,7 @@ namespace RepGame.Chess.UI
             baseLayer = Layer(stage, "Base");
             dragLayer = Layer(stage, "Drag");
             popupLayer = Layer(stage, "Popup");
+            fxLayer = Layer(stage, "Fx");          // 火焰、伤害数字：在 HUD 和弹出层之上
             tipLayer = Layer(stage, "Tooltip");
 
             tooltip = new TooltipLayer(tipLayer);
@@ -117,7 +118,7 @@ namespace RepGame.Chess.UI
 
             picker = new PickPopup(popupLayer, tooltip);
             shop = new ShopView(baseLayer, popupLayer, drag, tooltip, picker);
-            settle = new SettlePopup(popupLayer);
+            cutscene = new BattleCutscene(popupLayer, fxLayer, selfHud, enemyHud);
             opponentBoard = new OpponentPopover(popupLayer);
             gameOver = new GameOverPopup(popupLayer, Rematch, BackToLobby);
             toast = new Toast(tipLayer);
@@ -145,7 +146,7 @@ namespace RepGame.Chess.UI
         private void OnConfig(MatchConfig config)
         {
             gameOver.Hide();
-            settle.Hide();
+            cutscene.Stop();
             picker.Hide();
             if (UIPanelController.Instance != null) UIPanelController.Instance.HideAllPanels();
             canvas.gameObject.SetActive(true);
@@ -191,11 +192,9 @@ namespace RepGame.Chess.UI
                     picker.ShowFamilies(st);
                     break;
                 case MatchPhase.Vault:
-                    settle.Hide();
                     picker.ShowVault(st);
                     break;
                 case MatchPhase.Prep:
-                    settle.Hide();
                     picker.Hide();
                     break;
                 case MatchPhase.Settle:
@@ -204,7 +203,7 @@ namespace RepGame.Chess.UI
             }
         }
 
-        private void OnRound(RoundResult rr) => settle.Show(rr);
+        private void OnRound(RoundResult rr) => cutscene.Play(rr);
 
         private void OnOver(MatchOver over)
         {
@@ -227,9 +226,11 @@ namespace RepGame.Chess.UI
 
         // ---------- 结束后 ----------
 
+        /// <summary>再来一局：回到大厅并直接开始匹配（上方出现匹配计时框）。</summary>
         private void Rematch()
         {
-            if (GameTcpClient.Instance != null) GameTcpClient.Instance.Restart();
+            BackToLobby();
+            MatchmakingBar.Instance?.Begin();
         }
 
         private void BackToLobby()

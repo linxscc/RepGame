@@ -91,6 +91,7 @@ namespace RepGame.Net
                 case ClientMessage.BodyOneofCase.PlayCards: return RequestKind.PlayCards;
                 case ClientMessage.BodyOneofCase.ComposeCards: return RequestKind.ComposeCards;
                 case ClientMessage.BodyOneofCase.GameAction: return RequestKind.GameAction;
+                case ClientMessage.BodyOneofCase.CancelMatch: return RequestKind.CancelMatch;
                 default: return RequestKind.Unknown;
             }
         }

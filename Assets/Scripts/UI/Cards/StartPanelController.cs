@@ -87,10 +87,9 @@ namespace RepGame.UI
                 return;
             }
 
-            GameTcpClient.Instance.Ready();
-
-            startGameButton.interactable = false;
-            infoText.text = ConfigTables.Text(UiText.MatchWaiting);
+            // 匹配状态由屏幕上方的计时框显示（可点 × 取消），开始按钮保持可用
+            infoText.text = string.Empty;
+            RepGame.Chess.UI.MatchmakingBar.Instance?.Begin();
         }
         private void OnRequestFailed(RequestFailure failure)
         {

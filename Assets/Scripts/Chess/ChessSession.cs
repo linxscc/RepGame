@@ -27,6 +27,7 @@ namespace RepGame.Chess
         public event Action<RoundResult> RoundSettled;
         public event Action<MatchOver> MatchEnded;
         public event Action<string> ActionFailed;
+        public event Action<bool> MatchmakingChanged; // 服务器确认的匹配状态
 
         private readonly Dictionary<string, LineInfo> lines = new Dictionary<string, LineInfo>();
         private readonly Dictionary<string, RelicInfo> relics = new Dictionary<string, RelicInfo>();
@@ -84,6 +85,8 @@ namespace RepGame.Chess
         }
 
         public void OnActionFailed(string message) => ActionFailed?.Invoke(message);
+
+        public void OnMatchmaking(bool searching) => MatchmakingChanged?.Invoke(searching);
 
         /// <summary>离开对局（返回大厅）后清空。</summary>
         public void Clear()
