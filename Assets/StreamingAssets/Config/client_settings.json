@@ -12,7 +12,9 @@
     "maxFrameBytes": 1048576,
     "_comment_maxFrameBytes": "单条消息最大字节数，与服务器 max_frame_bytes 一致",
     "requestTimeoutSeconds": 10,
-    "_comment_requestTimeoutSeconds": "出牌/合成后等待服务器结果的最长时间（秒）；超时会恢复手牌并允许重新操作"
+    "_comment_requestTimeoutSeconds": "出牌/合成后等待服务器结果的最长时间（秒）；超时会恢复手牌并允许重新操作",
+    "receiveTimeoutSeconds": 40,
+    "_comment_receiveTimeoutSeconds": "超过该时间（秒）收不到服务器任何消息（含心跳回复）即判定连接已断并重连；应大于 2 倍心跳间隔"
   },
 
   "account": {
@@ -61,7 +63,7 @@
     "_comment_bondTooltipOffset": "羁绊说明框相对鼠标的偏移（像素）",
     "cardShakeDuration": 0.5,
     "_comment_cardShakeDuration": "卡牌抖动动画时长",
-    "cardPoolSize": 17,
-    "_comment_cardPoolSize": "每种卡牌预制体在对象池中预先创建的实例数"
+    "cardPoolSize": 1,
+    "_comment_cardPoolSize": "每种卡牌预制体在对象池中预先创建的实例数；移除的卡牌会归还对象池复用，所以不需要预建很多"
   }
 }

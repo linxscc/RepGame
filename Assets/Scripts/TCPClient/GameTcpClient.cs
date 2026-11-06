@@ -86,6 +86,13 @@ public class GameTcpClient : MonoBehaviour
             }
         }
 
+        // 半开连接（切换网络、NAT 超时）时读线程会一直阻塞：按"多久没收到任何消息"判定断线
+        if (IsConnected && connection.SecondsSinceLastReceive > ConfigTables.Settings.network.receiveTimeoutSeconds)
+        {
+            connection.Abort(new TimeoutException($"{ConfigTables.Settings.network.receiveTimeoutSeconds:0} 秒未收到服务器消息"));
+            return;
+        }
+
         if (IsConnected && Time.unscaledTime >= nextHeartbeatAt)
         {
             nextHeartbeatAt = Time.unscaledTime + ConfigTables.Settings.network.heartbeatIntervalSeconds;
@@ -255,7 +262,7 @@ public class GameTcpClient : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"发送 {message.BodyCase} 失败: {e.Message}");
-            connection.Dispose(); // 触发 Closed -> 重连
+            connection.Abort(e); // 触发 Closed -> 重连
         }
     }
 

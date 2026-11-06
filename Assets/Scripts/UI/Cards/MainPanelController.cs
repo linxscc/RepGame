@@ -308,15 +308,7 @@ namespace RepGame.UI
                     // 销毁已发送的卡牌对象
                     foreach (var card in playRequest.SelfCards)
                     {
-                        // 根据卡牌UID找到对应的GameObject并销毁
-                        if (cardItemsById.ContainsKey(card.UID))
-                        {
-                            GameObject cardObject = cardItemsById[card.UID];
-                            cardItemsById.Remove(card.UID);
-                            cardModelsById.Remove(card.UID);
-                            instantiatedCards.Remove(cardObject);
-                            Destroy(cardObject);
-                        }
+                        ReleaseCard(card.UID);
                     }
 
                     // 清除选择列表，并进入“等待服务器结果”状态（出牌结束本回合）
@@ -352,15 +344,7 @@ namespace RepGame.UI
                 // 移除要合成的卡牌从UI中
                 foreach (var card in composeResult.cardsToCompose)
                 {
-                    // 根据卡牌UID找到对应的GameObject并销毁
-                    if (cardItemsById.ContainsKey(card.UID))
-                    {
-                        GameObject cardObject = cardItemsById[card.UID];
-                        cardItemsById.Remove(card.UID);
-                        cardModelsById.Remove(card.UID);
-                        instantiatedCards.Remove(cardObject);
-                        Destroy(cardObject);
-                    }
+                    ReleaseCard(card.UID);
                 }
 
                 // 恢复其他选中卡牌的状态
@@ -506,16 +490,17 @@ namespace RepGame.UI
         }
         private void ClearCards()
         {
-            // 销毁所有卡牌
-            foreach (var cardObject in instantiatedCards)
+            // 所有卡牌归还对象池
+            foreach (var uid in cardItemsById.Keys.ToList())
             {
-                if (cardObject != null)
-                {
-                    Destroy(cardObject);
-                }
+                ReleaseCard(uid);
             }
 
-            // 清空列表和字典
+            // 清空列表和字典（兜底：不在字典里的残留对象直接销毁）
+            foreach (var cardObject in instantiatedCards)
+            {
+                if (cardObject != null) Destroy(cardObject);
+            }
             instantiatedCards.Clear();
             cardItemsById.Clear();
             cardModelsById.Clear();
@@ -818,26 +803,36 @@ namespace RepGame.UI
         {
             if (cardItemsById.ContainsKey(uid))
             {
-                // 获取卡牌对象
-                GameObject cardObject = cardItemsById[uid];
-                Card cardModel = cardModelsById[uid];
-
                 // 如果卡牌被选中，从选中列表中移除 - 使用游戏状态管理器
                 if (gameStateManager.IsCardSelected(uid))
                 {
                     gameStateManager.HandleCardDeselected(uid);
                 }
 
-                // 从各个数据结构中移除
-                cardItemsById.Remove(uid);
-                cardModelsById.Remove(uid);
-                instantiatedCards.Remove(cardObject);
+                ReleaseCard(uid);
+            }
+        }
 
-                // 销毁GameObject
-                if (cardObject != null)
-                {
-                    Destroy(cardObject);
-                }
+        /// <summary>
+        /// 把一张手牌从界面移除并归还对象池。所有移除卡牌的路径（出牌、合成、服务器同步、清空）都走这里。
+        /// </summary>
+        private void ReleaseCard(string uid)
+        {
+            if (!cardItemsById.TryGetValue(uid, out var cardObject)) return;
+
+            cardModelsById.TryGetValue(uid, out var cardModel);
+            cardItemsById.Remove(uid);
+            cardModelsById.Remove(uid);
+            instantiatedCards.Remove(cardObject);
+
+            if (cardObject == null) return;
+            if (cardModel != null && CardPoolManager.Instance != null)
+            {
+                CardPoolManager.Instance.ReturnToPool(cardModel.Name, cardObject);
+            }
+            else
+            {
+                Destroy(cardObject);
             }
         }
         private void OnComposeCardResult(ResPlayerGameInfo playerGameInfo)

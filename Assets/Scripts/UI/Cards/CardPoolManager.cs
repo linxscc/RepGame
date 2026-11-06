@@ -41,7 +41,10 @@ namespace RepGame.UI
 
         [Header("对象池配置")]
         // 实际值在 Awake 中从 client_settings.json 的 ui.cardPoolSize 读取（覆盖 Inspector 中的值）
-        [SerializeField] private int defaultPoolSize = 17;
+        [SerializeField] private int defaultPoolSize = 1;
+
+        /// <summary>单种卡牌在池中最多缓存的实例数（手牌上限为 10）</summary>
+        private const int MaxPooledPerCard = 10;
         [SerializeField] private Transform poolContainer;
         private void Awake()
         {
@@ -404,7 +407,16 @@ namespace RepGame.UI
         {
             if (cardInstance == null) return;
 
+            // 每种卡最多缓存 MaxPooledPerCard 个，多出的直接销毁，避免池无限增长
+            if (cardPools.TryGetValue(cardName, out var existing) && existing.Count >= MaxPooledPerCard)
+            {
+                Destroy(cardInstance);
+                return;
+            }
+
             // 重置实例状态
+            var cardItem = cardInstance.GetComponent<CardItem>();
+            if (cardItem != null) cardItem.ResetForReuse();
             cardInstance.SetActive(false);
             cardInstance.transform.SetParent(poolContainer);
             cardInstance.transform.localPosition = Vector3.zero;

@@ -71,6 +71,23 @@ namespace RepGame.UI
             }
         }
 
+        /// <summary>
+        /// 归还对象池前调用：清掉选中/锁定/动画等状态，下次取出时与新建的卡牌一致。
+        /// 不发送取消选中事件（选中列表由 GameStateManager 统一清理）。
+        /// </summary>
+        public void ResetForReuse()
+        {
+            transform.DOKill();
+            IsSelected = false;
+            IsLocked = false;
+            originalParent = null;
+            if (cardImage != null)
+            {
+                cardImage.material = originalMaterial;
+                cardImage.color = Color.white;
+            }
+        }
+
         public void Init(string cardID, string cardName)
         {
             CardID = cardID;

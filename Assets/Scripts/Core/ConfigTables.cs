@@ -32,6 +32,7 @@ namespace RepGame.Core
             public float reconnectMaxDelaySeconds = 30f; // 重连最大间隔
             public int maxFrameBytes = 1 << 20;          // 单条消息最大字节数
             public float requestTimeoutSeconds = 10f;    // 出牌/合成等待服务器结果的最长时间
+            public float receiveTimeoutSeconds = 40f;    // 超过该时间收不到服务器任何消息（含心跳回复）即判定断线
         }
 
         [Serializable]
@@ -67,7 +68,7 @@ namespace RepGame.Core
             public float bondTooltipDelay = 0.5f;
             public float bondTooltipOffset = 150f;
             public float cardShakeDuration = 0.5f;
-            public int cardPoolSize = 17;
+            public int cardPoolSize = 1;
         }
     }
 

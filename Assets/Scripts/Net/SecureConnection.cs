@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
@@ -24,8 +25,9 @@ namespace RepGame.Net
 
     /// <summary>
     /// 一条到服务器的连接：负责 TCP/TLS 建立、证书固定、按帧收发 protobuf 消息。
-    /// 接收在后台线程进行，回调也在后台线程触发，由调用方切回主线程。
-    /// 不包含重连、心跳等策略。
+    /// 接收和发送各在一个后台线程进行：<see cref="Send"/> 只是入队，不会阻塞调用方（主线程）；
+    /// 回调在后台线程触发，由调用方切回主线程。
+    /// 不包含重连、心跳等策略；<see cref="SecondsSinceLastReceive"/> 供上层判断连接是否已失效。
     /// </summary>
     public sealed class SecureConnection : IDisposable
     {
@@ -35,12 +37,21 @@ namespace RepGame.Net
         /// <summary>最近一次握手时看到的服务器证书指纹，便于首次配置。</summary>
         public string LastSeenCertSha256 { get; private set; }
 
+        /// <summary>待发送队列上限；写满说明网络已经卡住，按断线处理</summary>
+        private const int SendQueueCapacity = 256;
+
         private readonly ConnectionSettings settings;
-        private readonly object writeLock = new object();
+        private readonly BlockingCollection<byte[]> sendQueue = new BlockingCollection<byte[]>(SendQueueCapacity);
         private TcpClient tcp;
         private Stream stream;
         private Thread receiveThread;
+        private Thread sendThread;
         private int closed;
+        private long lastReceiveTicks;
+
+        /// <summary>距离最近一次收到服务器消息（或连接建立）的秒数</summary>
+        public double SecondsSinceLastReceive =>
+            TimeSpan.FromTicks(DateTime.UtcNow.Ticks - Interlocked.Read(ref lastReceiveTicks)).TotalSeconds;
 
         public SecureConnection(ConnectionSettings settings)
         {
@@ -49,7 +60,7 @@ namespace RepGame.Net
 
         public async Task ConnectAsync()
         {
-            tcp = new TcpClient { NoDelay = true };
+            tcp = new TcpClient { NoDelay = true, SendTimeout = (int)settings.ConnectTimeout.TotalMilliseconds * 2 };
             var connectTask = tcp.ConnectAsync(settings.Host, settings.Port);
             if (await Task.WhenAny(connectTask, Task.Delay(settings.ConnectTimeout)) != connectTask)
                 throw new TimeoutException($"connect to {settings.Host}:{settings.Port} timed out");
@@ -66,20 +77,52 @@ namespace RepGame.Net
                 netStream = ssl;
             }
             stream = netStream;
+            Interlocked.Exchange(ref lastReceiveTicks, DateTime.UtcNow.Ticks);
 
             receiveThread = new Thread(ReceiveLoop) { IsBackground = true, Name = "GameServerReceive" };
             receiveThread.Start();
+            sendThread = new Thread(SendLoop) { IsBackground = true, Name = "GameServerSend" };
+            sendThread.Start();
         }
 
+        /// <summary>消息入队，由发送线程写出。连接已关闭或队列已满时抛出异常。</summary>
         public void Send(ClientMessage message)
         {
             var frame = FrameCodec.Encode(message.ToByteArray());
-            lock (writeLock)
+            bool queued;
+            try
             {
-                if (stream == null) throw new InvalidOperationException("not connected");
-                stream.Write(frame, 0, frame.Length);
-                stream.Flush();
+                queued = sendQueue.TryAdd(frame);
             }
+            catch (InvalidOperationException)
+            {
+                throw new InvalidOperationException("not connected");
+            }
+            if (!queued) throw new IOException("send queue full");
+        }
+
+        /// <summary>主动断开（例如上层判定连接已失效），reason 会随 <see cref="Closed"/> 传出。</summary>
+        public void Abort(Exception reason)
+        {
+            Close(reason);
+        }
+
+        private void SendLoop()
+        {
+            Exception error = null;
+            try
+            {
+                foreach (var frame in sendQueue.GetConsumingEnumerable())
+                {
+                    stream.Write(frame, 0, frame.Length);
+                    stream.Flush();
+                }
+            }
+            catch (Exception ex)
+            {
+                error = ex;
+            }
+            if (error != null) Close(error);
         }
 
         private void ReceiveLoop()
@@ -91,6 +134,7 @@ namespace RepGame.Net
                 {
                     byte[] payload = FrameCodec.Read(stream);
                     if (payload == null) break;
+                    Interlocked.Exchange(ref lastReceiveTicks, DateTime.UtcNow.Ticks);
                     MessageReceived?.Invoke(ServerMessage.Parser.ParseFrom(payload));
                 }
             }
@@ -143,9 +187,9 @@ namespace RepGame.Net
         private void Close(Exception error)
         {
             if (Interlocked.Exchange(ref closed, 1) == 1) return;
+            sendQueue.CompleteAdding(); // 发送线程随之退出，之后的 Send 抛出 not connected
             try { stream?.Dispose(); } catch { /* 忽略关闭时的异常 */ }
             try { tcp?.Close(); } catch { /* 忽略关闭时的异常 */ }
-            lock (writeLock) { stream = null; }
             Closed?.Invoke(error);
         }
 
