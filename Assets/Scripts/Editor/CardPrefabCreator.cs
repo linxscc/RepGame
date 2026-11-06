@@ -52,9 +52,9 @@ public class CardPrefabCreator : MonoBehaviour
             // Create a new GameObject for the prefab
             GameObject prefab = new GameObject(fileName);
 
-            // Set prefab size to width 200 and height 220
+            // 卡面为 2:3 竖版（1024x1536），显示尺寸 150x225
             RectTransform rectTransform = prefab.AddComponent<RectTransform>();
-            rectTransform.sizeDelta = new Vector2(200, 220);
+            rectTransform.sizeDelta = new Vector2(150, 225);
 
             // Add an Image component and set the texture
             Image image = prefab.AddComponent<Image>();
