@@ -15,7 +15,6 @@ public class PanelLoginController : UIBase
     private TMP_InputField inputPassword;
     private Button btnLogin;
     private Button btnRegister;
-    private Button btnExit;
     private TextMeshProUGUI infoText;
 
     // 面板名称常量，便于跨脚本引用
@@ -29,12 +28,10 @@ public class PanelLoginController : UIBase
         inputUserName = FindComponent<TMP_InputField>("UserName");
         inputPassword = FindComponent<TMP_InputField>("Password");
         btnLogin = FindComponent<Button>("LoginButton");
-        btnRegister = FindComponent<Button>("RegisterButton");
-        btnExit = FindComponent<Button>("ExitButton");
+        btnRegister = FindComponent<Button>("RegisterButton"); // 登录窗口左下角的“注册”（原“退出”位置）
         infoText = FindComponent<TextMeshProUGUI>("Info");
         btnLogin.onClick.AddListener(OnLoginClick);
         btnRegister.onClick.AddListener(OnGoToRegisterClick);
-        btnExit.onClick.AddListener(OnExitClick);
         // 限制用户名只能输入字母、数字、下划线和汉字
         inputUserName.onValueChanged.AddListener(OnUserNameChanged);
         // 限制密码只能输入字母、数字和@#&*特殊字符
@@ -83,10 +80,6 @@ public class PanelLoginController : UIBase
         UIPanelController.Instance.ShowPanel(REGISTER_PANEL_NAME);
     }
 
-    private void OnExitClick()
-    {
-        Application.Quit();
-    }
     private void OnLoginSucceeded(string username)
     {
         // 登录态由 AccountSessionPresenter 记录；这里只关闭登录弹窗，回到下面的开始界面
