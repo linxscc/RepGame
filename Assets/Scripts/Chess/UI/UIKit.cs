@@ -94,6 +94,8 @@ namespace RepGame.Chess.UI
             {
                 var inner = Image(outer.transform, "Fill", fill, skin.Rounded);
                 Fill(inner.rectTransform, borderWidth);
+                // 内衬是背景，不能被父物体上的自动排版（如提示框的 VerticalLayoutGroup）当成一行内容
+                inner.gameObject.AddComponent<LayoutElement>().ignoreLayout = true;
             }
             else
             {

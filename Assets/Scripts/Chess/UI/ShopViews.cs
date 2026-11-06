@@ -154,23 +154,22 @@ namespace RepGame.Chess.UI
                 var slot = self.Shop[i];
                 var index = i;
                 RectTransform rt;
+                const float cardH = 222;
                 if (string.IsNullOrEmpty(slot.LineKey))
                 {
-                    rt = CardView.Empty(cardsRow, 170, 250);
+                    rt = CardView.Empty(cardsRow, 170, cardH);
                 }
                 else
                 {
                     var line = ChessSession.Instance.Line(slot.LineKey);
                     var preview = new ChessCard { Name = line.StarNames[0], LineKey = slot.LineKey, Star = 1, Points = line.Points, SellPrice = slot.Cost };
-                    rt = CardView.Build(cardsRow, preview, 170, 250);
-                    var cost = UIKit.Text(rt, "Cost", $"{slot.Cost} 金", 15, slot.Cost >= 3 ? Theme.Red : slot.Cost == 2 ? Theme.CyanDeep : Theme.Ink, TextAlignmentOptions.TopLeft, true);
-                    cost.rectTransform.offsetMin = new Vector2(8, 0);
-                    cost.rectTransform.offsetMax = new Vector2(0, -26);
-                    if (slot.Owned > 0)
-                    {
-                        var own = UIKit.Text(rt, "Owned", $"已有 {slot.Owned}", 13, Theme.CyanDeep, TextAlignmentOptions.TopRight, true);
-                        own.rectTransform.offsetMax = new Vector2(-8, -44);
-                    }
+                    rt = CardView.Build(cardsRow, preview, 170, cardH);
+                    // 卡下方一行：价格 · 已有张数（卡面右上角留给羁绊标签）
+                    var owned = slot.Owned > 0 ? $"  <color=#2F7A72>已有 {slot.Owned}</color>" : "";
+                    var costColor = slot.Cost >= 3 ? "#C8322A" : slot.Cost == 2 ? "#2F7A72" : "#111111";
+                    var cost = UIKit.Text(cardsRow, "Cost", $"<color={costColor}>{slot.Cost} 金</color>{owned}", 16, Theme.Ink, TextAlignmentOptions.Center, true);
+                    cost.richText = true;
+                    UIKit.Place(cost.rectTransform, x, cardH + 4, 170, 24);
                     var btn = rt.gameObject.AddComponent<Button>();
                     btn.targetGraphic = rt.GetComponent<Image>();
                     btn.onClick.AddListener(() => ChessActions.BuyCard(index));
@@ -181,7 +180,7 @@ namespace RepGame.Chess.UI
                         tooltip.Show(preview, px, 1080 - DrawerH - 150, 280, head, sub, text);
                     }, () => tooltip.Hide(preview));
                 }
-                UIKit.Place(rt, x, 0, 170, 250);
+                UIKit.Place(rt, x, 0, 170, cardH);
                 x += 186;
             }
 

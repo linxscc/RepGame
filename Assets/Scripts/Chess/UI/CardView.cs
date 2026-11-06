@@ -38,24 +38,37 @@ namespace RepGame.Chess.UI
             stars.rectTransform.offsetMin = new Vector2(8, 0);
             stars.rectTransform.offsetMax = new Vector2(0, -6);
 
+            // 右上角：本卡的两个羁绊（行当、出身），竖排小标签
+            var line = ChessSession.Instance.Line(card.LineKey);
+            if (line != null)
+            {
+                float tagW = Mathf.Max(16, w * 0.17f), tagH = Mathf.Max(30, w * 0.34f), y = 5;
+                foreach (var key in new[] { line.TradeKey, line.OriginKey })
+                {
+                    var bond = ChessSession.Instance.Bond(key);
+                    if (bond == null) continue;
+                    var tag = UIKit.Panel(frame.transform, "Bond_" + key, Theme.WithAlpha(Theme.Paper, 0.92f), Theme.Ink, 1.2f);
+                    var t = tag.rectTransform;
+                    t.anchorMin = t.anchorMax = new Vector2(1, 1);
+                    t.pivot = new Vector2(1, 1);
+                    t.sizeDelta = new Vector2(tagW, tagH);
+                    t.anchoredPosition = new Vector2(-5, -y);
+                    var label = UIKit.Text(tag.transform, "Name", string.Join("\n", bond.Name.ToCharArray()), tagW * 0.62f, Theme.Ink, TextAlignmentOptions.Center, true);
+                    label.lineSpacing = -18;
+                    y += tagH + 3;
+                }
+            }
+
+            // 左下角（名字条上方）：点数
             if (showPoints)
             {
-                var pts = UIKit.Text(frame.transform, "Points", card.Points.ToString(), Mathf.Max(12, w * 0.12f), Theme.Ink,
-                    TextAlignmentOptions.TopRight, true);
-                pts.rectTransform.offsetMin = new Vector2(0, 0);
-                pts.rectTransform.offsetMax = new Vector2(-8, -6);
                 var badge = UIKit.Circle(frame.transform, "PointsBadge", Theme.Paper, Theme.Ink, 1.5f);
-                badge.transform.SetSiblingIndex(pts.transform.GetSiblingIndex());
-                var b = badge.rectTransform;
-                b.anchorMin = b.anchorMax = new Vector2(1, 1);
-                b.pivot = new Vector2(1, 1);
-                b.sizeDelta = new Vector2(w * 0.26f, w * 0.26f);
-                b.anchoredPosition = new Vector2(-3, -3);
-                pts.rectTransform.anchorMin = pts.rectTransform.anchorMax = new Vector2(1, 1);
-                pts.rectTransform.pivot = new Vector2(1, 1);
-                pts.rectTransform.sizeDelta = b.sizeDelta;
-                pts.rectTransform.anchoredPosition = b.anchoredPosition;
-                pts.alignment = TextAlignmentOptions.Center;
+                var bt = badge.rectTransform;
+                bt.anchorMin = bt.anchorMax = new Vector2(0, 0);
+                bt.pivot = new Vector2(0, 0);
+                bt.sizeDelta = new Vector2(w * 0.26f, w * 0.26f);
+                bt.anchoredPosition = new Vector2(4, h * 0.2f + 2);
+                UIKit.Text(badge.transform, "Points", card.Points.ToString(), Mathf.Max(12, w * 0.12f), Theme.Ink, TextAlignmentOptions.Center, true);
             }
 
             var name = UIKit.Text(frame.transform, "Name", card.Name, Mathf.Max(12, w * 0.135f), Theme.Ink,
@@ -77,23 +90,19 @@ namespace RepGame.Chess.UI
             return frame.rectTransform;
         }
 
-        /// <summary>卡牌悬停说明。</summary>
+        /// <summary>卡牌悬停说明：只写这张卡自己的信息（羁绊已画在卡面上）。</summary>
         public static string Describe(ChessCard card, out string heading, out string sub)
         {
             var s = ChessSession.Instance;
             var line = s.Line(card.LineKey);
             heading = card.Name + "  " + new string('★', card.Star);
-            var trade = s.Bond(line?.TradeKey)?.Name;
-            var origin = s.Bond(line?.OriginKey)?.Name;
-            sub = $"{line?.Name}系 · {trade} · {origin}";
+            sub = line != null ? line.Name + "系" : "";
             var text = $"点数 <b>{card.Points}</b>";
             if (card.Bonus != 0) text += $"（含永久加成 {card.Bonus:+#;-#;0}）";
-            if (line != null && !string.IsNullOrEmpty(line.LegendDesc))
+            var maxStar = s.Config?.MaxStar ?? 3;
+            if (card.Star >= maxStar && line != null && !string.IsNullOrEmpty(line.LegendDesc))
             {
-                var legendName = line.StarNames.Count > 0 ? line.StarNames[line.StarNames.Count - 1] : "3★";
-                var mark = card.Star >= 3 ? "" : "<color=#5A6A68>";
-                var end = card.Star >= 3 ? "" : "</color>";
-                text += $"\n{mark}3★ {legendName}：{line.LegendDesc}{end}";
+                text += $"\n技能：{line.LegendDesc}";
             }
             text += $"\n出售可得 {card.SellPrice} 金";
             return text;
