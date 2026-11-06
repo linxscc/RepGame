@@ -27,6 +27,9 @@ namespace RepGame.Chess.UI
         private Sequence master;
         private RoundResult current;
         private bool firing;
+        private bool fading;            // 已进入淡出
+        private CanvasGroup group;
+        private Side enemySide, selfSide;
 
         public BattleCutscene(RectTransform layer, RectTransform fxLayer, PlayerHud self, PlayerHud enemy)
         {
@@ -43,13 +46,14 @@ namespace RepGame.Chess.UI
             Stop();
             current = rr;
             firing = false;
+            fading = false;
             selfHud.Freeze();
             enemyHud.Freeze();
 
             root = UIKit.Rect(layer, "BattleCutscene");
             UIKit.Fill(root);
             root.SetAsLastSibling();
-            var group = root.gameObject.AddComponent<CanvasGroup>();
+            group = root.gameObject.AddComponent<CanvasGroup>();
             group.alpha = 0;
 
             // 云雾遮罩：半透明，对局界面仍隐约可见；整层随 CanvasGroup 淡入淡出
@@ -79,8 +83,8 @@ namespace RepGame.Chess.UI
             var hint = UIKit.Text(root, "Hint", "点击跳过", 14, Theme.WithAlpha(Theme.Paper, 0.5f), TextAlignmentOptions.Right);
             UIKit.Place(hint.rectTransform, 1600, 30, 280, 24);
 
-            var enemy = new Side(root, rr.Opponent, EnemyRowY, EnemyScoreX, true);
-            var self = new Side(root, rr.Self, SelfRowY, SelfScoreX, false);
+            var enemy = enemySide = new Side(root, rr.Opponent, EnemyRowY, EnemyScoreX, true);
+            var self = selfSide = new Side(root, rr.Self, SelfRowY, SelfScoreX, false);
 
             var verdict = UIKit.Text(root, "Verdict", "", 96, Theme.Red, TextAlignmentOptions.Center, true);
             UIKit.PlaceCenter(verdict.rectTransform, 960, 530, 600, 120);
@@ -98,7 +102,7 @@ namespace RepGame.Chess.UI
 
             // 时间预算：到服务器下一阶段前演完，留出火焰攻击的时间
             var total = Mathf.Clamp((rr.NextPhaseAtMs - ChessSession.Instance.ServerNowMs) / 1000f, 4f, 12f);
-            float intro = skin.cutsceneIntro, verdictT = skin.verdictHold, outro = Mathf.Max(0.05f, skin.cutsceneOutro);
+            float intro = skin.cutsceneIntro, verdictT = skin.verdictHold, outro = Mathf.Max(0.1f, skin.cutsceneOutro);
             var fire = skin.fireFlightSeconds + 1.2f;
             var reveal = Mathf.Max(2f, total - intro - verdictT - outro - fire);
             var steps = Mathf.Max(1, Mathf.Max(enemy.Events.Count, self.Events.Count));
@@ -129,13 +133,29 @@ namespace RepGame.Chess.UI
                 master.Join(verdict.rectTransform.DOScale(1f, 0.35f).From(2.2f).SetEase(Ease.OutBack));
             }
             master.AppendInterval(verdictT - 0.35f);
-            master.Append(group.DOFade(0, outro));
-            master.OnComplete(Fire);
+            master.AppendCallback(FadeOut);
         }
 
+        /// <summary>点击跳过：直接显示最终分数并开始淡出（淡出中再点无效）。</summary>
         private void Skip()
         {
-            if (master != null && master.IsActive()) master.Complete(true);
+            if (root == null || fading) return;
+            master?.Kill();
+            enemySide.Finish();
+            selfSide.Finish();
+            FadeOut();
+        }
+
+        /// <summary>结束过渡：云雾和画面一起淡出并轻微放大，完成后再发出火焰。</summary>
+        private void FadeOut()
+        {
+            if (root == null || fading) return;
+            fading = true;
+            var outro = Mathf.Max(0.1f, ChessUISkin.Instance.cutsceneOutro);
+            master = DOTween.Sequence().SetTarget(root);
+            master.Append(group.DOFade(0, outro).SetEase(Ease.InCubic));
+            master.Join(root.DOScale(1.04f, outro).SetEase(Ease.InCubic));
+            master.OnComplete(Fire);
         }
 
         /// <summary>立刻结束（例如对局结束、离开对局）。</summary>
@@ -309,7 +329,7 @@ namespace RepGame.Chess.UI
                 scoreText.outlineWidth = 0.12f;
                 scoreText.outlineColor = Theme.Ink;
                 UIKit.PlaceCenter(scoreText.rectTransform, scoreX, ScoreY, 640, skin.scoreFontSize * 1.1f);
-                formula = UIKit.Text(root, "Formula", "点数 0 × 倍率 1", 24, Theme.Paper, TextAlignmentOptions.Center);
+                formula = UIKit.Text(root, "Formula", "战力 0 × 气势 1", 24, Theme.Paper, TextAlignmentOptions.Center);
                 UIKit.PlaceCenter(formula.rectTransform, scoreX, ScoreY + skin.scoreFontSize * 0.62f, 560, 32);
                 ticker = UIKit.Text(root, "Ticker", "", 28, Theme.Hex("#FFD27A"), TextAlignmentOptions.Center, true);
                 UIKit.PlaceCenter(ticker.rectTransform, scoreX, ScoreY + skin.scoreFontSize * 0.62f + 38, 560, 36);
@@ -327,8 +347,8 @@ namespace RepGame.Chess.UI
                         j++;
                     }
                     var last = steps[j - 1];
-                    var label = s.Kind == ScoreStepKind.Points ? $"{s.Source} 点数 +{Fmt.Num(add)}"
-                        : s.Kind == ScoreStepKind.AddMult ? $"{s.Source} 倍率 +{Fmt.Num(add)}" : $"{s.Source} 倍率 ×{Fmt.Num(times)}";
+                    var label = s.Kind == ScoreStepKind.Points ? $"{s.Source} 战力 +{Fmt.Num(add)}"
+                        : s.Kind == ScoreStepKind.AddMult ? $"{s.Source} 气势 +{Fmt.Num(add)}" : $"{s.Source} 气势 ×{Fmt.Num(times)}";
                     Events.Add(new Event { CardUid = s.CardUid, Label = label, Points = last.Points, Mult = last.Mult });
                     i = j;
                 }
@@ -376,7 +396,7 @@ namespace RepGame.Chess.UI
                     {
                         ticker.text = ev.Label;
                         ticker.alpha = 1;
-                        formula.text = $"点数 {Fmt.Num(ev.Points)} × 倍率 {Fmt.Num(ev.Mult)}";
+                        formula.text = $"战力 {Fmt.Num(ev.Points)} × 气势 {Fmt.Num(ev.Mult)}";
                         var target = (float)Math.Floor(ev.Points * ev.Mult);
                         var dur = Mathf.Max(0.1f, per * 0.8f);
                         if (target > shown) Shake(dur);
@@ -410,7 +430,7 @@ namespace RepGame.Chess.UI
                 scoreText.rectTransform.DOKill(true);
                 shown = (float)side.Score.Score;
                 scoreText.text = Fmt.Score(side.Score.Score);
-                formula.text = $"点数 {Fmt.Num(side.Score.Points)} × 倍率 {Fmt.Num(side.Score.Mult)}";
+                formula.text = $"战力 {Fmt.Num(side.Score.Points)} × 气势 {Fmt.Num(side.Score.Mult)}";
                 ticker.text = "";
             }
 

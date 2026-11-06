@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace RepGame.Chess.UI
 {
     /// <summary>
-    /// 一张卡的显示：卡图（没有卡图时用卡名占位）、星级、点数、卡名。
+    /// 一张卡的显示：卡图（没有卡图时用卡名占位）、星级、战力、卡名。
     /// 数值全部来自服务器下发的 ChessCard。
     /// </summary>
     public static class CardView
@@ -74,7 +74,7 @@ namespace RepGame.Chess.UI
                 }
             }
 
-            // 左下角（名字条上方）：点数
+            // 左下角（名字条上方）：战力
             if (showPoints)
             {
                 var badge = UIKit.Circle(frame.transform, "PointsBadge", Theme.Paper, Theme.Ink, 1.5f);
@@ -112,7 +112,7 @@ namespace RepGame.Chess.UI
             var line = s.Line(card.LineKey);
             heading = card.Name + "  " + new string('★', card.Star);
             sub = line != null ? line.Name + "系" : "";
-            var text = $"点数 <b>{card.Points}</b>";
+            var text = $"战力 <b>{card.Points}</b>";
             if (card.Bonus != 0) text += $"（含永久加成 {card.Bonus:+#;-#;0}）";
             var maxStar = s.Config?.MaxStar ?? 3;
             if (card.Star >= maxStar && line != null && !string.IsNullOrEmpty(line.LegendDesc))

@@ -222,12 +222,12 @@ namespace RepGame.Chess.UI
                 sb.AppendLine(i == bc.Tier ? $"<b><color=#2F7A72>{line}</color></b>" : $"<color=#5A6A68>{line}</color>");
             }
             var names = string.Join("、", info.LineKeys.Select(k => s.Line(k)?.Name ?? k));
-            var bonus = s.Config != null && s.Config.BondTierMult > 0 ? $"\n<color=#5A6A68>每个生效档位另 +{Fmt.Num(s.Config.BondTierMult)} 倍率</color>" : "";
+            var bonus = s.Config != null && s.Config.BondTierMult > 0 ? $"\n<color=#5A6A68>每个生效档位另 +{Fmt.Num(s.Config.BondTierMult)} 气势</color>" : "";
             tooltip.Show(info, 130, y - 12, 300, info.Name, $"{info.Desc} · 包含：{names} · 当前 {bc.Count} 个系", sb.ToString().TrimEnd() + bonus);
         }
     }
 
-    /// <summary>出阵区上方停靠的预计得分；分数变化时先在屏幕中央放大，再缩回停靠位置。</summary>
+    /// <summary>出阵区上方的预计得分：固定位置，出现/消失时淡入淡出，分数变化时数字滚动到新值。</summary>
     public sealed class ScoreDockView
     {
         private readonly RectTransform root;
@@ -235,8 +235,8 @@ namespace RepGame.Chess.UI
         private readonly TextMeshProUGUI formula;
         private readonly CanvasGroup group;
         private static readonly Vector2 Dock = new Vector2(960, 352);
-        private static readonly Vector2 Center = new Vector2(960, 540);
         private double shown = -1;
+        private float rolling; // 正在显示的数字（滚动动画用）
 
         public ScoreDockView(RectTransform parent)
         {
@@ -261,31 +261,26 @@ namespace RepGame.Chess.UI
         {
             if (!(visible && preview != null && preview.Score > 0))
             {
-                UIFx.Out(root.gameObject, UIFx.Style.Fade); // 淡出；入场由 Animate 负责
+                    UIFx.Out(root.gameObject, UIFx.Style.Fade);
                 shown = -1;
                 return;
             }
-            UIFx.ShowNow(root.gameObject);
-            score.text = Fmt.Score(preview.Score);
-            formula.text = $"点数 {Fmt.Num(preview.Points)} × 倍率 {Fmt.Num(preview.Mult)}";
-            if (preview.Score != shown)
+            formula.text = $"战力 {Fmt.Num(preview.Points)} × 气势 {Fmt.Num(preview.Mult)}";
+            if (!UIFx.IsShown(root.gameObject))
             {
+                // 刚出现：直接显示最终值并淡入
+                DOTween.Kill(score);
                 shown = preview.Score;
-                Animate();
+                rolling = (float)preview.Score;
+                score.text = Fmt.Score(preview.Score);
+                UIFx.In(root.gameObject, UIFx.Style.Fade);
+                return;
             }
-        }
-
-        private void Animate()
-        {
-            DOTween.Kill(root);
-            root.anchoredPosition = new Vector2(Center.x, -Center.y);
-            root.localScale = Vector3.one * 2.4f;
-            group.alpha = 0;
-            var seq = DOTween.Sequence().SetTarget(root);
-            seq.Append(group.DOFade(1f, 0.2f));
-            seq.AppendInterval(0.35f);
-            seq.Append(root.DOScale(1f, 0.8f).SetEase(Ease.OutCubic));
-            seq.Join(root.DOAnchorPos(new Vector2(Dock.x, -Dock.y), 0.8f).SetEase(Ease.OutCubic));
+            if (preview.Score == shown) return;
+            shown = preview.Score;
+            DOTween.Kill(score);
+            DOTween.To(() => rolling, v => { rolling = v; score.text = Fmt.Score(v); }, (float)preview.Score, 0.35f)
+                .SetEase(Ease.OutCubic).SetTarget(score);
         }
     }
 }
