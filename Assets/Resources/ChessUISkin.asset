@@ -95,14 +95,14 @@ MonoBehaviour:
   - name: "\u9ec4\u5dfe\u529b\u58eb"
     sprite: {fileID: 21300000, guid: 487557d4f26449c7a01870d1388cd271, type: 3}
   relicIcons: []
-  voidBackground: {fileID: 0}
-  voidMist: {fileID: 0}
-  fireball: {fileID: 0}
-  fireTrail: {fileID: 0}
-  impactBurst: {fileID: 0}
-  verdictWin: {fileID: 0}
-  verdictLose: {fileID: 0}
-  verdictDraw: {fileID: 0}
+  voidBackground: {fileID: 21300000, guid: aba2e9f669974a18bcaf6f0c4986d214, type: 3}
+  voidMist: {fileID: 21300000, guid: 0ddeeda955894bca9bf3c92b94732593, type: 3}
+  fireball: {fileID: 21300000, guid: 9ee756c01b9f4d7aaca8f79aecaaaf33, type: 3}
+  fireTrail: {fileID: 21300000, guid: 7545c35330e841d699b0525eb7f4561d, type: 3}
+  impactBurst: {fileID: 21300000, guid: 94602b5ce9b64335b4178ae1a4753b88, type: 3}
+  verdictWin: {fileID: 21300000, guid: efdc95d4d641449282ed031a758fb383, type: 3}
+  verdictLose: {fileID: 21300000, guid: 790e0b98bf2c4de6abd7db4186e88098, type: 3}
+  verdictDraw: {fileID: 21300000, guid: 0f28ebecb97a43229484dd400f833f38, type: 3}
   cutsceneIntro: 0.4
   stepMinSeconds: 0.12
   stepMaxSeconds: 0.6
