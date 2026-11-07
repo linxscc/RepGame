@@ -298,6 +298,7 @@ namespace RepGame.UI.Chess
             private readonly TextMeshProUGUI bonusKind, bonusName, bonusValue;
             private readonly float bonusX, bonusFrom;
             private bool bonusShown;
+            private readonly bool enemyRow;
             private readonly SideResult side;
             private float shown;
 
@@ -318,6 +319,7 @@ namespace RepGame.UI.Chess
             public Side(RectTransform root, SideResult side, float rowY, float scoreX, bool enemy)
             {
                 this.side = side;
+                enemyRow = enemy;
                 var n = side.Board.Count;
                 float w = n * CardW + Mathf.Max(0, n - 1) * CardGap;
                 for (int i = 0; i < n; i++)
@@ -386,7 +388,7 @@ namespace RepGame.UI.Chess
                     if (s.Triggers > 1) change += $"（触发 {s.Trigger}/{s.Triggers}）";
                     Events.Add(new Event
                     {
-                        CardUid = s.CardUid, Label = $"{OriginPrefix(s.Origin)}{s.Source} {change}", Source = s.Source, Change = change, Phase = s.Phase,
+                        CardUid = s.CardUid, Label = $"{OriginPrefix(s.Origin, enemyRow)}{s.Source} {change}", Source = s.Source, Change = change, Phase = s.Phase,
                         Origin = s.Origin,
                         Points = last.Points, Mult = last.Mult,
                     });
@@ -402,7 +404,8 @@ namespace RepGame.UI.Chess
                 return add < 0 ? $"{name} −{Fmt.Num(-add)}" : $"{name} +{Fmt.Num(add)}";
             }
 
-            private static string OriginPrefix(StepOrigin o) => o == StepOrigin.FoeRelic ? "对手法宝·" : o == StepOrigin.Omen ? "天象·" : "";
+            // FoeRelic = 另一方的法宝作用在本侧：本方行是对手的法宝，对手行则是我方自己的法宝
+            private static string OriginPrefix(StepOrigin o, bool enemyRow) => o == StepOrigin.FoeRelic ? (enemyRow ? "我方法宝·" : "对手法宝·") : o == StepOrigin.Omen ? "天象·" : "";
 
             private static RectTransform Back(RectTransform holder)
             {
@@ -471,7 +474,7 @@ namespace RepGame.UI.Chess
             /// <summary>在积分外侧显示正在结算的羁绊 / 法宝：首次滑入，之后每步轻弹一下。</summary>
             private void ShowBonus(Event ev)
             {
-                bonusKind.text = ev.Origin == StepOrigin.FoeRelic ? "对手法宝" : ev.Origin == StepOrigin.Omen ? "天 象"
+                bonusKind.text = ev.Origin == StepOrigin.FoeRelic ? (enemyRow ? "我方法宝" : "对手法宝") : ev.Origin == StepOrigin.Omen ? "天 象"
                     : ev.Phase == PhaseBond ? "羁 绊" : "法 宝";
                 bonusName.text = ev.Source;
                 // 外来 / 负面效果：金字朱砂红描边

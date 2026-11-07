@@ -342,6 +342,7 @@ namespace RepGame.UI.Chess
         private void OnFailed(string message)
         {
             if (canvas.gameObject.activeSelf) toast.Show(message);
+            omenPopup.OnActionFailed();
         }
 
         private void Update()

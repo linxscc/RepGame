@@ -23,6 +23,8 @@ namespace RepGame.UI.Chess
         private string choiceKey;       // 面板内容签名，避免同一状态重复重建
         private int pickedRound = -1;   // 本地已点击的回合（服务器确认前就显示等待态）
         private bool pickedRoll;
+        private float pickedAt;         // 发送时刻；发出后 RecoverAfter 秒仍未被服务器记录才视为丢失
+        private const float RecoverAfter = 1f;
         private int revealedRound = -1; // 每个天象回合只揭晓一次（重连后状态里带着已揭晓的结果，不重放）
         private Sequence seq;
 
@@ -64,6 +66,9 @@ namespace RepGame.UI.Chess
             if (Revealing || st == null) return;
             var roll = st.OmenRoll;
             int round = st.Round;
+            // 乐观状态只是短暂的：发送一段时间后收到的状态仍显示未选择，说明服务器没记录（发送丢失或被拒），恢复按钮
+            if (pickedRound == round && !(roll != null && roll.SelfChosen) && Time.unscaledTime - pickedAt >= RecoverAfter)
+                pickedRound = -1;
             // OMEN 阶段服务器只告诉我们“已决定”，不告诉选了什么
             bool selfDone = (roll != null && roll.SelfChosen) || pickedRound == round;
             bool oppDone = roll != null && roll.OpponentChosen;
@@ -124,9 +129,21 @@ namespace RepGame.UI.Chess
             if (pickedRound == round) return;
             pickedRound = round;
             pickedRoll = roll;
+            pickedAt = Time.unscaledTime;
             ChessActions.RollOmen(roll);
             var st = ChessSession.Instance.State;
             if (st != null) ShowChoice(st);
+        }
+
+        /// <summary>动作被服务器拒绝：撤销乐观选择并重新显示按钮。</summary>
+        public void OnActionFailed()
+        {
+            if (pickedRound < 0 || Revealing) return;
+            var st = ChessSession.Instance.State;
+            if (st == null || st.Phase != MatchPhase.Omen || st.Round != pickedRound) return;
+            if (st.OmenRoll != null && st.OmenRoll.SelfChosen) return;
+            pickedRound = -1;
+            ShowChoice(st);
         }
 
         /// <summary>两列小字：点数 1–6、7–12 对应的天象名。</summary>
