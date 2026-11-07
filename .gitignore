@@ -3,7 +3,6 @@ Library/
 Logs/
 Temp/
 .vscode/
-Resources/
 Prefabs/
 Prefab/
 Debug/
@@ -30,8 +29,6 @@ UserSettings/
 *.tps
 *.tmp
 *.vsconfig
-*.meta
-*.png
 
 
 # Ignore all log files
