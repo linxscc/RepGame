@@ -33,7 +33,8 @@
    | `IOS_BUNDLE_ID` | 全局唯一的包名，例如 `com.linxscc.repgame`（现在工程里的模板包名不能用） |
    | `IOS_TEAM_ID` | 第 3 步的 Team ID |
    | `IOS_DEVICE_ID` | 第 4 步的 Identifier |
-   | `REPGAME_CLIENT_ENV_FILE` | 第 5 步 `.env` 的完整路径 |
+   | `SERVER_HOST` / `SERVER_PORT` / `SERVER_CERT_SHA256` | 服务器地址、端口、证书指纹（流水线用它们生成打进包的配置；也可以改用下一行的文件） |
+| `REPGAME_CLIENT_ENV_FILE` | （可选）Mac mini 上一份 `.env` 的完整路径，设置后优先使用 |
    | `UNITY_PATH` | （可选）Unity 可执行文件路径 |
 
 7. Mac mini 上安装 Git LFS：`brew install git-lfs && git lfs install`。
