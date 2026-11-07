@@ -32,6 +32,8 @@ namespace RepGame.UI
 
             // 查找组件
             Transform foundTransform = transform.Find(path);
+            // 刘海屏上 LobbySafeArea 会把面板内容收进 SafeContent 节点
+            if (foundTransform == null) foundTransform = transform.Find("SafeContent/" + path);
             if (foundTransform == null)
             {
                 Debug.LogWarning($"[{GetType().Name}] Path not found: {path}");
