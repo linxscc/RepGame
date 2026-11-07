@@ -29,11 +29,11 @@ namespace RepGame.Chess.UI
         /// <summary>稀有度颜色：0 普通（墨）、1 稀有（青）、2 传说（金）</summary>
         public static Color Rarity(int r) => r >= 2 ? Gold : r == 1 ? CyanDeep : Ink;
 
-        public static readonly Color Bronze = Hex("#A0683C");
-        public static readonly Color Silver = Hex("#9AA3A8");
-
-        /// <summary>卡牌边框：1★ 青铜、2★ 银、3★ 金</summary>
-        public static Color StarBorder(int star) => star >= 3 ? Gold : star == 2 ? Silver : Bronze;
+        /// <summary>费用档颜色（卡框与名牌）：1 费 黛灰、2 费 石绿、3 费 绛紫</summary>
+        public static readonly Color Cost1 = Hex("#7E8A87");
+        public static readonly Color Cost2 = Hex("#3E8C5E");
+        public static readonly Color Cost3 = Hex("#7D3C98");
+        public static Color CostColor(int cost) => cost >= 3 ? Cost3 : cost == 2 ? Cost2 : Cost1;
 
         /// <summary>卡面底色：1★ 宣纸、2★ 浅青、3★ 金纸</summary>
         public static Color StarPaper(int star) => star >= 3 ? GoldPaper : star == 2 ? Cyan : Paper;

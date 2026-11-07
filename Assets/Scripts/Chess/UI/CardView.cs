@@ -15,7 +15,10 @@ namespace RepGame.Chess.UI
         public static RectTransform Build(Transform parent, ChessCard card, float w, float h, bool showPoints = true, int cost = 0)
         {
             var skin = ChessUISkin.Instance;
-            var frame = UIKit.Panel(parent, "Card_" + card.Name, Theme.StarPaper(card.Star), Theme.StarBorder(card.Star), 3f);
+            var line = ChessSession.Instance.Line(card.LineKey);
+            // 卡框颜色 = 费用档（一眼区分 1/2/3 费）；底色仍随星级变化
+            var tier = Theme.CostColor(line?.Cost ?? cost);
+            var frame = UIKit.Panel(parent, "Card_" + card.Name, Theme.StarPaper(card.Star), tier, 4f);
             frame.raycastTarget = true;
             var rt = frame.rectTransform;
             rt.sizeDelta = new Vector2(w, h);
@@ -42,8 +45,7 @@ namespace RepGame.Chess.UI
                 ct.pivot = new Vector2(0, 1);
                 ct.sizeDelta = new Vector2(w * 0.24f, w * 0.24f);
                 ct.anchoredPosition = new Vector2(5, -5);
-                UIKit.Text(coin.transform, "Gold", cost.ToString(), w * 0.13f,
-                    cost >= 3 ? Theme.Red : cost == 2 ? Theme.CyanDeep : Theme.GoldText, TextAlignmentOptions.Center, true);
+                UIKit.Text(coin.transform, "Gold", cost.ToString(), w * 0.13f, tier, TextAlignmentOptions.Center, true);
             }
 
             // 右上角：星级，下面竖排羁绊标签
@@ -54,7 +56,6 @@ namespace RepGame.Chess.UI
             stars.rectTransform.offsetMax = new Vector2(-6, -4);
 
             // 右上角：本卡的两个羁绊（行当、出身），竖排小标签
-            var line = ChessSession.Instance.Line(card.LineKey);
             if (line != null)
             {
                 float tagW = Mathf.Max(16, w * 0.17f), tagH = Mathf.Max(30, w * 0.34f), y = 6 + starH;
@@ -85,6 +86,15 @@ namespace RepGame.Chess.UI
                 bt.anchoredPosition = new Vector2(4, h * 0.2f + 2);
                 UIKit.Text(badge.transform, "Points", card.Points.ToString(), Mathf.Max(12, w * 0.12f), Theme.Ink, TextAlignmentOptions.Center, true);
             }
+
+            // 名牌底色带：费用档颜色
+            var plate = UIKit.Image(frame.transform, "NamePlate", Theme.WithAlpha(tier, 0.22f));
+            var prt = plate.rectTransform;
+            prt.anchorMin = new Vector2(0, 0);
+            prt.anchorMax = new Vector2(1, 0);
+            prt.pivot = new Vector2(0.5f, 0);
+            prt.offsetMin = new Vector2(4, 4);
+            prt.offsetMax = new Vector2(-4, h * 0.2f - 4);
 
             var name = UIKit.Text(frame.transform, "Name", card.Name, Mathf.Max(12, w * 0.135f), Theme.Ink,
                 TextAlignmentOptions.Bottom, true);
