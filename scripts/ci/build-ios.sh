@@ -96,7 +96,14 @@ for dev in "${DEVICES[@]}"; do
   dev="$(echo "$dev" | xargs)"
   [ -z "$dev" ] && continue
   echo "-- 安装到 $dev"
-  if xcrun devicectl device install app --device "$dev" "$APP_PATH"; then
+  installed=0
+  for attempt in 1 2 3; do
+    # 无线连接偶尔被重置（设备息屏/刚唤醒），重试几次
+    if xcrun devicectl device install app --device "$dev" "$APP_PATH"; then installed=1; break; fi
+    echo "第 $attempt 次安装失败，10 秒后重试"
+    sleep 10
+  done
+  if [ "$installed" -eq 1 ]; then
     ok=$((ok+1))
     xcrun devicectl device process launch --device "$dev" "$IOS_BUNDLE_ID" || echo "已安装；自动启动失败（设备可能锁屏），请手动打开"
   else
