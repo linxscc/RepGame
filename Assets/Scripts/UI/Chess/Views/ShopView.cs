@@ -13,8 +13,8 @@ namespace RepGame.UI.Chess
     public sealed class ShopView
     {
         // 抽屉宽度为原来的 2/3，水平居中；只卖卡（法宝只能从宝库获得）
-        private const float DrawerW = 1067, DrawerX = (1920 - DrawerW) / 2, DrawerH = 340;
-        private const float CardW = 150, CardH = 196, CardStep = 162;
+        private const float DrawerW = 1330, DrawerX = (1920 - DrawerW) / 2, DrawerH = 400;
+        private const float CardW = 200, CardH = 261, CardStep = 214; // 放大约 1/3
         private const float ButtonW = 180;
         private const float Pad = 20; // 抽屉上沿藏在屏幕外的部分，内容整体下移这么多
 

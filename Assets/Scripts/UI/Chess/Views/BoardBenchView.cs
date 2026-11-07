@@ -12,8 +12,9 @@ namespace RepGame.UI.Chess
     /// </summary>
     public sealed class BoardBenchView
     {
-        public const float BoardY = 420, BoardW = 116, BoardH = 174, BoardGap = 12;
-        public const float BenchY = 862, BenchW = 104, BenchH = 150, BenchGap = 12;
+        // 卡牌尺寸整体放大约 1/3（原 116×174 / 104×150）
+        public const float BoardY = 410, BoardW = 155, BoardH = 232, BoardGap = 14;
+        public const float BenchY = 860, BenchW = 139, BenchH = 200, BenchGap = 14;
 
         private readonly RectTransform boardRoot;
         private readonly RectTransform benchRoot;

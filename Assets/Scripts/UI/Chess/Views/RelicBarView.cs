@@ -9,7 +9,7 @@ namespace RepGame.UI.Chess
     /// <summary>我的法宝栏（只显示图标，悬停看效果，拖动调整顺序）。</summary>
     public sealed class RelicBarView
     {
-        public const float Y = 620, Size = 60, Gap = 16;
+        public const float Y = 662, Size = 60, Gap = 16; // 出阵卡放大后下移，避免重叠
         private readonly RectTransform root;
         private readonly DragController drag;
         private readonly TooltipLayer tooltip;

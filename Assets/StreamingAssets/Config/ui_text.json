@@ -34,6 +34,7 @@
     { "key": "chess.vault.subtitle", "text": "免费拿 1 件法宝 · 倒计时结束后随机选择", "comment": "" },
     { "key": "chess.vault.skip", "text": "放弃，换金币", "comment": "" },
     { "key": "chess.vault.waiting", "text": "等待对手选择…", "comment": "" },
+    { "key": "chess.vault.chip", "text": "宝库 · 点击展开", "comment": "宝库三选一收起后右上角的小标签" },
     { "key": "chess.trade.title", "text": "选择行当", "comment": "" },
     { "key": "chess.trade.subtitle", "text": "这件法宝需要选定一个行当", "comment": "" },
     { "key": "chess.sell.title", "text": "法宝栏已满", "comment": "" },

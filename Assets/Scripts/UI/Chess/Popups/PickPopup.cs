@@ -20,6 +20,13 @@ namespace RepGame.UI.Chess
         private readonly TooltipLayer tooltip;
         private string shownKey; // 避免同一次选择被重复重建
 
+        // 可收起的选择（宝库三选一）：点空白处收到右上角的小标签，点标签再展开
+        private const float ChipW = 200, ChipH = 44, ChipRight = 1888, ChipY = 132, CollapseSeconds = 0.28f;
+        private RectTransform content, chip;
+        private Image catcher;
+        private bool collapsed;
+        private Sequence collapseSeq;
+
         public PickPopup(RectTransform layer, TooltipLayer tooltip)
         {
             root = UIKit.Rect(layer, "Pick");
@@ -32,8 +39,57 @@ namespace RepGame.UI.Chess
 
         public void Hide()
         {
+            KillCollapse();
             UIFx.Out(root.gameObject, UIFx.Style.Fade);
             shownKey = null;
+            collapsed = false;
+        }
+
+        private void KillCollapse()
+        {
+            if (collapseSeq != null && collapseSeq.IsActive()) collapseSeq.Kill();
+            collapseSeq = null;
+        }
+
+        private Vector2 ChipCenter => new Vector2(ChipRight - ChipW / 2, ChipY + ChipH / 2);
+
+        /// <summary>收起：选择面板缩小飞向右上角并淡出，换成一个可点击的小标签。</summary>
+        private void Collapse()
+        {
+            if (collapsed || content == null) return;
+            collapsed = true;
+            tooltip.Hide(null);
+            KillCollapse();
+            var group = UIKit.GetOrAdd<CanvasGroup>(content.gameObject);
+            group.blocksRaycasts = false;
+            catcher.raycastTarget = false;
+            // content 铺满全屏、中心在 (960,540)；把中心移到标签处并缩小
+            var to = new Vector2(ChipCenter.x - 960, 540 - ChipCenter.y);
+            var q = DOTween.Sequence().SetLink(root.gameObject);
+            q.Join(content.DOAnchorPos(to, CollapseSeconds).SetEase(Ease.InCubic));
+            q.Join(content.DOScale(0.12f, CollapseSeconds).SetEase(Ease.InCubic));
+            q.Join(group.DOFade(0, CollapseSeconds).SetEase(Ease.InQuad));
+            q.OnComplete(() => content.gameObject.SetActive(false));
+            collapseSeq = q;
+            UIFx.In(chip.gameObject, UIFx.Style.Pop);
+        }
+
+        /// <summary>展开：从右上角标签处放大回原位。</summary>
+        private void Expand()
+        {
+            if (!collapsed || content == null) return;
+            collapsed = false;
+            KillCollapse();
+            UIFx.HideNow(chip.gameObject);
+            content.gameObject.SetActive(true);
+            var group = UIKit.GetOrAdd<CanvasGroup>(content.gameObject);
+            catcher.raycastTarget = true;
+            var q = DOTween.Sequence().SetLink(root.gameObject);
+            q.Join(content.DOAnchorPos(Vector2.zero, CollapseSeconds).SetEase(Ease.OutCubic));
+            q.Join(content.DOScale(1f, CollapseSeconds).SetEase(Ease.OutBack));
+            q.Join(group.DOFade(1, CollapseSeconds * 0.8f));
+            q.OnComplete(() => group.blocksRaycasts = true);
+            collapseSeq = q;
         }
 
         private sealed class Option
@@ -44,11 +100,16 @@ namespace RepGame.UI.Chess
             public Action Click;
         }
 
-        private void Show(string key, string title, string subtitle, List<Option> options, string skipLabel, Action skip, bool dim = false)
+        private void Show(string key, string title, string subtitle, List<Option> options, string skipLabel, Action skip, bool dim = false,
+            string chipLabel = null)
         {
             if (shownKey == key && Visible) return;
             shownKey = key;
+            KillCollapse();
+            collapsed = false;
             UIKit.Clear(root);
+            content = chip = null;
+            catcher = null;
             UIFx.In(root.gameObject, UIFx.Style.Fade);
             tooltip.Hide(null);
             if (dim)
@@ -56,13 +117,28 @@ namespace RepGame.UI.Chess
                 var d = UIKit.Image(root, "Dim", Theme.Dim, raycast: true);
                 UIKit.Fill(d.rectTransform);
             }
-            var head = UIKit.Text(root, "Title", title, 44, Theme.Ink, TextAlignmentOptions.Center, true);
+            var parent = root;
+            if (chipLabel != null)
+            {
+                // 透明接收层：点选项以外的地方就收起
+                catcher = UIKit.Image(root, "Catcher", Theme.Clear, raycast: true);
+                UIKit.Fill(catcher.rectTransform);
+                catcher.gameObject.AddComponent<Button>().onClick.AddListener(Collapse);
+                content = UIKit.Rect(root, "Content");
+                UIKit.Fill(content);
+                parent = content;
+                var c = UIKit.Button(root, "Chip", Theme.WithAlpha(Theme.Paper, 0.95f), Theme.Gold, chipLabel, 18, Theme.Ink, Expand);
+                chip = (RectTransform)c.transform;
+                UIKit.Place(chip, ChipRight - ChipW, ChipY, ChipW, ChipH);
+                chip.gameObject.SetActive(false);
+            }
+            var head = UIKit.Text(parent, "Title", title, 44, Theme.Ink, TextAlignmentOptions.Center, true);
             head.outlineWidth = 0.22f;
             head.outlineColor = Theme.Paper;
             UIKit.PlaceCenter(head.rectTransform, 960, 190, 1200, 60);
             if (!string.IsNullOrEmpty(subtitle))
             {
-                var sub = UIKit.Panel(root, "SubBg", Theme.WithAlpha(Theme.Paper, 0.88f), Theme.Clear, 0);
+                var sub = UIKit.Panel(parent, "SubBg", Theme.WithAlpha(Theme.Paper, 0.88f), Theme.Clear, 0);
                 UIKit.PlaceCenter(sub.rectTransform, 960, 236, 640, 30);
                 UIKit.Text(sub.transform, "Sub", subtitle, 16, Theme.Ink);
             }
@@ -71,7 +147,7 @@ namespace RepGame.UI.Chess
             for (int i = 0; i < options.Count; i++)
             {
                 var o = options[i];
-                var card = UIKit.Panel(root, "Option" + i, Theme.WithAlpha(Theme.Paper, 0.96f), o.Ring, 3f);
+                var card = UIKit.Panel(parent, "Option" + i, Theme.WithAlpha(Theme.Paper, 0.96f), o.Ring, 3f);
                 card.raycastTarget = true;
                 UIKit.Place(card.rectTransform, 960 - total / 2 + i * (w + gap), 280, w, 420);
                 var b = card.gameObject.AddComponent<Button>();
@@ -94,7 +170,7 @@ namespace RepGame.UI.Chess
             }
             if (skip != null)
             {
-                var sb = UIKit.Button(root, "Skip", Theme.WithAlpha(Theme.Paper, 0.92f), Theme.Ink, skipLabel, 17, Theme.Ink, skip);
+                var sb = UIKit.Button(parent, "Skip", Theme.WithAlpha(Theme.Paper, 0.92f), Theme.Ink, skipLabel, 17, Theme.Ink, skip);
                 UIKit.PlaceCenter((RectTransform)sb.transform, 960, 750, 240, 50);
             }
         }
@@ -134,7 +210,8 @@ namespace RepGame.UI.Chess
                 };
             }).ToList();
             Show("vault:" + st.Round + ":" + string.Join(",", st.VaultOffer), Fmt.T("chess.vault.title", "宝库 · 三选一"),
-                Fmt.T("chess.vault.subtitle", "免费拿 1 件法宝 · 倒计时结束后随机选择"), opts, Fmt.T("chess.vault.skip", "放弃，换金币"), ChessActions.SkipVault);
+                Fmt.T("chess.vault.subtitle", "免费拿 1 件法宝 · 倒计时结束后随机选择"), opts, Fmt.T("chess.vault.skip", "放弃，换金币"), ChessActions.SkipVault,
+                chipLabel: Fmt.T("chess.vault.chip", "宝库 · 点击展开"));
         }
 
         private void PickVault(MatchState st, int index, RelicInfo info)
