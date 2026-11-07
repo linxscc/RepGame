@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using System.Net;
 using RepGame.Protocol;
 
 namespace RepGame.Network
@@ -47,10 +48,23 @@ namespace RepGame.Network
             this.settings = settings ?? throw new ArgumentNullException(nameof(settings));
         }
 
+        /// <summary>主机名 → 地址：IP 字面量直接用；域名解析后优先取 IPv4。</summary>
+        private static async Task<IPAddress> ResolveAsync(string host)
+        {
+            if (IPAddress.TryParse(host, out var literal)) return literal;
+            var all = await Dns.GetHostAddressesAsync(host);
+            foreach (var a in all) if (a.AddressFamily == AddressFamily.InterNetwork) return a;
+            if (all.Length > 0) return all[0];
+            throw new SocketException((int)SocketError.HostNotFound);
+        }
+
         public async Task ConnectAsync()
         {
-            tcp = new TcpClient { NoDelay = true, SendTimeout = (int)settings.ConnectTimeout.TotalMilliseconds * 2 };
-            var connectTask = tcp.ConnectAsync(settings.Host, settings.Port);
+            // 先解析成具体地址，按地址族建 socket（IPv4 地址用纯 IPv4 socket）。
+            // 默认构造的 TcpClient 在部分平台（iOS IL2CPP）是 IPv6 双栈 socket，连局域网 IPv4 地址可能一直超时。
+            var address = await ResolveAsync(settings.Host);
+            tcp = new TcpClient(address.AddressFamily) { NoDelay = true, SendTimeout = (int)settings.ConnectTimeout.TotalMilliseconds * 2 };
+            var connectTask = tcp.ConnectAsync(address, settings.Port);
             if (await Task.WhenAny(connectTask, Task.Delay(settings.ConnectTimeout)) != connectTask)
                 throw new TimeoutException($"connect to {settings.Host}:{settings.Port} timed out");
             await connectTask; // 传播连接异常
