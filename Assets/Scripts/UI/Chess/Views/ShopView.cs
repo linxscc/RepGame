@@ -71,7 +71,7 @@ namespace RepGame.UI.Chess
 
             var title = UIKit.Text(drawer, "Title", Fmt.T("chess.shop.title", "商店"), 26, Theme.Ink, TextAlignmentOptions.TopLeft, true);
             UIKit.Place(title.rectTransform, 28, Pad + 20, 200, 40);
-            drawerInfo = UIKit.Text(drawer, "Info", "", 14, Theme.InkSoft, TextAlignmentOptions.Left);
+            drawerInfo = UIKit.Text(drawer, "Info", "", 14, Theme.WithAlpha(Theme.InkSoft, 0.6f), TextAlignmentOptions.Left);
             UIKit.Place(drawerInfo.rectTransform, 120, Pad + 26, 700, 24);
             var close = UIKit.Button(drawer, "Close", Theme.Paper, Theme.Ink, "×", 22, Theme.Ink, () => SetOpen(false));
             UIKit.Place((RectTransform)close.transform, DrawerW - 72, Pad + 16, 44, 44);
@@ -105,6 +105,9 @@ namespace RepGame.UI.Chess
             if (state.Phase == MatchPhase.Prep) ChessActions.Ready(!state.Self.Ready);
         }
 
+        /// <summary>抽屉打开时刷新按钮（主按钮是抽屉里的刷新）收起，避免两个红色主按钮竞争。</summary>
+        private void UpdateReady() => UIFx.Toggle(readyButton.gameObject, state != null && state.Phase == MatchPhase.Prep && !open);
+
         private const float Hidden = DrawerH + Pad + 20; // 收起时整个抽屉在屏幕上沿之外
 
         public void SetOpen(bool value)
@@ -112,6 +115,7 @@ namespace RepGame.UI.Chess
             if (value && state?.Phase != MatchPhase.Prep) value = false;
             if (open == value) return;
             open = value;
+            UpdateReady();
             tooltip.Hide(null);
             DOTween.Kill(drawer);
             if (open)
@@ -138,12 +142,13 @@ namespace RepGame.UI.Chess
             goldText.text = self.Gold.ToString();
             interestText.text = self.Interest > 0 ? $"利息 +{self.Interest}" : "金";
             UIFx.Toggle(goldButton.gameObject, prep || st.Phase == MatchPhase.Vault);
-            UIFx.Toggle(readyButton.gameObject, prep);
+            UpdateReady();
             readyLabel.text = self.Ready ? Fmt.T("chess.ready.cancel", "取消就绪") : Fmt.T("chess.ready", "就 绪");
             ((Image)readyButton.targetGraphic).transform.GetChild(0).GetComponent<Image>().color = self.Ready ? Theme.InkSoft : Theme.Red;
             if (!prep) SetOpen(false);
+            UpdateReady();
 
-            drawerInfo.text = $"{self.Level} 级 · 拖卡或法宝到这里出售";
+            drawerInfo.text = Fmt.T("chess.shop.sellHint", "拖到此处出售");
             refreshLabel.text = self.FreeRefreshes > 0 ? $"刷新 · 免费 ×{self.FreeRefreshes}" : $"刷新 · {(self.RefreshCost > 0 ? self.RefreshCost : cfg?.RefreshCost ?? 2)} 金";
             xpLabel.text = self.XpToNext == 0 ? "已满级" : $"经验 · {cfg?.XpCost ?? 4} 金";
             lockLabel.text = self.ShopLocked ? "已锁定" : "锁定";
@@ -164,9 +169,9 @@ namespace RepGame.UI.Chess
                     var line = ChessSession.Instance.Line(slot.LineKey);
                     var preview = new ChessCard { Name = line.StarNames[0], LineKey = slot.LineKey, Star = 1, Points = line.Points, SellPrice = slot.Cost, Color = slot.Color };
                     rt = CardView.Build(cardsRow, preview, CardW, CardH, true, slot.Cost); // 价格在卡面左上角
-                    if (slot.Owned > 0)
+                    if (slot.Owned >= 2) // 已有 2 张同系 1★：买下会合成
                     {
-                        var own = UIKit.Text(cardsRow, "Owned", $"已有 {slot.Owned}", 15, Theme.CyanDeep, TextAlignmentOptions.Center, true);
+                        var own = UIKit.Text(cardsRow, "Mergeable", Fmt.T("chess.shop.mergeable", "可合成"), 15, Theme.GoldText, TextAlignmentOptions.Center, true);
                         UIKit.Place(own.rectTransform, x, CardH + 4, CardW, 24);
                     }
                     var btn = rt.gameObject.AddComponent<Button>();

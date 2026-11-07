@@ -25,13 +25,13 @@ namespace RepGame.UI.Chess
         private int revealedRound = -1; // 每个天象回合只揭晓一次（重连后状态里带着已揭晓的结果，不重放）
         private Sequence seq;
 
-        public OmenDicePopup(RectTransform layer, OmenBarView bar)
+        public OmenDicePopup(RectTransform layer, RectTransform fxLayer, OmenBarView bar)
         {
             this.bar = bar;
             choiceRoot = UIKit.Rect(layer, "OmenChoice");
             UIKit.Fill(choiceRoot);
             choiceRoot.gameObject.SetActive(false);
-            revealRoot = UIKit.Rect(layer, "OmenReveal");
+            revealRoot = UIKit.Rect(fxLayer, "OmenReveal"); // 揭晓过场属于特效层
             UIKit.Fill(revealRoot);
             revealRoot.gameObject.SetActive(false);
         }

@@ -14,29 +14,55 @@ namespace RepGame.UI.Chess
     {
         private readonly RectTransform root;
 
+        private readonly RectTransform catcher;
+
         public OpponentPopover(RectTransform layer)
         {
+            // 点击空白处关闭：全屏透明按钮，位于面板之下
+            var c = UIKit.Image(layer, "OpponentCatcher", Theme.Clear, raycast: true);
+            UIKit.Fill(c.rectTransform);
+            var cb = c.gameObject.AddComponent<Button>();
+            cb.transition = Selectable.Transition.None;
+            cb.onClick.AddListener(Close);
+            catcher = c.rectTransform;
+            catcher.gameObject.SetActive(false);
             root = UIKit.Rect(layer, "OpponentBoard");
             root.gameObject.SetActive(false);
+        }
+
+        public void Hide() => Close();
+
+        private void Close()
+        {
+            catcher.gameObject.SetActive(false);
+            UIFx.Out(root.gameObject);
+        }
+
+        private void Ensure()
+        {
+            catcher.gameObject.SetActive(true);
+            catcher.SetAsLastSibling();
+            root.SetAsLastSibling();
         }
 
         public void Toggle(MatchState st)
         {
             if (UIFx.IsShown(root.gameObject) || st == null)
             {
-                UIFx.Out(root.gameObject);
+                Close();
                 return;
             }
             UIKit.Clear(root);
             var o = st.Opponent;
+            Ensure();
             int n = Mathf.Max(1, o.LastBoard.Count);
             float w = 40 + n * 84;
             UIKit.Place(root, 32, 100, Mathf.Max(w, 360), 190);
             var panel = UIKit.Panel(root, "Panel", Theme.Paper, Theme.Ink, 2f);
             UIKit.Fill(panel.rectTransform);
             panel.raycastTarget = true;
-            panel.gameObject.AddComponent<Button>().onClick.AddListener(() => UIFx.Out(root.gameObject));
-            var title = UIKit.Text(root, "Title", $"{o.Username} · 上回合得分 {Fmt.Score(o.LastScore)}", 16, Theme.Ink, TextAlignmentOptions.TopLeft, true);
+            panel.gameObject.AddComponent<Button>().onClick.AddListener(Close);
+            var title = UIKit.Text(root, "Title", $"{o.Username} · 上回合得分 {Fmt.Score(o.LastScore)} · {Fmt.T("chess.opponent.hand", "手牌 {0}", o.CardCount)}", 16, Theme.Ink, TextAlignmentOptions.TopLeft, true);
             UIKit.Place(title.rectTransform, 20, 14, 600, 24);
             float x = 20;
             if (o.LastBoard.Count == 0)

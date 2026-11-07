@@ -124,19 +124,19 @@ namespace RepGame.UI.Chess
             drag = new DragController(dragLayer);
             drag.DraggingChanged += dragging => { if (dragging) tooltip.Hide(null); };
 
-            enemyHud = new PlayerHud(baseLayer, 32, 24, false);
+            enemyHud = new PlayerHud(baseLayer, 32, 24, false, tooltip);
             enemyRelics = UIKit.Rect(baseLayer, "EnemyRelics");
             UIKit.Place(enemyRelics, 370, 36, 400, 40);
-            selfHud = new PlayerHud(baseLayer, 32, 1080 - 32 - 64, true);
+            selfHud = new PlayerHud(baseLayer, 32, 1080 - 32 - 64, true, tooltip);
             timer = new TimerView(baseLayer);
             bonds = new BondBarView(baseLayer, tooltip);
-            omenBar = new OmenBarView(baseLayer, tooltip);
+            omenBar = new OmenBarView(baseLayer, popupLayer, tooltip);
             board = new BoardBenchView(baseLayer, drag, tooltip);
             relics = new RelicBarView(baseLayer, drag, tooltip);
-            scoreDock = new ScoreDockView(baseLayer);
+            scoreDock = new ScoreDockView(baseLayer, tooltip);
 
             picker = new PickPopup(popupLayer, tooltip);
-            omenPopup = new OmenDicePopup(popupLayer, omenBar);
+            omenPopup = new OmenDicePopup(popupLayer, fxLayer, omenBar);
             shop = new ShopView(baseLayer, popupLayer, drag, tooltip);
             cutscene = new BattleCutscene(popupLayer, fxLayer, selfHud, enemyHud);
             opponentBoard = new OpponentPopover(popupLayer);
@@ -165,6 +165,7 @@ namespace RepGame.UI.Chess
 
         private void OnConfig(MatchConfig config)
         {
+            opponentBoard.Hide();
             gameOver.Hide();
             cutscene.Stop();
             picker.Hide();
@@ -289,10 +290,11 @@ namespace RepGame.UI.Chess
             // 收到对局配置前用 client_settings.json 的兜底血量上限
             var maxHp = cfg != null && cfg.StartHp > 0 ? cfg.StartHp : (int)ConfigTables.Settings.gameplay.fallbackMaxHealth;
             var o = st.Opponent;
-            enemyHud.Set(o.Hp, maxHp, $"{o.Level} 级 · 手牌 {o.CardCount}{(o.Connected ? "" : " · 离线")}");
+            enemyHud.Set(o.Hp, maxHp, Fmt.T("chess.hud.level", "{0} 级", o.Level), -1, null, o.Connected);
             var self = st.Self;
             var xp01 = self.XpToNext > 0 ? (float)self.Xp / self.XpToNext : 1f;
-            selfHud.Set(self.Hp, maxHp, self.XpToNext > 0 ? $"{self.Level} 级 · 经验 {self.Xp}/{self.XpToNext}" : $"{self.Level} 级 · 满级", xp01);
+            selfHud.Set(self.Hp, maxHp, Fmt.T("chess.hud.level", "{0} 级", self.Level), xp01,
+                self.XpToNext > 0 ? Fmt.T("chess.hud.xpValue", "{0} / {1}", self.Xp, self.XpToNext) : Fmt.T("chess.hud.maxLevel", "已满级"));
 
             UIKit.Clear(enemyRelics);
             for (int i = 0; i < o.Relics.Count; i++)
@@ -337,6 +339,7 @@ namespace RepGame.UI.Chess
         private void OnOver(MatchOver over)
         {
             confirm.Hide();
+            opponentBoard.Hide();
             UIFx.Out(surrenderButton.gameObject);
             picker.Hide();
             omenPopup.Reset();
@@ -367,6 +370,7 @@ namespace RepGame.UI.Chess
         private void BackToLobby()
         {
             gameOver.Hide();
+            opponentBoard.Hide();
             omenPopup.Reset();
             UIFx.Out(canvas.gameObject, UIFx.Style.Fade, null, 0.3f);
             ChessSession.Instance.Clear();

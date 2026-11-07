@@ -15,9 +15,10 @@ namespace RepGame.UI.Chess
     /// </summary>
     public sealed class OmenBarView
     {
-        private const float Right = 1888, Y = 80, ChipW = 150, ChipH = 40, Gap = 8, PanelW = 340, PanelH = 170;
+        private const float Right = 1888, Y = 100, ChipW = 150, ChipH = 40, Gap = 8, PanelW = 340, PanelH = 170;
         private const float RootX = 1300, RootW = Right - RootX, RootH = 52 + PanelH;
         private readonly RectTransform root;
+        private readonly RectTransform detail; // 展开的说明面板与点击收起的遮罩：L2 详情，挂在 popupLayer
         private string signature = "";
         private string expanded;      // 当前展开的天象 key
         private string held;          // 揭晓动画飞入前先隐藏的天象 key
@@ -25,10 +26,12 @@ namespace RepGame.UI.Chess
         private readonly Dictionary<string, GameObject> chips = new Dictionary<string, GameObject>();
         private readonly HashSet<string> shown = new HashSet<string>();
 
-        public OmenBarView(RectTransform parent, TooltipLayer tooltip)
+        public OmenBarView(RectTransform parent, RectTransform popupLayer, TooltipLayer tooltip)
         {
             root = UIKit.Rect(parent, "Omens");
             UIKit.Place(root, RootX, Y, RootW, RootH);
+            detail = UIKit.Rect(popupLayer, "OmenDetail");
+            UIKit.Place(detail, RootX, Y, RootW, RootH);
         }
 
         /// <summary>第 index 个天象块中心（设计稿坐标，左上原点），供揭晓动画落点使用。</summary>
@@ -82,13 +85,14 @@ namespace RepGame.UI.Chess
             }
 
             UIKit.Clear(root);
+            UIKit.Clear(detail);
             chips.Clear();
             var now = new HashSet<string>();
 
-            // 点击空白处收起：展开时铺一层全屏透明按钮（在块和面板之下）
+            // 点击空白处收起：展开时在弹出层铺一层全屏透明按钮（在面板之下）
             if (expanded != null)
             {
-                var catcher = UIKit.Image(root, "Catcher", Theme.Clear, raycast: true);
+                var catcher = UIKit.Image(detail, "Catcher", Theme.Clear, raycast: true);
                 UIKit.Place(catcher.rectTransform, -RootX, -Y, 1920, 1080);
                 var cb = catcher.gameObject.AddComponent<Button>();
                 cb.transition = Selectable.Transition.None;
@@ -130,7 +134,7 @@ namespace RepGame.UI.Chess
 
                 if (expanded == key)
                 {
-                    var panel = UIKit.Panel(root, "OmenInfo", Theme.Paper, Theme.Gold, 3f);
+                    var panel = UIKit.Panel(detail, "OmenInfo", Theme.Paper, Theme.Gold, 3f);
                     panel.raycastTarget = true;
                     float px = Mathf.Max(0, chipX + ChipW - PanelW);
                     UIKit.Place(panel.rectTransform, px, ChipH + 8, PanelW, PanelH);

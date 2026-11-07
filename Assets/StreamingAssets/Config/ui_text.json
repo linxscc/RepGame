@@ -56,6 +56,18 @@
     { "key": "chess.omen.forced", "text": "天定", "comment": "双方都不掷时由天定" },
     { "key": "chess.omen.noRoll", "text": "不掷", "comment": "没有掷骰的一方" },
     { "key": "chess.omen.shifted", "text": "与生效中的天象相同，顺延", "comment": "天象重复顺延提示" },
-    { "key": "chess.omen.left", "text": "剩 {0} 回合", "comment": "天象剩余回合，{0}=回合数" }
+    { "key": "chess.omen.left", "text": "剩 {0} 回合", "comment": "天象剩余回合，{0}=回合数" },
+    { "key": "chess.hud.xp", "text": "经验", "comment": "自己血条下经验条的悬停标题" },
+    { "key": "chess.hud.level", "text": "{0} 级", "comment": "HUD 等级，{0}=等级" },
+    { "key": "chess.hud.xpValue", "text": "{0} / {1}", "comment": "经验悬停提示，{0}=当前经验，{1}=升级所需" },
+    { "key": "chess.hud.maxLevel", "text": "已满级", "comment": "经验条悬停：已满级" },
+    { "key": "chess.opponent.hand", "text": "手牌 {0}", "comment": "对手面板：手牌数，{0}=张数" },
+    { "key": "chess.score.title", "text": "预计得分", "comment": "分数悬停提示标题" },
+    { "key": "chess.score.formula", "text": "战力 {0} × 气势 {1}", "comment": "分数悬停提示，{0}=战力，{1}=气势" },
+    { "key": "chess.shop.mergeable", "text": "可合成", "comment": "商店卡牌：购买后将合成升星" },
+    { "key": "chess.shop.sellHint", "text": "拖到此处出售", "comment": "商店抽屉提示" },
+    { "key": "chess.bond.more", "text": "其余羁绊", "comment": "羁绊栏放不下时的「+N」提示标题" },
+    { "key": "lobby.quit.confirm", "text": "确定退出游戏吗？", "comment": "大厅退出二次确认" },
+    { "key": "lobby.quit", "text": "退出", "comment": "大厅退出确认按钮" }
   ]
 }

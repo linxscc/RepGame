@@ -21,7 +21,7 @@ namespace RepGame.UI.Chess
         private string shownKey; // 避免同一次选择被重复重建
 
         // 可收起的选择（宝库三选一）：点空白处收到右上角的小标签，点标签再展开
-        private const float ChipW = 200, ChipH = 44, ChipRight = 1888, ChipY = 132, CollapseSeconds = 0.28f;
+        private const float ChipW = 200, ChipH = 44, ChipRight = 1888, ChipY = 152, CollapseSeconds = 0.28f;
         private RectTransform content, chip;
         private Image catcher;
         private bool collapsed;

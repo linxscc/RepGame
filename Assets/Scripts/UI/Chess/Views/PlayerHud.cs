@@ -18,7 +18,9 @@ namespace RepGame.UI.Chess
 
         public RectTransform Avatar { get; }
 
-        public PlayerHud(RectTransform parent, float x, float y, bool self)
+        private readonly CanvasGroup avatarGroup;
+
+        public PlayerHud(RectTransform parent, float x, float y, bool self, TooltipLayer tooltip = null)
         {
             var skin = ChessUISkin.Instance;
             var avatar = UIKit.Circle(parent, self ? "SelfAvatar" : "EnemyAvatar", self ? Theme.Paper : Theme.Ink, Theme.Ink);
@@ -35,6 +37,7 @@ namespace RepGame.UI.Chess
             }
             avatar.raycastTarget = true;
             Avatar = avatar.rectTransform;
+            avatarGroup = avatar.gameObject.AddComponent<CanvasGroup>();
 
             var block = UIKit.Rect(parent, self ? "SelfHp" : "EnemyHp");
             UIKit.Place(block, x + 78, y + 4, 240, 56);
@@ -56,17 +59,27 @@ namespace RepGame.UI.Chess
                 xpFill.rectTransform.anchorMax = new Vector2(0, 1);
                 xpFill.rectTransform.pivot = new Vector2(0, 0.5f);
                 xpFill.rectTransform.offsetMin = xpFill.rectTransform.offsetMax = Vector2.zero;
+                // 经验数值下沉为悬停提示（经验条只有 6px，悬停区域放大到 16px）
+                var hit = UIKit.Image(block, "XpHit", Theme.Clear, raycast: true);
+                UIKit.Place(hit.rectTransform, 0, 39, 240, 16);
+                if (tooltip != null)
+                {
+                    UIKit.Hover(hit.gameObject, () => tooltip.Show(this, x + 78, y - 96, 220, Fmt.T("chess.hud.xp", "经验"), null, xpTip), () => tooltip.Hide(this));
+                }
             }
         }
 
+        private string xpTip = "";
         private float shownHp = -1;
         private int targetHp;
         private int max = 100;
         private bool frozen;
 
-        public void Set(int hp, int maxHp, string info, float xp01 = -1)
+        public void Set(int hp, int maxHp, string info, float xp01 = -1, string xpDetail = null, bool online = true)
         {
             infoText.text = info;
+            if (xpDetail != null) xpTip = xpDetail;
+            avatarGroup.alpha = online ? 1f : 0.4f;
             max = maxHp;
             targetHp = hp;
             if (xpFill != null) xpFill.rectTransform.anchorMax = new Vector2(Mathf.Clamp01(xp01 < 0 ? 1 : xp01), 1);

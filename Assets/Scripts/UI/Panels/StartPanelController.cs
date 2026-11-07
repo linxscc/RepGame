@@ -96,9 +96,40 @@ namespace RepGame.UI
 
         private void OnExitGameClicked()
         {
-            // 退出游戏
-            Debug.Log("退出游戏...");
-            Application.Quit();
+            // 退出不可撤销：先二次确认
+            EnsureQuitConfirm();
+            quitConfirm.Show(Fmt.T("lobby.quit.confirm", "确定退出游戏吗？"), Fmt.T("lobby.quit", "退出"), () =>
+            {
+                Debug.Log("退出游戏...");
+                Application.Quit();
+            });
+        }
+
+        private ConfirmPopup quitConfirm;
+        private GameObject quitCanvas;
+
+        /// <summary>大厅没有现成的确认框：用局内的 ConfirmPopup 挂在一个独立的覆盖层画布上。</summary>
+        private void EnsureQuitConfirm()
+        {
+            if (quitConfirm != null && quitCanvas != null) return;
+            quitCanvas = new GameObject("QuitConfirmCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            var canvas = quitCanvas.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 200;
+            var scaler = quitCanvas.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
+            scaler.matchWidthOrHeight = 0.5f;
+            var stage = UIKit.Rect(quitCanvas.transform, "Stage");
+            stage.anchorMin = stage.anchorMax = new Vector2(0.5f, 0.5f);
+            stage.pivot = new Vector2(0.5f, 0.5f);
+            stage.sizeDelta = new Vector2(1920, 1080);
+            quitConfirm = new ConfirmPopup(stage);
+        }
+
+        private void OnDestroy()
+        {
+            if (quitCanvas != null) Destroy(quitCanvas);
         }
     }
 }
