@@ -39,6 +39,24 @@ namespace RepGame.UI.Chess
 
         public bool Revealing { get; private set; }
 
+        /// <summary>强制停止：打断揭晓动画并立即隐藏全部弹窗（认输、对局结束、重连时使用）。</summary>
+        public void Stop()
+        {
+            if (seq != null) { var q = seq; seq = null; if (q.IsActive()) q.Kill(); }
+            Revealing = false;
+            UIFx.HideNow(choiceRoot.gameObject);
+            UIFx.HideNow(revealRoot.gameObject);
+            choiceKey = null;
+        }
+
+        /// <summary>新对局 / 对局结束：清掉按局记录的状态。</summary>
+        public void Reset()
+        {
+            Stop();
+            pickedRound = revealedRound = -1;
+            pickedRoll = false;
+        }
+
         // ---------- 选择 ----------
 
         public void ShowChoice(MatchState st)
@@ -162,7 +180,7 @@ namespace RepGame.UI.Chess
             var s = ChessSession.Instance;
             var info = s.Omen(roll.OmenKey);
             var st = s.State;
-            int index = 0;
+            int index = -1;
             if (st != null)
             {
                 for (int i = 0; i < st.Omens.Count; i++) if (st.Omens[i].Key == roll.OmenKey) index = i;
@@ -207,18 +225,23 @@ namespace RepGame.UI.Chess
 
             // 停留后：名字缩小飞入天象栏，其余淡出（总长不超过 4.5 秒）
             float flyAt = nameAt + 0.3f + 1.6f;
-            var slot = bar.SlotCenter(index);
-            q.Insert(flyAt, nameRt.DOAnchorPos(new Vector2(slot.x, -slot.y), FlySeconds).SetEase(Ease.InCubic));
-            q.Insert(flyAt, nameRt.DOScale(0.3f, FlySeconds).SetEase(Ease.InCubic));
+            if (index >= 0)
+            {
+                var slot = bar.SlotCenter(index);
+                q.Insert(flyAt, nameRt.DOAnchorPos(new Vector2(slot.x, -slot.y), FlySeconds).SetEase(Ease.InCubic));
+                q.Insert(flyAt, nameRt.DOScale(0.3f, FlySeconds).SetEase(Ease.InCubic));
+            }
             q.Insert(flyAt, bodyGroup.DOFade(0, FlySeconds * 0.7f));
             q.Insert(flyAt, mask.DOFade(0, FlySeconds));
             q.Insert(flyAt + FlySeconds * 0.8f, name.DOFade(0, FlySeconds * 0.2f));
 
             seq = q;
+            q.SetLink(revealRoot.gameObject);
             q.OnComplete(() =>
             {
                 if (seq == q) seq = null;
-                UIFx.Out(revealRoot.gameObject, UIFx.Style.Fade, () => Revealing = false, 0.2f);
+                Revealing = false;
+                UIFx.Out(revealRoot.gameObject, UIFx.Style.Fade, null, 0.2f);
             });
             UIFx.In(revealRoot.gameObject, UIFx.Style.Fade, 0.2f);
         }

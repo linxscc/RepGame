@@ -168,7 +168,7 @@ namespace RepGame.UI.Chess
             gameOver.Hide();
             cutscene.Stop();
             picker.Hide();
-            omenPopup.Hide();
+            omenPopup.Reset();
             if (UIPanelController.Instance != null) UIPanelController.Instance.HideAllPanels();
             UIFx.In(canvas.gameObject, UIFx.Style.Fade, 0.4f);
 
@@ -253,6 +253,7 @@ namespace RepGame.UI.Chess
             if (!UIFx.IsShown(canvas.gameObject) || ChessSession.Instance.Over != null) return;
             resuming = true;
             configSinceReconnect = false;
+            omenPopup.Stop();
             if (loading != null) StopCoroutine(loading);
             loading = null;
             loader.Begin("连接断开，正在重连");
@@ -333,7 +334,7 @@ namespace RepGame.UI.Chess
             confirm.Hide();
             UIFx.Out(surrenderButton.gameObject);
             picker.Hide();
-            omenPopup.Hide();
+            omenPopup.Reset();
             shop.SetOpen(false);
             gameOver.Show(over);
         }
@@ -360,6 +361,7 @@ namespace RepGame.UI.Chess
         private void BackToLobby()
         {
             gameOver.Hide();
+            omenPopup.Reset();
             UIFx.Out(canvas.gameObject, UIFx.Style.Fade, null, 0.3f);
             ChessSession.Instance.Clear();
             if (UIPanelController.Instance != null) UIPanelController.Instance.ShowPanel(LobbyPanel, true);
