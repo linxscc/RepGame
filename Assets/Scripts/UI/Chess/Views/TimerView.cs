@@ -39,6 +39,7 @@ namespace RepGame.UI.Chess
             {
                 MatchPhase.Family => Fmt.T("chess.phase.family", "选择家世"),
                 MatchPhase.Vault => Fmt.T("chess.phase.vault", "第 {0} 回合 · 宝库", st.Round),
+                MatchPhase.Omen => Fmt.T("chess.phase.omen", "第 {0} 回合 · 天象", st.Round),
                 MatchPhase.Settle => Fmt.T("chess.phase.settle", "第 {0} 回合 · 结算", st.Round),
                 _ => Fmt.T("chess.phase.prep", "第 {0} 回合 · 阶段伤害 {1}", st.Round, st.StageDamage),
             };

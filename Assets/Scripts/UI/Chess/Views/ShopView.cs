@@ -144,7 +144,7 @@ namespace RepGame.UI.Chess
             if (!prep) SetOpen(false);
 
             drawerInfo.text = $"{self.Level} 级 · 拖卡或法宝到这里出售";
-            refreshLabel.text = self.FreeRefreshes > 0 ? $"刷新 · 免费 ×{self.FreeRefreshes}" : $"刷新 · {cfg?.RefreshCost ?? 2} 金";
+            refreshLabel.text = self.FreeRefreshes > 0 ? $"刷新 · 免费 ×{self.FreeRefreshes}" : $"刷新 · {(self.RefreshCost > 0 ? self.RefreshCost : cfg?.RefreshCost ?? 2)} 金";
             xpLabel.text = self.XpToNext == 0 ? "已满级" : $"经验 · {cfg?.XpCost ?? 4} 金";
             lockLabel.text = self.ShopLocked ? "已锁定" : "锁定";
 

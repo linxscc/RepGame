@@ -51,7 +51,7 @@ namespace RepGame.UI.Chess
                 var icon = UIKit.Circle(root, "Bond_" + bc.Key, fillC, ring, 2.5f);
                 UIKit.Place(icon.rectTransform, 0, y, 50, 50);
                 UIKit.Text(icon.transform, "Char", info.Name.Substring(0, 1), 21, Theme.Ink, bold: true);
-                var next = info.Tiers.Count > 0 ? info.Tiers[Mathf.Min(bc.Tier + 1, info.Tiers.Count - 1)].At : 0;
+                var next = info.Tiers.Count > 0 ? info.Tiers[Mathf.Min(bc.Tier + 1, info.Tiers.Count - 1)].At + bc.AtDelta : 0;
                 var count = UIKit.Text(root, "Count", $"{bc.Count}/{next}", 15, Theme.Ink, TextAlignmentOptions.Left, true);
                 UIKit.Place(count.rectTransform, 58, y + 13, 60, 24);
                 if (!on)
@@ -74,12 +74,12 @@ namespace RepGame.UI.Chess
             for (int i = 0; i < info.Tiers.Count; i++)
             {
                 var t = info.Tiers[i];
-                var line = $"{t.At} 个系：{t.Desc}";
+                var line = $"{t.At + bc.AtDelta} 个系：{t.Desc}";
                 sb.AppendLine(i == bc.Tier ? $"<b><color=#2F7A72>{line}</color></b>" : $"<color=#5A6A68>{line}</color>");
             }
             var names = string.Join("、", info.LineKeys.Select(k => s.Line(k)?.Name ?? k));
             var bonus = s.Config != null && s.Config.BondTierMult > 0 ? $"\n<color=#5A6A68>每个生效档位另 +{Fmt.Num(s.Config.BondTierMult)} 气势</color>" : "";
-            tooltip.Show(info, 130, y - 12, 300, info.Name, $"{info.Desc} · 包含：{names} · 当前 {bc.Count} 个系", sb.ToString().TrimEnd() + bonus);
+            tooltip.Show(info, 130, y - 12, 300, info.Name, $"{info.Desc} · 包含：{names} · 当前 {bc.Count} 个系" + (bc.AtDelta > 0 ? $" · 失和：门槛 +{bc.AtDelta}" : ""), sb.ToString().TrimEnd() + bonus);
         }
     }
 }

@@ -58,6 +58,9 @@ namespace RepGame.Logic
 
         public static void Surrender() => Send(new GameAction { Surrender = new Surrender() });
 
+        /// <summary>天象阶段：roll=true 掷骰，false 放弃掷骰（由服务器代掷）。</summary>
+        public static void RollOmen(bool roll) => Send(new GameAction { RollOmen = new RollOmen { Roll = roll } });
+
         /// <summary>结算过场（含扣血动画）播放完毕，服务器据此提前进入下一阶段。</summary>
         public static void SettleDone() => Send(new GameAction { SettleDone = new SettleDone() });
     }

@@ -29,6 +29,7 @@ namespace RepGame.UI.Chess
         private PlayerHud enemyHud, selfHud;
         private TimerView timer;
         private BondBarView bonds;
+        private OmenBarView omenBar;
         private BoardBenchView board;
         private RelicBarView relics;
         private ScoreDockView scoreDock;
@@ -128,6 +129,7 @@ namespace RepGame.UI.Chess
             selfHud = new PlayerHud(baseLayer, 32, 1080 - 32 - 64, true);
             timer = new TimerView(baseLayer);
             bonds = new BondBarView(baseLayer, tooltip);
+            omenBar = new OmenBarView(baseLayer, tooltip);
             board = new BoardBenchView(baseLayer, drag, tooltip);
             relics = new RelicBarView(baseLayer, drag, tooltip);
             scoreDock = new ScoreDockView(baseLayer);
@@ -218,6 +220,8 @@ namespace RepGame.UI.Chess
             foreach (var b in config.Trades) text.Append(b.Name).Append(b.Desc);
             foreach (var b in config.Origins) text.Append(b.Name).Append(b.Desc);
             foreach (var f in config.Families) text.Append(f.Name).Append(f.Desc);
+            foreach (var o in config.Omens) text.Append(o.Name).Append(o.Aspect).Append(o.Desc);
+            text.Append("剩回合失和门槛天象");
             loader.SetProgress(0.75f, "准备文字");
             yield return null;
             var font = skin.UIFont;
@@ -290,6 +294,7 @@ namespace RepGame.UI.Chess
             UIFx.Toggle(surrenderButton.gameObject, st.Phase != MatchPhase.Over);
             timer.Tick(st);
             bonds.Render(st);
+            omenBar.Render(st);
             board.Render(st);
             relics.Render(st);
             shop.Render(st);
@@ -306,6 +311,7 @@ namespace RepGame.UI.Chess
                 case MatchPhase.Prep:
                     picker.Hide();
                     break;
+                case MatchPhase.Omen:
                 case MatchPhase.Settle:
                     picker.Hide();
                     break;

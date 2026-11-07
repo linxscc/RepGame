@@ -67,7 +67,7 @@ namespace RepGame.UI.Chess
                 UIKit.Place(rt, i * (BoardW + BoardGap), 0, BoardW, BoardH);
             }
 
-            var benchSlots = ChessSession.Instance.Config?.BenchSize ?? 8;
+            var benchSlots = self.BenchSize > 0 ? self.BenchSize : ChessSession.Instance.Config?.BenchSize ?? 8;
             benchSlots = Mathf.Max(benchSlots, self.Bench.Count);
             float nw = benchSlots * BenchW + (benchSlots - 1) * BenchGap;
             UIKit.Place(benchRoot, 960 - nw / 2, BenchY, nw, BenchH);

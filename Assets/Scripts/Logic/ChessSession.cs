@@ -32,6 +32,7 @@ namespace RepGame.Logic
         private readonly Dictionary<string, LineInfo> lines = new Dictionary<string, LineInfo>();
         private readonly Dictionary<string, RelicInfo> relics = new Dictionary<string, RelicInfo>();
         private readonly Dictionary<string, BondInfo> bonds = new Dictionary<string, BondInfo>();
+        private readonly Dictionary<string, OmenInfo> omens = new Dictionary<string, OmenInfo>();
 
         public bool InMatch => Config != null && State != null && Over == null;
 
@@ -53,10 +54,12 @@ namespace RepGame.Logic
             lines.Clear();
             relics.Clear();
             bonds.Clear();
+            omens.Clear();
             foreach (var l in config.Lines) lines[l.Key] = l;
             foreach (var r in config.Relics) relics[r.Key] = r;
             foreach (var b in config.Trades) bonds[b.Key] = b;
             foreach (var b in config.Origins) bonds[b.Key] = b;
+            foreach (var o in config.Omens) omens[o.Key] = o;
             ConfigReceived?.Invoke(config);
         }
 
@@ -95,12 +98,14 @@ namespace RepGame.Logic
             State = null;
             LastRound = null;
             Over = null;
+            omens.Clear();
         }
 
         // ---------- 查询（只读静态数据） ----------
 
         public LineInfo Line(string key) => key != null && lines.TryGetValue(key, out var l) ? l : null;
         public RelicInfo Relic(string key) => key != null && relics.TryGetValue(key, out var r) ? r : null;
+        public OmenInfo Omen(string key) => key != null && omens.TryGetValue(key, out var o) ? o : null;
         public BondInfo Bond(string key) => key != null && bonds.TryGetValue(key, out var b) ? b : null;
 
         public RarityInfo Rarity(int index) =>
