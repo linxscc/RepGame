@@ -37,7 +37,8 @@
 | `REPGAME_CLIENT_ENV_FILE` | （可选）Mac mini 上一份 `.env` 的完整路径，设置后优先使用 |
    | `UNITY_PATH` | （可选）Unity 可执行文件路径 |
 
-7. Mac mini 上安装 Git LFS：`brew install git-lfs && git lfs install`。
+7. **签名用的钥匙串**：runner 以后台服务运行时，登录钥匙串可能是锁着的，签名会报 `errSecInternalComponent`。在仓库 Settings → Secrets and variables → Actions → **Secrets** 新建 `MAC_KEYCHAIN_PASSWORD`，值为 Mac mini 登录密码（加密保存，日志里不会显示），流水线签名前会自动解锁。
+8. Mac mini 上安装 Git LFS：`brew install git-lfs && git lfs install`。
 
 ## 免费 Apple ID 的限制
 

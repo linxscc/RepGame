@@ -56,6 +56,16 @@ if ! xcodebuild -version >/dev/null 2>&1; then
   echo "使用 $DEVELOPER_DIR"
 fi
 xcodebuild -version
+
+# runner 作为后台服务运行时登录钥匙串可能是锁着的，codesign 会报 errSecInternalComponent：
+# 提供了 KEYCHAIN_PASSWORD（仓库 Secret MAC_KEYCHAIN_PASSWORD，即 Mac 登录密码）时先解锁并允许 codesign 使用私钥
+LOGIN_KEYCHAIN="$HOME/Library/Keychains/login.keychain-db"
+if [ -n "${KEYCHAIN_PASSWORD:-}" ]; then
+  security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$LOGIN_KEYCHAIN"
+  security set-keychain-settings -lut 7200 "$LOGIN_KEYCHAIN"
+  security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$LOGIN_KEYCHAIN" >/dev/null
+  echo "已解锁登录钥匙串"
+fi
 xcodebuild \
   -project "$BUILD_OUTPUT/Unity-iPhone.xcodeproj" \
   -scheme Unity-iPhone \

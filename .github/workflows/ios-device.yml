@@ -31,6 +31,7 @@ jobs:
       SERVER_PORT: ${{ vars.SERVER_PORT }}
       SERVER_CERT_SHA256: ${{ vars.SERVER_CERT_SHA256 }}
       BUILD_NUMBER: ${{ github.run_number }}
+      KEYCHAIN_PASSWORD: ${{ secrets.MAC_KEYCHAIN_PASSWORD }}   # Mac 登录密码，用于解锁钥匙串签名
 
     steps:
       - name: Check out (keep Library cache)
