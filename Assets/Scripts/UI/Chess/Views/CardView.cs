@@ -12,13 +12,12 @@ namespace RepGame.UI.Chess
     /// </summary>
     public static class CardView
     {
-        /// <param name="cost">商店价格；大于 0 时在左上角显示金币价格。</param>
-        public static RectTransform Build(Transform parent, ChessCard card, float w, float h, bool showPoints = true, int cost = 0)
+        public static RectTransform Build(Transform parent, ChessCard card, float w, float h, bool showPoints = true)
         {
             var skin = ChessUISkin.Instance;
             var line = ChessSession.Instance.Line(card.LineKey);
             // 卡框颜色 = 费用档（一眼区分 1/2/3 费）；星级看卡名字色（底色统一宣纸色，便于辨认卡图）
-            var tier = Theme.CostColor(line?.Cost ?? cost);
+            var tier = Theme.CostColor(line?.Cost ?? 1);
             var frame = UIKit.Panel(parent, "Card_" + card.Name, Theme.Paper, tier, 4f);
             frame.raycastTarget = true;
             var rt = frame.rectTransform;
@@ -47,19 +46,7 @@ namespace RepGame.UI.Chess
                 UIKit.Text(artImg.transform, "Placeholder", card.Name, Mathf.Max(13, w * 0.14f), Theme.InkSoft);
             }
 
-            // 左上角：商店价格（金币）
-            if (cost > 0)
-            {
-                var coin = UIKit.Circle(frame.transform, "Cost", Theme.GoldPaper, Theme.Gold, 2f);
-                var ct = coin.rectTransform;
-                ct.anchorMin = ct.anchorMax = new Vector2(0, 1);
-                ct.pivot = new Vector2(0, 1);
-                ct.sizeDelta = new Vector2(w * 0.24f, w * 0.24f);
-                ct.anchoredPosition = new Vector2(5, -5);
-                UIKit.Text(coin.transform, "Gold", cost.ToString(), w * 0.13f, tier, TextAlignmentOptions.Center, true);
-            }
-
-            // 右上角：本卡的两个羁绊（行当、出身），竖排小标签。星级不在卡面显示，靠卡面底色区分
+            // 右上角：本卡的两个羁绊（行当、出身），竖排小标签。星级看卡名字色
             if (line != null)
             {
                 float tagW = Mathf.Max(16, w * 0.17f), tagH = Mathf.Max(30, w * 0.34f), y = 6f;

@@ -165,19 +165,25 @@ namespace RepGame.UI.Chess
                 {
                     var line = ChessSession.Instance.Line(slot.LineKey);
                     var preview = new ChessCard { Name = line.StarNames[0], LineKey = slot.LineKey, Star = 1, Points = line.Points, SellPrice = slot.Cost, Color = slot.Color };
-                    rt = CardView.Build(cardsRow, preview, CardW, CardH, true, slot.Cost); // 价格在卡面左上角
+                    rt = CardView.Build(cardsRow, preview, CardW, CardH);
+                    // 卡牌下方：金币 + 价格（左），已拥有 / 可合成（右）
+                    var coin = UIKit.Circle(cardsRow, "Coin", Theme.GoldPaper, Theme.Gold, 2f);
+                    UIKit.Place(coin.rectTransform, x + 6, CardH + 5, 24, 24);
+                    UIKit.Text(coin.transform, "G", "金", 12, Theme.GoldText, TextAlignmentOptions.Center, true);
+                    var price = UIKit.Text(cardsRow, "Price", slot.Cost.ToString(), 20, Theme.GoldText, TextAlignmentOptions.Left, true);
+                    UIKit.Place(price.rectTransform, x + 36, CardH + 3, 50, 28);
                     // 已有 2 张同系 1★：买下会合成 → 金色高亮「可合成」；否则手里有这张卡（任意星级）→「已拥有」
                     if (slot.Owned >= 2)
                     {
                         var tag = UIKit.Panel(cardsRow, "Mergeable", Theme.GoldPaper, Theme.Gold, 2f);
-                        UIKit.Place(tag.rectTransform, x + CardW / 2 - 50, CardH + 4, 100, 26);
+                        UIKit.Place(tag.rectTransform, x + CardW - 100, CardH + 4, 100, 26);
                         var mt = UIKit.Text(tag.transform, "Text", Fmt.T("chess.shop.mergeable", "可合成"), 16, Theme.GoldText, TextAlignmentOptions.Center, true);
                         mt.gameObject.AddComponent<ShimmerText>();
                     }
                     else if (self.Board.Any(c => c.LineKey == slot.LineKey) || self.Bench.Any(c => c.LineKey == slot.LineKey))
                     {
-                        var own = UIKit.Text(cardsRow, "Owned", Fmt.T("chess.shop.owned", "已拥有"), 15, Theme.InkSoft, TextAlignmentOptions.Center);
-                        UIKit.Place(own.rectTransform, x, CardH + 4, CardW, 24);
+                        var own = UIKit.Text(cardsRow, "Owned", Fmt.T("chess.shop.owned", "已拥有"), 15, Theme.InkSoft, TextAlignmentOptions.Right);
+                        UIKit.Place(own.rectTransform, x + CardW - 110, CardH + 4, 104, 26);
                     }
                     var btn = rt.gameObject.AddComponent<Button>();
                     btn.targetGraphic = rt.GetComponent<Image>();
