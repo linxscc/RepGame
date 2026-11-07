@@ -372,7 +372,8 @@ namespace RepGame.Chess.UI
                     var s = steps[i];
                     int j = i;
                     double add = 0, times = 1;
-                    while (j < steps.Count && steps[j].Source == s.Source && steps[j].Kind == s.Kind && steps[j].CardUid == s.CardUid)
+                    while (j < steps.Count && steps[j].Source == s.Source && steps[j].Kind == s.Kind && steps[j].CardUid == s.CardUid
+                        && steps[j].Trigger == s.Trigger)
                     {
                         if (steps[j].Kind == ScoreStepKind.TimesMult) times *= steps[j].Value; else add += steps[j].Value;
                         j++;
@@ -380,6 +381,8 @@ namespace RepGame.Chess.UI
                     var last = steps[j - 1];
                     var change = s.Kind == ScoreStepKind.Points ? $"战力 +{Fmt.Num(add)}"
                         : s.Kind == ScoreStepKind.AddMult ? $"气势 +{Fmt.Num(add)}" : $"气势 ×{Fmt.Num(times)}";
+                    // 重复触发时标出是第几次，让玩家看懂为什么同一来源又结算了一遍
+                    if (s.Triggers > 1) change += $"（触发 {s.Trigger}/{s.Triggers}）";
                     Events.Add(new Event
                     {
                         CardUid = s.CardUid, Label = $"{s.Source} {change}", Source = s.Source, Change = change, Phase = s.Phase,
