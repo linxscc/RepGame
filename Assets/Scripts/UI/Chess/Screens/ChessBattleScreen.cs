@@ -35,6 +35,7 @@ namespace RepGame.UI.Chess
         private ScoreDockView scoreDock;
         private ShopView shop;
         private PickPopup picker;
+        private OmenDicePopup omenPopup;
         private BattleCutscene cutscene;
         private GameOverPopup gameOver;
         private OpponentPopover opponentBoard;
@@ -135,6 +136,7 @@ namespace RepGame.UI.Chess
             scoreDock = new ScoreDockView(baseLayer);
 
             picker = new PickPopup(popupLayer, tooltip);
+            omenPopup = new OmenDicePopup(popupLayer, omenBar);
             shop = new ShopView(baseLayer, popupLayer, drag, tooltip);
             cutscene = new BattleCutscene(popupLayer, fxLayer, selfHud, enemyHud);
             opponentBoard = new OpponentPopover(popupLayer);
@@ -166,6 +168,7 @@ namespace RepGame.UI.Chess
             gameOver.Hide();
             cutscene.Stop();
             picker.Hide();
+            omenPopup.Hide();
             if (UIPanelController.Instance != null) UIPanelController.Instance.HideAllPanels();
             UIFx.In(canvas.gameObject, UIFx.Style.Fade, 0.4f);
 
@@ -182,6 +185,10 @@ namespace RepGame.UI.Chess
         {
             if (!UIFx.IsShown(canvas.gameObject)) OnConfig(ChessSession.Instance.Config);
             Render(st);
+            // 天象阶段 → 准备阶段且本回合天象已揭晓：播一次揭晓动画（断线重连直接进入准备阶段时不播）
+            if (previous != null && previous.Phase == MatchPhase.Omen && st.Phase == MatchPhase.Prep
+                && st.OmenRoll != null && st.OmenRoll.Round == st.Round)
+                omenPopup.Reveal(st.OmenRoll);
             stateReady = true;
         }
 
@@ -308,12 +315,13 @@ namespace RepGame.UI.Chess
                 case MatchPhase.Vault:
                     picker.ShowVault(st);
                     break;
-                case MatchPhase.Prep:
-                    picker.Hide();
-                    break;
                 case MatchPhase.Omen:
-                case MatchPhase.Settle:
                     picker.Hide();
+                    omenPopup.ShowChoice(st);
+                    break;
+                default:
+                    picker.Hide();
+                    omenPopup.Hide();
                     break;
             }
         }
@@ -325,6 +333,7 @@ namespace RepGame.UI.Chess
             confirm.Hide();
             UIFx.Out(surrenderButton.gameObject);
             picker.Hide();
+            omenPopup.Hide();
             shop.SetOpen(false);
             gameOver.Show(over);
         }
