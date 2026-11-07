@@ -28,10 +28,7 @@ namespace RepGame.UI.Chess
             var canvas = root.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 90; // 在对局界面（50）和匹配浮条（60）之上
-            var scaler = root.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920, 1080);
-            scaler.matchWidthOrHeight = 0.5f;
+            StageFit.SetupScaler(root.GetComponent<CanvasScaler>());
             group = root.AddComponent<CanvasGroup>();
 
             var skin = ChessUISkin.Instance;
@@ -43,10 +40,7 @@ namespace RepGame.UI.Chess
                 UIKit.Fill(mist.rectTransform, -200);
             }
 
-            var stage = UIKit.Rect(root.transform, "Stage");
-            stage.anchorMin = stage.anchorMax = new Vector2(0.5f, 0.5f);
-            stage.pivot = new Vector2(0.5f, 0.5f);
-            stage.sizeDelta = new Vector2(1920, 1080);
+            var stage = StageFit.Create(root.transform); // 背景和云雾直接铺满画布，内容在安全区内的 Stage 里
 
             title = UIKit.Text(stage, "Title", "", 40, Theme.Ink, TextAlignmentOptions.Center, true);
             UIKit.PlaceCenter(title.rectTransform, 960, 470, 900, 56);

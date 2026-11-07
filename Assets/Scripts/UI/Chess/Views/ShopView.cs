@@ -59,7 +59,7 @@ namespace RepGame.UI.Chess
 
             // 抽屉（第二层）
             var dimImg = UIKit.Image(popupLayer, "ShopDim", Theme.Dim, raycast: true);
-            UIKit.Fill(dimImg.rectTransform);
+            UIKit.FillScreen(dimImg.rectTransform);
             dimImg.gameObject.AddComponent<Button>().onClick.AddListener(() => SetOpen(false));
             dim = dimImg.rectTransform;
 
@@ -67,6 +67,11 @@ namespace RepGame.UI.Chess
             panel.raycastTarget = true;
             drawer = panel.rectTransform;
             UIKit.Place(drawer, DrawerX, -Pad, DrawerW, DrawerH + Pad);
+            // 平板、折叠屏上 Stage 上方还有一条背景：抽屉向上延伸盖住它，看起来仍是从屏幕顶端落下
+            var bleed = UIKit.Panel(drawer, "TopBleed", Theme.Paper, Theme.Ink, 2.5f);
+            UIKit.Place(bleed.rectTransform, 0, -BleedH, DrawerW, BleedH + Pad + 40);
+            bleed.raycastTarget = true; // 点在延伸部分不算点空白
+            bleed.rectTransform.SetAsFirstSibling();
             drag.AddZone(drawer, p => p.CardUid != null || p.RelicSlot >= 0, (p, _) => Sell(p), () => open && state?.Phase == MatchPhase.Prep);
 
             var title = UIKit.Text(drawer, "Title", Fmt.T("chess.shop.title", "商店"), 26, Theme.Ink, TextAlignmentOptions.TopLeft, true);
@@ -106,7 +111,22 @@ namespace RepGame.UI.Chess
         /// <summary>抽屉打开时刷新按钮（主按钮是抽屉里的刷新）收起，避免两个红色主按钮竞争。</summary>
         private void UpdateReady() => UIFx.Toggle(readyButton.gameObject, state != null && state.Phase == MatchPhase.Prep && !open);
 
-        private const float Hidden = DrawerH + Pad + 20; // 收起时整个抽屉在屏幕上沿之外
+        private const float BleedH = 600;
+        private static readonly Vector3[] corners = new Vector3[4];
+
+        /// <summary>收起时整个抽屉在屏幕（不只是 Stage）上沿之外。</summary>
+        private float Hidden()
+        {
+            float band = 0;
+            var parent = drawer.parent as RectTransform;
+            var canvas = drawer.GetComponentInParent<Canvas>(true);
+            if (parent != null && canvas != null)
+            {
+                ((RectTransform)canvas.rootCanvas.transform).GetWorldCorners(corners);
+                band = Mathf.Max(0, parent.InverseTransformPoint(corners[1]).y - parent.rect.yMax);
+            }
+            return DrawerH + Pad + 20 + band;
+        }
 
         public void SetOpen(bool value)
         {
@@ -120,13 +140,13 @@ namespace RepGame.UI.Chess
             {
                 UIFx.In(dim.gameObject, UIFx.Style.Fade);
                 drawer.gameObject.SetActive(true);
-                drawer.anchoredPosition = new Vector2(DrawerX, Hidden);
+                drawer.anchoredPosition = new Vector2(DrawerX, Hidden());
                 drawer.DOAnchorPos(new Vector2(DrawerX, Pad), 0.25f).SetEase(Ease.OutCubic).SetTarget(drawer);
             }
             else
             {
                 UIFx.Out(dim.gameObject, UIFx.Style.Fade);
-                drawer.DOAnchorPos(new Vector2(DrawerX, Hidden), 0.2f).SetEase(Ease.InCubic).SetTarget(drawer)
+                drawer.DOAnchorPos(new Vector2(DrawerX, Hidden()), 0.2f).SetEase(Ease.InCubic).SetTarget(drawer)
                     .OnComplete(() => drawer.gameObject.SetActive(false));
             }
         }

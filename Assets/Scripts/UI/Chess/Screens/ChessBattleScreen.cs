@@ -60,6 +60,7 @@ namespace RepGame.UI.Chess
         private void Awake()
         {
             EnsureEventSystem();
+            PointerInput.Ensure();
             Build();
             canvas.gameObject.SetActive(false);
             var s = ChessSession.Instance;
@@ -101,19 +102,13 @@ namespace RepGame.UI.Chess
             canvas = cgo.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 50;
-            var scaler = cgo.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920, 1080);
-            scaler.matchWidthOrHeight = 0.5f;
+            StageFit.SetupScaler(cgo.GetComponent<CanvasScaler>());
 
-            // 设计稿坐标的根节点：固定 1920×1080，居中
-            var stage = UIKit.Rect(cgo.transform, "Stage");
-            stage.anchorMin = stage.anchorMax = new Vector2(0.5f, 0.5f);
-            stage.pivot = new Vector2(0.5f, 0.5f);
-            stage.sizeDelta = new Vector2(1920, 1080);
-
-            var bg = UIKit.Image(stage, "Background", Theme.Water);
-            UIKit.Fill(bg.rectTransform, -400);
+            // 背景盖满整块屏幕（宽屏、平板上 Stage 以外的区域也是同色，不留黑边）
+            var bg = UIKit.Image(cgo.transform, "Background", Theme.Water);
+            UIKit.Fill(bg.rectTransform);
+            // 设计稿坐标的根节点：固定 1920×1080，居中放在安全区内（放不下时等比缩小）
+            var stage = StageFit.Create(cgo.transform);
             baseLayer = Layer(stage, "Base");
             dragLayer = Layer(stage, "Drag");
             popupLayer = Layer(stage, "Popup");
@@ -150,8 +145,10 @@ namespace RepGame.UI.Chess
                     Fmt.T("chess.surrender", "认输"), ChessActions.Surrender));
             surrenderButton = (RectTransform)giveUp.transform;
             UIKit.Place(surrenderButton, 1920 - 32 - 88, 28, 88, 38);
+            TouchHitArea.Add(giveUp.gameObject, 12); // 下方就是天象栏，放大量收小
 
             enemyHud.Avatar.gameObject.AddComponent<Button>().onClick.AddListener(() => opponentBoard.Toggle(ChessSession.Instance.State));
+            TouchHitArea.Add(enemyHud.Avatar.gameObject);
         }
 
         private static RectTransform Layer(RectTransform parent, string name)

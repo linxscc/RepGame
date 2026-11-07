@@ -60,11 +60,11 @@ namespace RepGame.UI.Chess
             // 云雾遮罩：半透明，对局界面仍隐约可见；整层随 CanvasGroup 淡入淡出
             var skin = ChessUISkin.Instance;
             var catcher = UIKit.Image(root, "Catcher", Color.clear, raycast: true);   // 点击任意处跳过
-            UIKit.Fill(catcher.rectTransform);
+            UIKit.FillScreen(catcher.rectTransform);
             catcher.gameObject.AddComponent<Button>().onClick.AddListener(Skip);
             var veil = UIKit.Image(root, "Veil", skin.voidBackground != null ? Theme.WithAlpha(Color.white, skin.veilAlpha) : Theme.WithAlpha(Theme.Ink, skin.veilAlpha),
                 skin.voidBackground);
-            UIKit.Fill(veil.rectTransform);
+            UIKit.FillScreen(veil.rectTransform);
             // 云团从两侧飘入，然后缓慢漂移
             var mistSprite = skin.voidMist != null ? skin.voidMist : skin.Circle;
             var mistTint = skin.voidMist != null ? Color.white : Theme.Cyan;

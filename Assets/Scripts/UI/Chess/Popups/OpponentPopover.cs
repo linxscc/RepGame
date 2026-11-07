@@ -20,7 +20,7 @@ namespace RepGame.UI.Chess
         {
             // 点击空白处关闭：全屏透明按钮，位于面板之下
             var c = UIKit.Image(layer, "OpponentCatcher", Theme.Clear, raycast: true);
-            UIKit.Fill(c.rectTransform);
+            UIKit.FillScreen(c.rectTransform);
             var cb = c.gameObject.AddComponent<Button>();
             cb.transition = Selectable.Transition.None;
             cb.onClick.AddListener(Close);

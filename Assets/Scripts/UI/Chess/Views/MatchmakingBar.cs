@@ -38,12 +38,10 @@ namespace RepGame.UI.Chess
             var canvas = cgo.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = 60;
-            var scaler = cgo.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920, 1080);
-            scaler.matchWidthOrHeight = 0.5f;
+            StageFit.SetupScaler(cgo.GetComponent<CanvasScaler>());
+            var stage = StageFit.Create(cgo.transform); // 浮条贴着 Stage 顶部居中，避开刘海
 
-            var panel = UIKit.Panel(cgo.transform, "Box", Theme.WithAlpha(Theme.Paper, 0.96f), Theme.Ink, 2f);
+            var panel = UIKit.Panel(stage, "Box", Theme.WithAlpha(Theme.Paper, 0.96f), Theme.Ink, 2f);
             panel.raycastTarget = true;
             box = panel.rectTransform;
             box.anchorMin = box.anchorMax = new Vector2(0.5f, 1);

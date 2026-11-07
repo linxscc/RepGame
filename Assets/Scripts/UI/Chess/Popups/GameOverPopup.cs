@@ -33,7 +33,7 @@ namespace RepGame.UI.Chess
             UIKit.Clear(root);
             UIFx.In(root.gameObject, UIFx.Style.Fade, 0.35f);
             var dim = UIKit.Image(root, "Dim", Theme.Dim, raycast: true);
-            UIKit.Fill(dim.rectTransform);
+            UIKit.FillScreen(dim.rectTransform);
             var panel = UIKit.Panel(root, "Panel", Theme.Paper, Theme.Ink, 2.5f);
             UIKit.PlaceCenter(panel.rectTransform, 960, 520, 640, 420);
             panel.rectTransform.DOScale(1f, 0.45f).From(0.7f).SetEase(Ease.OutBack).SetDelay(0.1f);

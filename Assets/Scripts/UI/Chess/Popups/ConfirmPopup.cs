@@ -28,7 +28,7 @@ namespace RepGame.UI.Chess
             UIFx.In(root.gameObject, UIFx.Style.Fade);
             root.SetAsLastSibling();
             var dim = UIKit.Image(root, "Dim", Theme.Dim, raycast: true);
-            UIKit.Fill(dim.rectTransform);
+            UIKit.FillScreen(dim.rectTransform);
             dim.gameObject.AddComponent<Button>().onClick.AddListener(Hide);
             var panel = UIKit.Panel(root, "Panel", Theme.Paper, Theme.Ink, 2.5f);
             panel.raycastTarget = true;

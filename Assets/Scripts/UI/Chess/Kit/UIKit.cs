@@ -9,6 +9,30 @@ namespace RepGame.UI.Chess
     /// <summary>代码构建 UGUI 的小工具，所有坐标以 1920×1080 设计稿为准。</summary>
     public static class UIKit
     {
+        /// <summary>小屏手机上 TMP 文字的最小字号（设计像素）。</summary>
+        public const float MinReadableSize = 18f;
+        private const float SmallScreenInches = 4f;  // 横屏时屏幕短边（高度）不到 4 英寸算小屏：手机是，平板不是
+        private static bool? textBoost;
+
+        /// <summary>
+        /// 是否抬高小字号：按物理尺寸判断（Screen.dpi + 屏幕短边英寸），平板等大屏不抬。
+        /// 拿不到 DPI 时退回：移动平台且宽高比 ≥ 1.7（手机形状）。
+        /// </summary>
+        public static bool TextBoost
+        {
+            get
+            {
+                if (textBoost == null)
+                {
+                    float shortPx = Mathf.Min(Screen.width, Screen.height), longPx = Mathf.Max(Screen.width, Screen.height);
+                    if (!Application.isMobilePlatform) textBoost = false;
+                    else if (Screen.dpi > 0) textBoost = shortPx / Screen.dpi < SmallScreenInches;
+                    else textBoost = shortPx > 0 && longPx / shortPx >= 1.7f;
+                }
+                return textBoost.Value;
+            }
+        }
+
         public static RectTransform Rect(Transform parent, string name)
         {
             var go = new GameObject(name, typeof(RectTransform));
@@ -45,6 +69,17 @@ namespace RepGame.UI.Chess
             rt.pivot = new Vector2(0.5f, 0.5f);
             rt.offsetMin = new Vector2(inset, inset);
             rt.offsetMax = new Vector2(-inset, -inset);
+            return rt;
+        }
+
+        /// <summary>
+        /// 盖满整块屏幕（不只是 1920×1080 的 Stage）：背景、遮罩、点空白关闭的接收层用这个，
+        /// 宽屏、平板上 Stage 以外的区域也会被盖住。
+        /// </summary>
+        public static RectTransform FillScreen(RectTransform rt)
+        {
+            Fill(rt);
+            GetOrAdd<ScreenFill>(rt.gameObject).Apply();
             return rt;
         }
 
@@ -96,6 +131,14 @@ namespace RepGame.UI.Chess
             if (font != null) t.font = font;
             t.text = text;
             t.fontSize = size;
+            if (TextBoost && size < MinReadableSize)
+            {
+                // 小屏手机上抬高小字号；放不下时自动缩回原字号，不会撑破文本框
+                t.enableAutoSizing = true;
+                t.fontSizeMin = size;
+                t.fontSizeMax = MinReadableSize;
+                t.fontSize = MinReadableSize;
+            }
             t.color = color;
             t.alignment = align;
             t.fontStyle = bold ? FontStyles.Bold : FontStyles.Normal;
@@ -119,6 +162,7 @@ namespace RepGame.UI.Chess
             b.colors = colors;
             if (!string.IsNullOrEmpty(label)) Text(bg.transform, "Label", label, fontSize, labelColor, bold: true);
             if (onClick != null) b.onClick.AddListener(() => onClick());
+            TouchHitArea.Add(bg.gameObject);
             return b;
         }
 
@@ -142,6 +186,7 @@ namespace RepGame.UI.Chess
             var h = GetOrAdd<HoverRelay>(go);
             h.Enter = enter;
             h.Exit = exit;
+            TouchHitArea.Add(go);
             return h;
         }
     }

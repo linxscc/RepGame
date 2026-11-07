@@ -93,7 +93,7 @@ namespace RepGame.UI.Chess
             if (expanded != null)
             {
                 var catcher = UIKit.Image(detail, "Catcher", Theme.Clear, raycast: true);
-                UIKit.Place(catcher.rectTransform, -RootX, -Y, 1920, 1080);
+                UIKit.FillScreen(catcher.rectTransform);
                 var cb = catcher.gameObject.AddComponent<Button>();
                 cb.transition = Selectable.Transition.None;
                 cb.onClick.AddListener(Collapse);
@@ -118,6 +118,7 @@ namespace RepGame.UI.Chess
                 UIKit.Place(left.rectTransform, ChipW - 32, 0, 28, ChipH);
                 var btn = chip.gameObject.AddComponent<Button>();
                 btn.transition = Selectable.Transition.None;
+                TouchHitArea.Add(chip.gameObject, 16); // 上方是认输按钮
                 btn.onClick.AddListener(() =>
                 {
                     expanded = expanded == key ? null : key;

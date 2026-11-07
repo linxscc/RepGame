@@ -115,14 +115,14 @@ namespace RepGame.UI.Chess
             if (dim)
             {
                 var d = UIKit.Image(root, "Dim", Theme.Dim, raycast: true);
-                UIKit.Fill(d.rectTransform);
+                UIKit.FillScreen(d.rectTransform);
             }
             var parent = root;
             if (chipLabel != null)
             {
                 // 透明接收层：点选项以外的地方就收起
                 catcher = UIKit.Image(root, "Catcher", Theme.Clear, raycast: true);
-                UIKit.Fill(catcher.rectTransform);
+                UIKit.FillScreen(catcher.rectTransform);
                 catcher.gameObject.AddComponent<Button>().onClick.AddListener(Collapse);
                 content = UIKit.Rect(root, "Content");
                 UIKit.Fill(content);

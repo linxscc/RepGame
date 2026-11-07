@@ -74,7 +74,7 @@ namespace RepGame.UI.Chess
             UIKit.Clear(choiceRoot);
             UIFx.In(choiceRoot.gameObject, UIFx.Style.Fade);
             var dim = UIKit.Image(choiceRoot, "Dim", Theme.Dim, raycast: true);
-            UIKit.Fill(dim.rectTransform);
+            UIKit.FillScreen(dim.rectTransform);
 
             var panel = UIKit.Panel(choiceRoot, "Panel", Theme.Paper, Theme.Ink, 3f);
             panel.raycastTarget = true;
@@ -141,7 +141,7 @@ namespace RepGame.UI.Chess
             UIKit.Clear(revealRoot);
             UIFx.In(revealRoot.gameObject, UIFx.Style.Fade, 0.15f);
             var mask = UIKit.Image(revealRoot, "Mask", new Color(0.07f, 0.07f, 0.07f, 0.6f), raycast: true);
-            UIKit.Fill(mask.rectTransform);
+            UIKit.FillScreen(mask.rectTransform);
             var body = UIKit.Rect(revealRoot, "Body");
             UIKit.Fill(body);
             var bodyGroup = UIKit.GetOrAdd<CanvasGroup>(body.gameObject);
