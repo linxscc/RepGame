@@ -90,12 +90,18 @@ if [ -z "${IOS_DEVICE_ID:-}" ]; then
 fi
 
 echo "== 3/3 安装到设备：$IOS_DEVICE_ID"
+# 诊断：列出签名描述文件里登记的设备（免费 Apple ID 只能装到登记过的设备上）
+PROFILE_DEVICES="$(security cms -D -i "$APP_PATH/embedded.mobileprovision" 2>/dev/null | plutil -extract ProvisionedDevices xml1 -o - - 2>/dev/null | grep -o '<string>[^<]*</string>' | sed 's/<[^>]*>//g' || true)"
+echo "描述文件中登记的设备："; echo "${PROFILE_DEVICES:-（读取失败）}"
 ok=0; fail=0
 IFS=',' read -r -a DEVICES <<< "$IOS_DEVICE_ID"
 for dev in "${DEVICES[@]}"; do
   dev="$(echo "$dev" | xargs)"
   [ -z "$dev" ] && continue
   echo "-- 安装到 $dev"
+  if [ -n "$PROFILE_DEVICES" ] && ! echo "$PROFILE_DEVICES" | grep -qi "^$dev$"; then
+    echo "::warning title=设备未登记::$dev 不在签名描述文件里，安装会被拒绝。在 Mac mini 的 Xcode 里选这台设备为运行目标、用 Personal Team 运行一次 com.zs.repgame 即可登记"
+  fi
   installed=0
   for attempt in 1 2 3; do
     # 无线连接偶尔被重置（设备息屏/刚唤醒），重试几次
