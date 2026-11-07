@@ -48,6 +48,14 @@ export IOS_BUNDLE_ID IOS_TEAM_ID ENV_FILE BUILD_NUMBER BUILD_OUTPUT
   -logFile "$LOG_DIR/unity.log" || { tail -n 80 "$LOG_DIR/unity.log"; exit 1; }
 
 echo "== 2/3 Xcode 编译并签名"
+# xcode-select 指向命令行工具时 xcodebuild 不可用：直接用 Xcode.app 里的开发者目录（不需要 sudo xcode-select -s）
+if ! xcodebuild -version >/dev/null 2>&1; then
+  XCODE_APP="${XCODE_APP:-$(ls -d /Applications/Xcode*.app 2>/dev/null | head -n 1)}"
+  test -n "$XCODE_APP" || { echo "没找到 Xcode.app（可用 XCODE_APP 指定）"; exit 1; }
+  export DEVELOPER_DIR="$XCODE_APP/Contents/Developer"
+  echo "使用 $DEVELOPER_DIR"
+fi
+xcodebuild -version
 xcodebuild \
   -project "$BUILD_OUTPUT/Unity-iPhone.xcodeproj" \
   -scheme Unity-iPhone \
