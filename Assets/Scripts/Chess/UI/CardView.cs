@@ -99,7 +99,21 @@ namespace RepGame.Chess.UI
                 var d = w * 0.22f;
                 dt.sizeDelta = new Vector2(d, d);
                 dt.anchoredPosition = new Vector2(4 + w * 0.02f, h * 0.2f + 2 + w * 0.26f + 3);
-                UIKit.Text(disc.transform, "Suit", suitGlyph, Mathf.Max(11, w * 0.15f), suitColor, TextAlignmentOptions.Center, true);
+                Sprite suitSprite = null;
+                suitSprite = skin.SuitIcon((card.Color == CardColor.Red ? "red_" : "black_") + (suitGlyph == "神" ? "god" : "ghost"));
+                if (suitSprite != null)
+                {
+                    var si = UIKit.Image(disc.transform, "Suit", Color.white, suitSprite);
+                    si.preserveAspect = true;
+                    var sr = si.rectTransform;
+                    sr.anchorMin = new Vector2(0.12f, 0.12f);
+                    sr.anchorMax = new Vector2(0.88f, 0.88f);
+                    sr.offsetMin = sr.offsetMax = Vector2.zero;
+                }
+                else
+                {
+                    UIKit.Text(disc.transform, "Suit", suitGlyph, Mathf.Max(11, w * 0.15f), suitColor, TextAlignmentOptions.Center, true);
+                }
             }
 
             // 名牌底色带：费用档颜色

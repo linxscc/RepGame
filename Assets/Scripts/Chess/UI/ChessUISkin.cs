@@ -30,6 +30,7 @@ namespace RepGame.Chess.UI
         public Sprite avatarEnemy;
         public List<NamedSprite> cards = new List<NamedSprite>();
         public List<NamedSprite> relicIcons = new List<NamedSprite>();
+        public List<NamedSprite> suitIcons = new List<NamedSprite>();   // 花色笔触字：red_god / black_god / red_ghost / black_ghost
 
         [Header("结算过场：贴图（留空时用代码画的简单形状占位）")]
         public Sprite voidBackground;   // 虚空背景（铺满全屏）
@@ -72,6 +73,7 @@ namespace RepGame.Chess.UI
         private Sprite smoothRounded;
         private Dictionary<string, Sprite> cardIndex;
         private Dictionary<string, Sprite> relicIndex;
+        private Dictionary<string, Sprite> suitIndex;
 
         private static ChessUISkin instance;
 
@@ -144,6 +146,8 @@ namespace RepGame.Chess.UI
         public Sprite Card(string cardName) => Find(ref cardIndex, cards, cardName);
 
         public Sprite RelicIcon(string relicKey) => Find(ref relicIndex, relicIcons, relicKey);
+
+        public Sprite SuitIcon(string suitKey) => Find(ref suitIndex, suitIcons, suitKey);
 
         private static Sprite Find(ref Dictionary<string, Sprite> index, List<NamedSprite> list, string key)
         {

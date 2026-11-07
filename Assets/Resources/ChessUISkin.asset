@@ -99,6 +99,15 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: fd8a36f513354ee988fee415fb515309, type: 3}
   - name: rubbing
     sprite: {fileID: 21300000, guid: d1ddcf828ec2443db2c7ba826f241628, type: 3}
+  suitIcons:
+  - name: red_god
+    sprite: {fileID: 21300000, guid: 2c82348558434ff1a8803583d63d3a8a, type: 3}
+  - name: black_god
+    sprite: {fileID: 21300000, guid: 49bd0b0f872c454eada2c359dfb77eec, type: 3}
+  - name: red_ghost
+    sprite: {fileID: 21300000, guid: e30e0ac93e564855a11143c74ff30e49, type: 3}
+  - name: black_ghost
+    sprite: {fileID: 21300000, guid: 5db699364d104dc18a3d0349d30928a8, type: 3}
   voidBackground: {fileID: 21300000, guid: aba2e9f669974a18bcaf6f0c4986d214, type: 3}
   voidMist: {fileID: 21300000, guid: 0ddeeda955894bca9bf3c92b94732593, type: 3}
   fireball: {fileID: 21300000, guid: 9ee756c01b9f4d7aaca8f79aecaaaf33, type: 3}
