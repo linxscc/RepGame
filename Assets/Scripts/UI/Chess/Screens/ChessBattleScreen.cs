@@ -188,7 +188,11 @@ namespace RepGame.UI.Chess
             // 先于 Render，这样新天象块在名字飞到之前保持隐藏
             if (previous != null && previous.Phase == MatchPhase.Omen && st.Phase == MatchPhase.Prep
                 && st.OmenRoll != null && st.OmenRoll.Round == st.Round)
-                omenPopup.Reveal(st.OmenRoll);
+            {
+                // 揭晓动画出错也不能挡住界面刷新（否则金币、商店都不显示）
+                try { omenPopup.Reveal(st.OmenRoll); }
+                catch (System.Exception e) { Debug.LogException(e); omenPopup.Stop(); }
+            }
             Render(st);
             stateReady = true;
         }

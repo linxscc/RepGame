@@ -137,7 +137,9 @@ namespace RepGame.UI.Chess
             choiceKey = null;
             Revealing = true;
 
+            // 先激活根节点再建子物体：TMP 在未激活的父节点下还没初始化材质，此时设置描边会空引用
             UIKit.Clear(revealRoot);
+            UIFx.In(revealRoot.gameObject, UIFx.Style.Fade, 0.15f);
             var mask = UIKit.Image(revealRoot, "Mask", new Color(0.07f, 0.07f, 0.07f, 0.6f), raycast: true);
             UIKit.Fill(mask.rectTransform);
             var body = UIKit.Rect(revealRoot, "Body");
@@ -216,7 +218,6 @@ namespace RepGame.UI.Chess
                 bar.Release();
                 UIFx.Out(revealRoot.gameObject, UIFx.Style.Fade, null, 0.1f);
             });
-            UIFx.In(revealRoot.gameObject, UIFx.Style.Fade, 0.15f);
         }
 
         /// <summary>被新的揭晓打断时，立即收尾上一次动画。</summary>
