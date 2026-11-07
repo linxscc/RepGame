@@ -47,6 +47,15 @@ jobs:
           chmod +x scripts/ci/build-ios.sh
           scripts/ci/build-ios.sh
 
+      - name: Upload app
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-app
+          path: Builds/RepGame-app.zip
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v4

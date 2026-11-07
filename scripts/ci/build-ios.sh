@@ -63,6 +63,8 @@ xcodebuild \
 APP_PATH="$(find "$DERIVED/Build/Products/Release-iphoneos" -maxdepth 1 -name '*.app' | head -n 1)"
 test -n "$APP_PATH" || { echo "没找到编译出的 .app"; exit 1; }
 echo "已生成：$APP_PATH"
+# 打包好的 .app 压缩一份，流水线作为附件上传
+( cd "$(dirname "$APP_PATH")" && ditto -c -k --keepParent "$(basename "$APP_PATH")" "$PROJECT_DIR/Builds/RepGame-app.zip" )
 
 if [ -z "${IOS_DEVICE_ID:-}" ]; then
   echo "未设置 IOS_DEVICE_ID，跳过安装"
@@ -85,4 +87,7 @@ for dev in "${DEVICES[@]}"; do
   fi
 done
 echo "安装完成：成功 $ok 台，失败 $fail 台"
-[ "$ok" -gt 0 ] || exit 1
+if [ "$ok" -eq 0 ]; then
+  # 设备都不在同一局域网/没连线时不算失败：包已经打好（作为附件上传），回到局域网后重新运行即可安装
+  echo "::warning title=未安装到设备::包已构建成功，但没有设备可连接（不在同一局域网或未连线）。回到局域网后在 Actions 里重新运行即可安装。"
+fi

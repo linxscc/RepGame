@@ -32,7 +32,7 @@
    |---|---|
    | `IOS_BUNDLE_ID` | 全局唯一的包名，例如 `com.linxscc.repgame`（现在工程里的模板包名不能用） |
    | `IOS_TEAM_ID` | 第 3 步的 Team ID |
-   | `IOS_DEVICE_ID` | 第 4 步的设备 UDID/Identifier，多台设备（如 iPhone 和 iPad）用逗号分隔；某台不在线时跳过，至少装上一台就算成功 |
+   | `IOS_DEVICE_ID` | 第 4 步的设备 UDID/Identifier，多台设备（如 iPhone 和 iPad）用逗号分隔；某台不在线时跳过；全部连不上时运行仍算成功并给出警告，打好的包作为 `ios-app` 附件保留 7 天，回到局域网后重新运行即可安装 |
    | `SERVER_HOST` / `SERVER_PORT` / `SERVER_CERT_SHA256` | 服务器地址、端口、证书指纹（流水线用它们生成打进包的配置；也可以改用下一行的文件） |
 | `REPGAME_CLIENT_ENV_FILE` | （可选）Mac mini 上一份 `.env` 的完整路径，设置后优先使用 |
    | `UNITY_PATH` | （可选）Unity 可执行文件路径 |
