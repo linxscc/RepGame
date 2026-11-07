@@ -218,6 +218,13 @@ namespace RepGame.Chess.UI
             return c.rectTransform;
         }
 
+        public static string SubTitle(RelicInfo info)
+        {
+            if (info == null) return null;
+            var rarity = ChessSession.Instance.Rarity(info.Rarity)?.Name;
+            return string.IsNullOrEmpty(info.CategoryName) ? rarity : $"{rarity} · {info.CategoryName}";
+        }
+
         public static void ShowTip(TooltipLayer tooltip, RelicSlot r, float x, float y)
         {
             var s = ChessSession.Instance;
@@ -227,7 +234,7 @@ namespace RepGame.Chess.UI
             if (r.Value != 0) text += $"\n当前成长：<b>+{Fmt.Num(r.Value)}</b>";
             if (r.TradeChoice >= 0 && s.Config != null && r.TradeChoice < s.Config.Trades.Count) text += $"\n选定行当：{s.Config.Trades[r.TradeChoice].Name}";
             if (r.SellPrice > 0) text += $"\n<color=#5A6A68>拖到金币上出售：{r.SellPrice} 金</color>";
-            tooltip.Show(r, x, y, 280, info.Name, s.Rarity(info.Rarity)?.Name, text);
+            tooltip.Show(r, x, y, 280, info.Name, SubTitle(info), text);
         }
 
         public static void ShowInfoTip(TooltipLayer tooltip, object owner, string key, float x, float y)
@@ -235,7 +242,7 @@ namespace RepGame.Chess.UI
             var s = ChessSession.Instance;
             var info = s.Relic(key);
             if (info == null) return;
-            tooltip.Show(owner, x, y, 280, info.Name, s.Rarity(info.Rarity)?.Name, info.Desc);
+            tooltip.Show(owner, x, y, 280, info.Name, SubTitle(info), info.Desc);
         }
     }
 }

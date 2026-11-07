@@ -128,7 +128,7 @@ namespace RepGame.Chess.UI
                 var info = s.Relic(key);
                 return new Option
                 {
-                    Title = info?.Name, Body = info?.Desc, RelicKey = key, Tag = s.Rarity(info?.Rarity ?? 0)?.Name,
+                    Title = info?.Name, Body = info?.Desc, RelicKey = key, Tag = RelicIcon.SubTitle(info),
                     Ring = Theme.Rarity(info?.Rarity ?? 0), Click = () => PickVault(st, i, info),
                 };
             }).ToList();
