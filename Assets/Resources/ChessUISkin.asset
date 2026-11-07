@@ -99,6 +99,42 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: fd8a36f513354ee988fee415fb515309, type: 3}
   - name: rubbing
     sprite: {fileID: 21300000, guid: d1ddcf828ec2443db2c7ba826f241628, type: 3}
+  - name: market_pass
+    sprite: {fileID: 21300000, guid: 99b4afd2377b4b5c84ca5919d090cd40, type: 3}
+  - name: academy
+    sprite: {fileID: 21300000, guid: dd4fd0d9752b463f826b45b1f720d076, type: 3}
+  - name: expansion
+    sprite: {fileID: 21300000, guid: f52ba4e69b654029b762d45d343960dd, type: 3}
+  - name: tempering
+    sprite: {fileID: 21300000, guid: bb616bf25e7c469c9e1bf202368ce576, type: 3}
+  - name: cinnabar
+    sprite: {fileID: 21300000, guid: 53f55f5b51e64937b9fdd43040b9bb60, type: 3}
+  - name: pine_ink
+    sprite: {fileID: 21300000, guid: a6ee42a3847348638dafed440fb4323f, type: 3}
+  - name: shrine
+    sprite: {fileID: 21300000, guid: 31053844d5be4b65aaf7bed671d9def3, type: 3}
+  - name: night_parade
+    sprite: {fileID: 21300000, guid: e4665b5bf9574a77924a4d4e472d2580, type: 3}
+  - name: one_color
+    sprite: {fileID: 21300000, guid: a44b63cbda6a46f8a3ca5d5b70418145, type: 3}
+  - name: yin_yang
+    sprite: {fileID: 21300000, guid: dda42134aeb34e26b8939ada32e8622f, type: 3}
+  - name: four_symbols
+    sprite: {fileID: 21300000, guid: b9f4c68e647d4a46b15f276523f40069, type: 3}
+  - name: vermilion
+    sprite: {fileID: 21300000, guid: 48cbe1d399744621abcb8664e287ec48, type: 3}
+  - name: demon_mirror
+    sprite: {fileID: 21300000, guid: 513666c0eee343b99a9de5f0fb799c61, type: 3}
+  - name: god_breaker
+    sprite: {fileID: 21300000, guid: f2a0233c68dc4a74a5c81f97bf84fe53, type: 3}
+  - name: color_counter
+    sprite: {fileID: 21300000, guid: e25538551c624559be162fc65e09ff34, type: 3}
+  - name: behead
+    sprite: {fileID: 21300000, guid: e15ecffa277c458a9ece61d7059d89c3, type: 3}
+  - name: usurp
+    sprite: {fileID: 21300000, guid: 49fc3c9d3bed470192e4d49f35912459, type: 3}
+  - name: defy_heaven
+    sprite: {fileID: 21300000, guid: a3a08d5788a74011a79217ad285b44a9, type: 3}
   suitIcons:
   - name: red_god
     sprite: {fileID: 21300000, guid: 2c82348558434ff1a8803583d63d3a8a, type: 3}
