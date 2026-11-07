@@ -37,6 +37,7 @@ namespace RepGame.UI
         private IEnumerator Boot()
         {
             yield return AssetLoader.Preload();
+            ApplyLobbyFont();
 
             // 新版对局界面：代码构建，收到 MatchConfig 后自动显示
             ChessBattleScreen.Create();
@@ -45,6 +46,20 @@ namespace RepGame.UI
             // 延迟显示默认面板，确保所有面板都已注册
             yield return new WaitForSeconds(ConfigTables.Settings.ui.defaultPanelDelay);
             ShowDefaultPanel();
+        }
+
+        /// <summary>
+        /// 大厅场景里的文字不直接引用字体（避免字体既打进包体又打进 UI bundle），
+        /// 预加载完成后统一换成 bundle 里的界面字体（含未激活的面板和输入框）。
+        /// </summary>
+        private static void ApplyLobbyFont()
+        {
+            var font = ChessUISkin.Instance.font;
+            if (font == null) return;
+            foreach (var t in Object.FindObjectsByType<TMPro.TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                t.font = font;
+            foreach (var f in Object.FindObjectsByType<TMPro.TMP_InputField>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                f.fontAsset = font;
         }
 
         private void OnDestroy()
