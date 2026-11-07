@@ -102,7 +102,7 @@ namespace RepGame.UI.Chess
             if (withCount)
             {
                 var next = info.Tiers.Count > 0 ? info.Tiers[Mathf.Min(bc.Tier + 1, info.Tiers.Count - 1)].At + bc.AtDelta : 0;
-                var count = UIKit.Text(root, "Count", $"{bc.Count}/{next}", 15, Theme.Ink, TextAlignmentOptions.Left, true);
+                var count = UIKit.Live(UIKit.Text(root, "Count", $"{bc.Count}/{next}", 15, Theme.Ink, TextAlignmentOptions.Left, true), 17); // 「10/12」，60 宽
                 UIKit.Place(count.rectTransform, x + size + 8, y + 13, 60, 24);
                 if (!on) count.alpha = 0.55f;
             }

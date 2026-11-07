@@ -114,7 +114,7 @@ namespace RepGame.UI.Chess
                 var title = UIKit.Text(chip.transform, "Name", name, 22, Theme.Gold, bold: true);
                 UIKit.Place(title.rectTransform, 0, 0, ChipW - 30, ChipH);
                 title.gameObject.AddComponent<ShimmerText>();
-                var left = UIKit.Text(chip.transform, "Left", active.RoundsLeft.ToString(), 15, Theme.GoldPaper);
+                var left = UIKit.Live(UIKit.Text(chip.transform, "Left", active.RoundsLeft.ToString(), 15, Theme.GoldPaper), 18); // 1–2 位数字，28 宽
                 UIKit.Place(left.rectTransform, ChipW - 32, 0, 28, ChipH);
                 var btn = chip.gameObject.AddComponent<Button>();
                 btn.transition = Selectable.Transition.None;

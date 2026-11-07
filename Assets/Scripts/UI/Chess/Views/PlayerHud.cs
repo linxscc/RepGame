@@ -41,8 +41,8 @@ namespace RepGame.UI.Chess
 
             var block = UIKit.Rect(parent, self ? "SelfHp" : "EnemyHp");
             UIKit.Place(block, x + 78, y + 4, 240, 56);
-            hpText = UIKit.Text(block, "Hp", "", 16, Theme.Ink, TextAlignmentOptions.TopLeft, true);
-            infoText = UIKit.Text(block, "Info", "", 15, Theme.InkSoft, TextAlignmentOptions.TopRight);
+            hpText = UIKit.Live(UIKit.Text(block, "Hp", "", 16, Theme.Ink, TextAlignmentOptions.TopLeft, true), 18); // 「100 / 100」
+            infoText = UIKit.Live(UIKit.Text(block, "Info", "", 15, Theme.InkSoft, TextAlignmentOptions.TopRight), 18); // 「10 级」
             var bar = UIKit.Panel(block, "Bar", Theme.Paper, Theme.Ink, 1.5f);
             UIKit.Place(bar.rectTransform, 0, 24, 240, 14);
             fill = UIKit.Image(bar.transform.GetChild(0), "Fill", Theme.Red);

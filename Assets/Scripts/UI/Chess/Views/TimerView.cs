@@ -25,7 +25,7 @@ namespace RepGame.UI.Chess
             seconds = UIKit.Text(c.transform, "Sec", "", 32, Theme.Red, bold: true);
             var cap = UIKit.Rect(parent, "Round");
             UIKit.PlaceCenter(cap, 960, 104, 260, 24);
-            caption = UIKit.Text(cap, "Text", "", 15, Theme.InkSoft);
+            caption = UIKit.Live(UIKit.Text(cap, "Text", "", 15, Theme.InkSoft), 16); // 最长「第 12 回合 · 阶段伤害 10」，260 宽
         }
 
         public void Tick(MatchState st)

@@ -48,7 +48,7 @@ namespace RepGame.UI.Chess
             goldButton = gold.rectTransform;
             goldText = UIKit.Text(gold.transform, "Gold", "", 40, Theme.GoldText, TextAlignmentOptions.Center, true);
             goldText.rectTransform.offsetMin = new Vector2(0, 18);
-            interestText = UIKit.Text(gold.transform, "Interest", "", 14, Theme.GoldText, TextAlignmentOptions.Bottom);
+            interestText = UIKit.Live(UIKit.Text(gold.transform, "Interest", "", 14, Theme.GoldText, TextAlignmentOptions.Bottom), 16); // 「利息 +5」在圆内
             interestText.rectTransform.offsetMin = new Vector2(0, 22);
             drag.AddZone(goldButton, p => p.CardUid != null || p.RelicSlot >= 0, (p, _) => Sell(p), () => state?.Phase == MatchPhase.Prep);
 

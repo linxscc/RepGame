@@ -149,6 +149,19 @@ namespace RepGame.UI.Chess
             return t;
         }
 
+        /// <summary>
+        /// 会频繁变化的文字（血量、回合说明、计数）：不用自动字号（避免数值变化时字号跳动、反复排版），
+        /// 小屏手机上改用固定的放大字号 boosted（按该字段最长内容和文本框选定）。
+        /// </summary>
+        public static TextMeshProUGUI Live(TextMeshProUGUI t, float boosted)
+        {
+            if (t == null || !t.enableAutoSizing) return t;
+            var design = t.fontSizeMin;
+            t.enableAutoSizing = false;
+            t.fontSize = Mathf.Max(design, boosted);
+            return t;
+        }
+
         public static Button Button(Transform parent, string name, Color fill, Color border, string label, float fontSize,
             Color labelColor, Action onClick)
         {

@@ -21,17 +21,6 @@ namespace RepGame.UI.Chess
 
         private static Action pendingHide;
         private static Runner runner;
-        private static bool? touchCapable;
-
-        /// <summary>本设备可以触屏（手机，或带触摸屏的电脑）：需要放大点击区域。</summary>
-        public static bool TouchCapable
-        {
-            get
-            {
-                if (touchCapable == null) touchCapable = Application.isMobilePlatform || Touchscreen.current != null;
-                return touchCapable.Value;
-            }
-        }
 
         /// <summary>这个指针事件来自手指（而不是鼠标或笔）。</summary>
         public static bool IsTouch(PointerEventData e) =>
@@ -53,6 +42,12 @@ namespace RepGame.UI.Chess
             pendingHide = hide;
         }
 
+        /// <summary>该 relay 被禁用/销毁时，撤掉它挂着的「下次触摸收起」。</summary>
+        public static void ClearPendingHide(Action hide)
+        {
+            if (hide != null && pendingHide == hide) pendingHide = null;
+        }
+
         public static int DragThresholdFor(float dpi) =>
             dpi > 0 ? Mathf.Max(MinDragThreshold, Mathf.RoundToInt(dpi * DragThresholdInches)) : MinDragThreshold;
 
@@ -66,7 +61,7 @@ namespace RepGame.UI.Chess
                 if (es != null && es != configured)
                 {
                     configured = es;
-                    es.pixelDragThreshold = DragThresholdFor(Screen.dpi);
+                    if (Application.isMobilePlatform) es.pixelDragThreshold = DragThresholdFor(Screen.dpi); // 电脑（含触摸屏电脑）保持场景默认值
                 }
 
                 if (pendingHide == null) return;

@@ -19,6 +19,7 @@ namespace RepGame.UI.Chess
         private PointerEventData touch; // 正在按住的手指
         private float touchDownAt;
         private bool longPressed;
+        private int clickHandlers = -1; // 本物体上的点击处理组件数（缓存，避免每次轻点分配数组）
 
         public void OnPointerEnter(PointerEventData e)
         {
@@ -52,9 +53,15 @@ namespace RepGame.UI.Chess
             }
             if (longPressed) return; // 长按已经显示说明（输入模块也不会再发点击，这里双保险）
             if (Click != null) Click();
-            else if (Enter != null && GetComponents<IPointerClickHandler>().Length == 1) Enter(); // 只有说明可看：轻点即显示
+            else if (Enter != null && ClickHandlers() == 1) Enter(); // 只有说明可看：轻点即显示
             else return;
             if (Exit != null) PointerInput.HideOnNextTouch(Exit);
+        }
+
+        private int ClickHandlers()
+        {
+            if (clickHandlers < 0) clickHandlers = GetComponents<IPointerClickHandler>().Length;
+            return clickHandlers;
         }
 
         private void Update()
@@ -82,6 +89,8 @@ namespace RepGame.UI.Chess
         private void OnDisable()
         {
             touch = null;
+            clickHandlers = -1; // 组件可能在禁用期间增减
+            PointerInput.ClearPendingHide(Exit);
             Exit?.Invoke();
         }
     }

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace RepGame.UI.Chess
 {
     /// <summary>
-    /// 触屏设备上把小控件的点击区域放大到约 88×88 设计像素（只改 raycastPadding，外观不变）。
+    /// 手机/平板上把小控件的点击区域放大到约 88×88 设计像素（只改 raycastPadding，外观不变）。
     /// 每一边的放大量不超过 MaxPad，并且不超过到相邻可点击兄弟物体间距的一半，避免抢邻居的点击。
     /// 尺寸或位置变化后下一帧重新计算（邻居常常在本物体之后才摆好位置）。
     /// </summary>
@@ -18,10 +18,10 @@ namespace RepGame.UI.Chess
         private bool dirty = true;
         private Vector2 lastPos, lastSize;
 
-        /// <summary>只在可触屏设备上添加；返回 null 表示不需要。</summary>
+        /// <summary>只在手机/平板上添加（带触摸屏的电脑仍按鼠标处理，不放大）；返回 null 表示不需要。</summary>
         public static TouchHitArea Add(GameObject go, float maxPad = 24f)
         {
-            if (!PointerInput.TouchCapable || go == null) return null;
+            if (!Application.isMobilePlatform || go == null) return null;
             var t = UIKit.GetOrAdd<TouchHitArea>(go);
             t.MaxPad = maxPad;
             t.dirty = true;

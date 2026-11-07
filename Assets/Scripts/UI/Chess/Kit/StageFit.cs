@@ -10,6 +10,7 @@ namespace RepGame.UI.Chess
     /// 打孔、Home 指示条都不会挡住内容。分辨率、方向或安全区变化时自动重新计算。
     /// 需要盖满整块屏幕的东西（背景、遮罩、点空白关闭的接收层）用 UIKit.FillScreen（见 ScreenFill）。
     /// </summary>
+    [DefaultExecutionOrder(-100)] // 先于 ScreenFill（默认 0）重新布局
     public sealed class StageFit : MonoBehaviour
     {
         public const float DesignW = 1920, DesignH = 1080;
@@ -74,7 +75,7 @@ namespace RepGame.UI.Chess
             safe.offsetMin = safe.offsetMax = Vector2.zero;
             var avail = new Vector2(lastCanvas.x * (max.x - min.x), lastCanvas.y * (max.y - min.y));
             float scale = Mathf.Min(1f, avail.x / DesignW, avail.y / DesignH);
-            if (scale <= 0 || float.IsNaN(scale)) scale = 1;
+            if (scale <= 0 || float.IsNaN(scale) || scale > 0.999f) scale = 1; // 取整误差不缩放
             stage.localScale = new Vector3(scale, scale, 1);
             stage.anchoredPosition = Vector2.zero;
             Version++;
