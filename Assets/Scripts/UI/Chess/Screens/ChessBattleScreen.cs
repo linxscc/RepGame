@@ -184,11 +184,12 @@ namespace RepGame.UI.Chess
         private void OnState(MatchState previous, MatchState st)
         {
             if (!UIFx.IsShown(canvas.gameObject)) OnConfig(ChessSession.Instance.Config);
-            Render(st);
-            // 天象阶段 → 准备阶段且本回合天象已揭晓：播一次揭晓动画（断线重连直接进入准备阶段时不播）
+            // 天象阶段 → 准备阶段且本回合天象已揭晓：播一次揭晓动画（断线重连直接进入准备阶段时不播）。
+            // 先于 Render，这样新天象块在名字飞到之前保持隐藏
             if (previous != null && previous.Phase == MatchPhase.Omen && st.Phase == MatchPhase.Prep
                 && st.OmenRoll != null && st.OmenRoll.Round == st.Round)
                 omenPopup.Reveal(st.OmenRoll);
+            Render(st);
             stateReady = true;
         }
 

@@ -44,6 +44,17 @@
     { "key": "chess.lobby", "text": "返回大厅", "comment": "" },
     { "key": "chess.surrender", "text": "认输", "comment": "对局中右上角的认输按钮" },
     { "key": "chess.matching", "text": "正在匹配对手  {0:00}:{1:00}", "comment": "开始游戏后上方的匹配计时框，{0}=分 {1}=秒" },
-    { "key": "chess.surrender.confirm", "text": "确定认输吗？本局将直接判负。", "comment": "认输二次确认" }
+    { "key": "chess.surrender.confirm", "text": "确定认输吗？本局将直接判负。", "comment": "认输二次确认" },
+    { "key": "chess.phase.omen", "text": "第 {0} 回合 · 天象", "comment": "{0}=回合" },
+    { "key": "chess.omen.prompt", "text": "是否投掷", "comment": "天象阶段选择面板的提示句" },
+    { "key": "chess.omen.yes", "text": "是", "comment": "投掷按钮" },
+    { "key": "chess.omen.no", "text": "否", "comment": "不投掷按钮" },
+    { "key": "chess.omen.waiting", "text": "等待对手…", "comment": "己方已选择后的等待提示" },
+    { "key": "chess.omen.self", "text": "我方", "comment": "骰子标签" },
+    { "key": "chess.omen.opponent", "text": "对手", "comment": "骰子标签" },
+    { "key": "chess.omen.forced", "text": "天定", "comment": "双方都不掷时由天定" },
+    { "key": "chess.omen.noRoll", "text": "不掷", "comment": "没有掷骰的一方" },
+    { "key": "chess.omen.shifted", "text": "与生效中的天象相同，顺延", "comment": "天象重复顺延提示" },
+    { "key": "chess.omen.left", "text": "剩 {0} 回合", "comment": "天象剩余回合，{0}=回合数" }
   ]
 }

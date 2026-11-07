@@ -1,6 +1,4 @@
 using DG.Tweening;
-using System.Linq;
-using System.Text;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine;
@@ -10,19 +8,18 @@ using RepGame.Protocol;
 namespace RepGame.UI.Chess
 {
     /// <summary>
-    /// 天象阶段的弹窗：掷骰 / 不掷的选择面板，以及双方点数揭晓动画（骰子翻滚 → 点数之和 → 天象名 → 飞入天象栏）。
-    /// 只显示服务器数据；对手的选择在揭晓前不可见，只显示“已决定”。
+    /// 天象阶段的弹窗：只问「是否投掷」（是 / 否），以及揭晓过场（双方骰子翻滚落定 → 点数和 → 天象名与效果
+    /// → 停留 1.5 秒 → 金色名字缩小飞入右上角天象栏）。点数与天象的对应是服务器每局打乱且保密的，这里不显示任何对应表。
     /// </summary>
     public sealed class OmenDicePopup
     {
-        private const float DiceSize = 120f, DiceY = 470f, SelfX = 760f, OppX = 1160f;
-        private const float TumbleSeconds = 0.9f, FaceSeconds = 0.06f, FlySeconds = 0.45f;
+        private const float DiceSize = 120f, DiceY = 440f, SelfX = 760f, OppX = 1160f;
+        private const float TumbleSeconds = 0.8f, FaceSeconds = 0.06f, FlySeconds = 0.45f, HoldSeconds = 1.5f;
 
         private readonly RectTransform choiceRoot, revealRoot;
         private readonly OmenBarView bar;
         private string choiceKey;       // 面板内容签名，避免同一状态重复重建
         private int pickedRound = -1;   // 本地已点击的回合（服务器确认前就显示等待态）
-        private bool pickedRoll;
         private float pickedAt;         // 发送时刻；发出后 RecoverAfter 秒仍未被服务器记录才视为丢失
         private const float RecoverAfter = 1f;
         private int revealedRound = -1; // 每个天象回合只揭晓一次（重连后状态里带着已揭晓的结果，不重放）
@@ -46,6 +43,7 @@ namespace RepGame.UI.Chess
         {
             if (seq != null) { var q = seq; seq = null; if (q.IsActive()) q.Kill(); }
             Revealing = false;
+            bar.Release();
             UIFx.HideNow(choiceRoot.gameObject);
             UIFx.HideNow(revealRoot.gameObject);
             choiceKey = null;
@@ -56,7 +54,6 @@ namespace RepGame.UI.Chess
         {
             Stop();
             pickedRound = revealedRound = -1;
-            pickedRoll = false;
         }
 
         // ---------- 选择 ----------
@@ -69,10 +66,8 @@ namespace RepGame.UI.Chess
             // 乐观状态只是短暂的：发送一段时间后收到的状态仍显示未选择，说明服务器没记录（发送丢失或被拒），恢复按钮
             if (pickedRound == round && !(roll != null && roll.SelfChosen) && Time.unscaledTime - pickedAt >= RecoverAfter)
                 pickedRound = -1;
-            // OMEN 阶段服务器只告诉我们“已决定”，不告诉选了什么
             bool selfDone = (roll != null && roll.SelfChosen) || pickedRound == round;
-            bool oppDone = roll != null && roll.OpponentChosen;
-            var key = $"{round}|{selfDone}|{oppDone}|{pickedRound == round}|{pickedRoll}";
+            var key = $"{round}|{selfDone}";
             if (key == choiceKey && UIFx.IsShown(choiceRoot.gameObject)) return;
             choiceKey = key;
 
@@ -83,52 +78,29 @@ namespace RepGame.UI.Chess
 
             var panel = UIKit.Panel(choiceRoot, "Panel", Theme.Paper, Theme.Ink, 3f);
             panel.raycastTarget = true;
-            UIKit.PlaceCenter(panel.rectTransform, 960, 500, 780, 520);
+            UIKit.PlaceCenter(panel.rectTransform, 960, 500, 620, 300);
             var pt = panel.transform;
-            var title = UIKit.Text(pt, "Title", Fmt.T("chess.omen.title", "天象将至 · 第 {0} 回合", round), 40, Theme.Ink, bold: true);
-            UIKit.Place(title.rectTransform, 0, 24, 780, 56);
-            var desc = UIKit.Text(pt, "Desc", Fmt.T("chess.omen.rule", "双方点数相加决定天象：不掷记 0，双方都不掷则由天定"), 20, Theme.InkSoft);
-            UIKit.Place(desc.rectTransform, 40, 86, 700, 30);
-
-            BuildOmenColumns(pt);
+            var prompt = UIKit.Text(pt, "Prompt", Fmt.T("chess.omen.prompt", "是否投掷"), 52, Theme.Ink, bold: true);
+            UIKit.Place(prompt.rectTransform, 0, 40, 620, 80);
 
             if (selfDone)
             {
-                string msg;
-                if (pickedRound == round)
-                {
-                    var what = pickedRoll ? Fmt.T("chess.omen.rollShort", "掷骰") : Fmt.T("chess.omen.skipShort", "不掷");
-                    msg = Fmt.T("chess.omen.waiting", "已选择「{0}」，等待对手…", what);
-                }
-                else
-                {
-                    msg = Fmt.T("chess.omen.waitingAny", "已做出选择，等待对手…");
-                }
-                var wait = UIKit.Text(pt, "Wait", msg, 26, Theme.Ink, bold: true);
-                UIKit.Place(wait.rectTransform, 40, 420, 700, 40);
-                if (oppDone) OpponentDoneLine(pt, 464);
+                var wait = UIKit.Text(pt, "Wait", Fmt.T("chess.omen.waiting", "等待对手…"), 28, Theme.InkSoft, bold: true);
+                UIKit.Place(wait.rectTransform, 0, 170, 620, 50);
             }
             else
             {
-                var rollBtn = UIKit.Button(pt, "Roll", Theme.Red, Theme.Ink, Fmt.T("chess.omen.roll", "掷 骰"), 30, Theme.Paper, () => Pick(round, true));
-                UIKit.Place((RectTransform)rollBtn.transform, 120, 400, 240, 70);
-                var skipBtn = UIKit.Button(pt, "Skip", Theme.Paper, Theme.Ink, Fmt.T("chess.omen.skip", "不 掷"), 30, Theme.Ink, () => Pick(round, false));
-                UIKit.Place((RectTransform)skipBtn.transform, 420, 400, 240, 70);
-                if (oppDone) OpponentDoneLine(pt, 484);
+                var yes = UIKit.Button(pt, "Yes", Theme.Red, Theme.Ink, Fmt.T("chess.omen.yes", "是"), 34, Theme.Paper, () => Pick(round, true));
+                UIKit.Place((RectTransform)yes.transform, 100, 160, 190, 74);
+                var no = UIKit.Button(pt, "No", Theme.Paper, Theme.Ink, Fmt.T("chess.omen.no", "否"), 34, Theme.Ink, () => Pick(round, false));
+                UIKit.Place((RectTransform)no.transform, 330, 160, 190, 74);
             }
-        }
-
-        private static void OpponentDoneLine(Transform parent, float y)
-        {
-            var o = UIKit.Text(parent, "OppDone", Fmt.T("chess.omen.opponentDone", "对手已决定"), 20, Theme.CyanDeep);
-            UIKit.Place(o.rectTransform, 40, y, 700, 28);
         }
 
         private void Pick(int round, bool roll)
         {
             if (pickedRound == round) return;
             pickedRound = round;
-            pickedRoll = roll;
             pickedAt = Time.unscaledTime;
             ChessActions.RollOmen(roll);
             var st = ChessSession.Instance.State;
@@ -146,25 +118,6 @@ namespace RepGame.UI.Chess
             ShowChoice(st);
         }
 
-        /// <summary>两列小字：点数 1–6、7–12 对应的天象名。</summary>
-        private static void BuildOmenColumns(Transform parent)
-        {
-            var cfg = ChessSession.Instance.Config;
-            if (cfg == null) return;
-            var low = new StringBuilder();
-            var high = new StringBuilder();
-            foreach (var o in cfg.Omens.OrderBy(x => x.Point))
-            {
-                var sb = o.Point <= 6 ? low : high;
-                if (sb.Length > 0) sb.Append('\n');
-                sb.Append(o.Point).Append("  ").Append(o.Name);
-            }
-            var a = UIKit.Text(parent, "Low", low.ToString(), 18, Theme.Ink, TextAlignmentOptions.TopLeft);
-            UIKit.Place(a.rectTransform, 150, 136, 220, 250);
-            var b = UIKit.Text(parent, "High", high.ToString(), 18, Theme.Ink, TextAlignmentOptions.TopLeft);
-            UIKit.Place(b.rectTransform, 430, 136, 220, 250);
-        }
-
         public void Hide()
         {
             if (Revealing) return;
@@ -173,6 +126,7 @@ namespace RepGame.UI.Chess
         }
 
         // ---------- 揭晓 ----------
+        // 时间线（秒）：0 骰子出现 → 0.2~1.0 翻滚 → 1.1 点数和 → 1.5 天象名+效果（0.3 淡入）→ 停留 1.5 → 3.3 飞入右上角（0.45）→ 约 3.8 结束
 
         public void Reveal(OmenRollView roll)
         {
@@ -186,9 +140,6 @@ namespace RepGame.UI.Chess
             UIKit.Clear(revealRoot);
             var mask = UIKit.Image(revealRoot, "Mask", new Color(0.07f, 0.07f, 0.07f, 0.6f), raycast: true);
             UIKit.Fill(mask.rectTransform);
-            var click = mask.gameObject.AddComponent<Button>();
-            click.transition = Selectable.Transition.None;
-            click.onClick.AddListener(() => { if (seq != null && seq.IsActive()) seq.Complete(true); });
             var body = UIKit.Rect(revealRoot, "Body");
             UIKit.Fill(body);
             var bodyGroup = UIKit.GetOrAdd<CanvasGroup>(body.gameObject);
@@ -202,27 +153,31 @@ namespace RepGame.UI.Chess
             {
                 for (int i = 0; i < st.Omens.Count; i++) if (st.Omens[i].Key == roll.OmenKey) index = i;
             }
+            if (index >= 0) bar.Hold(roll.OmenKey);
 
             var q = DOTween.Sequence();
-            const float DiceAt = 0.1f, TumbleAt = 0.3f;
+            const float DiceAt = 0f, TumbleAt = 0.2f;
 
-            BuildDie(body, q, SelfX, roll.SelfDie, Fmt.T("chess.omen.self", "我方"), DiceAt, TumbleAt);
-            BuildDie(body, q, OppX, roll.OpponentDie, Fmt.T("chess.omen.opponent", "对手"), DiceAt, TumbleAt);
-
+            string self = Fmt.T("chess.omen.self", "我方"), opp = Fmt.T("chess.omen.opponent", "对手");
             if (roll.Forced)
-                q.Insert(DiceAt, Label(body, "Forced", Fmt.T("chess.omen.forced", "双方都不掷 · 天定"), 32, Theme.Gold, 960, 330, 800, 44).DOFade(1, 0.25f));
+            {
+                var fate = Fmt.T("chess.omen.forced", "天定");
+                self += " · " + fate;
+                opp += " · " + fate;
+            }
+            BuildDie(body, q, SelfX, roll.SelfDie, self, DiceAt, TumbleAt);
+            BuildDie(body, q, OppX, roll.OpponentDie, opp, DiceAt, TumbleAt);
 
-            float sumAt = TumbleAt + TumbleSeconds + 0.3f;
-            var sum = Label(body, "Sum", $"{roll.SelfDie} + {roll.OpponentDie} = {roll.Total}", 56, Theme.Paper, 960, 620, 800, 72);
-            q.Insert(sumAt, sum.DOFade(1, 0.25f));
+            float sumAt = TumbleAt + TumbleSeconds + 0.1f;
+            var sum = Label(body, "Sum", $"{roll.SelfDie} + {roll.OpponentDie} = {roll.Total}", 56, Theme.Paper, 960, 590, 800, 72);
+            q.Insert(sumAt, sum.DOFade(1, 0.2f));
             q.Insert(sumAt, sum.rectTransform.DOPunchScale(Vector3.one * 0.25f, 0.35f, 6, 0.6f));
 
-            float nameAt = sumAt + 0.2f;
+            float nameAt = sumAt + 0.4f;
             if (roll.Shifted)
             {
-                var sh = Label(body, "Shifted", Fmt.T("chess.omen.shifted", "与生效中的天象相同，顺延为 {0}", roll.Point), 24, Theme.GoldPaper, 960, 676, 800, 34);
-                q.Insert(sumAt + 0.25f, sh.DOFade(1, 0.2f));
-                nameAt += 0.2f;
+                var sh = Label(body, "Shifted", Fmt.T("chess.omen.shifted", "与生效中的天象相同，顺延"), 24, Theme.GoldPaper, 960, 645, 800, 34);
+                q.Insert(sumAt + 0.2f, sh.DOFade(1, 0.2f));
             }
 
             var name = UIKit.Text(revealRoot, "OmenName", info != null ? info.Name : roll.OmenKey, 72, Theme.Gold, bold: true);
@@ -230,27 +185,27 @@ namespace RepGame.UI.Chess
             name.outlineColor = Theme.Ink;
             name.gameObject.AddComponent<ShimmerText>();
             var nameRt = name.rectTransform;
-            UIKit.PlaceCenter(nameRt, 960, 760, 900, 100);
+            UIKit.PlaceCenter(nameRt, 960, 730, 900, 100);
             name.alpha = 0;
             q.Insert(nameAt, name.DOFade(1, 0.3f));
 
             if (info != null)
             {
-                var d = Label(body, "OmenDesc", $"{info.Aspect} · {info.Desc}", 26, Theme.GoldPaper, 960, 838, 1100, 40);
-                q.Insert(nameAt + 0.15f, d.DOFade(1, 0.3f));
+                var d = Label(body, "OmenDesc", info.Desc, 28, Theme.GoldPaper, 960, 815, 1100, 44);
+                q.Insert(nameAt + 0.1f, d.DOFade(1, 0.3f));
             }
 
-            // 停留后：名字缩小飞入天象栏，其余淡出（总长不超过 4.5 秒）
-            float flyAt = nameAt + 0.3f + 1.6f;
+            // 结果完全出现后停留 1.5 秒，名字缩小飞入天象栏，其余淡出
+            float flyAt = nameAt + 0.3f + HoldSeconds;
             if (index >= 0)
             {
                 var slot = bar.SlotCenter(index);
                 q.Insert(flyAt, nameRt.DOAnchorPos(new Vector2(slot.x, -slot.y), FlySeconds).SetEase(Ease.InCubic));
-                q.Insert(flyAt, nameRt.DOScale(0.3f, FlySeconds).SetEase(Ease.InCubic));
+                q.Insert(flyAt, nameRt.DOScale(22f / 72f, FlySeconds).SetEase(Ease.InCubic));
             }
             q.Insert(flyAt, bodyGroup.DOFade(0, FlySeconds * 0.7f));
             q.Insert(flyAt, mask.DOFade(0, FlySeconds));
-            q.Insert(flyAt + FlySeconds * 0.8f, name.DOFade(0, FlySeconds * 0.2f));
+            q.Insert(flyAt + FlySeconds, name.DOFade(0, 0.05f));
 
             seq = q;
             q.SetLink(revealRoot.gameObject);
@@ -258,9 +213,10 @@ namespace RepGame.UI.Chess
             {
                 if (seq == q) seq = null;
                 Revealing = false;
-                UIFx.Out(revealRoot.gameObject, UIFx.Style.Fade, null, 0.2f);
+                bar.Release();
+                UIFx.Out(revealRoot.gameObject, UIFx.Style.Fade, null, 0.1f);
             });
-            UIFx.In(revealRoot.gameObject, UIFx.Style.Fade, 0.2f);
+            UIFx.In(revealRoot.gameObject, UIFx.Style.Fade, 0.15f);
         }
 
         /// <summary>被新的揭晓打断时，立即收尾上一次动画。</summary>
@@ -268,6 +224,7 @@ namespace RepGame.UI.Chess
         {
             if (seq != null && seq.IsActive()) { var q = seq; seq = null; q.Kill(); }
             Revealing = false;
+            bar.Release();
         }
 
         private static TextMeshProUGUI Label(Transform parent, string name, string text, float size, Color color, float cx, float cy, float w, float h)
@@ -280,7 +237,7 @@ namespace RepGame.UI.Chess
             return t;
         }
 
-        /// <summary>一颗骰子：die 为 0 表示没掷（半透明虚框 + “不掷”），否则翻滚后落定。</summary>
+        /// <summary>一颗骰子：die 为 0 表示没掷（半透明虚框 + 不掷），否则旋转抖动、点数飞速变换后落定。</summary>
         private static void BuildDie(Transform parent, Sequence q, float cx, int die, string caption, float appearAt, float tumbleAt)
         {
             bool rolled = die > 0;
@@ -291,17 +248,17 @@ namespace RepGame.UI.Chess
             var group = UIKit.GetOrAdd<CanvasGroup>(panel.gameObject);
             group.alpha = 0;
             panel.rectTransform.localScale = Vector3.one * 0.6f;
-            q.Insert(appearAt, group.DOFade(1, 0.2f));
+            q.Insert(appearAt, group.DOFade(1, 0.15f));
             q.Insert(appearAt, panel.rectTransform.DOScale(1, 0.2f).SetEase(Ease.OutBack));
 
             var face = UIKit.Text(panel.transform, "Face", rolled ? Random.Range(1, 7).ToString() : Fmt.T("chess.omen.noRoll", "不掷"),
                 rolled ? 72 : 30, rolled ? Theme.Ink : Theme.WithAlpha(Theme.Paper, 0.8f), bold: true);
 
             var cap = UIKit.Text(parent, "Caption", caption, 24, Theme.Paper, bold: true);
-            UIKit.PlaceCenter(cap.rectTransform, cx, DiceY + DiceSize / 2 + 28, 200, 34);
+            UIKit.PlaceCenter(cap.rectTransform, cx, DiceY + DiceSize / 2 + 28, 260, 34);
             var capGroup = UIKit.GetOrAdd<CanvasGroup>(cap.gameObject);
             capGroup.alpha = 0;
-            q.Insert(appearAt, capGroup.DOFade(1, 0.2f));
+            q.Insert(appearAt, capGroup.DOFade(1, 0.15f));
 
             if (!rolled) return;
             int last = -1;
@@ -311,7 +268,10 @@ namespace RepGame.UI.Chess
                 if (t >= 1f) face.text = die.ToString();
                 else if (step != last) { last = step; face.text = Random.Range(1, 7).ToString(); }
             }, 1f, TumbleSeconds).SetEase(Ease.Linear));
-            q.Insert(tumbleAt, panel.rectTransform.DOShakeRotation(TumbleSeconds, new Vector3(0, 0, 28), 18, 90, false));
+            var rt = panel.rectTransform;
+            q.Insert(tumbleAt, rt.DOLocalRotate(new Vector3(0, 0, 720), TumbleSeconds, RotateMode.FastBeyond360).SetEase(Ease.OutCubic));
+            q.Insert(tumbleAt, rt.DOShakeAnchorPos(TumbleSeconds, new Vector2(18, 24), 22, 90, false, false));
+            q.Insert(tumbleAt + TumbleSeconds, rt.DOPunchScale(Vector3.one * 0.2f, 0.25f, 6, 0.6f));
         }
     }
 }
