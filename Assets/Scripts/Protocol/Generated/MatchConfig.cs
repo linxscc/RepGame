@@ -22,39 +22,7 @@ namespace RepGame.Protocol {
     private static pbr::FileDescriptor descriptor;
 
     static MatchConfigReflection() {
-      byte[] descriptorData = global::System.Convert.FromBase64String(
-          string.Concat(
-            "Ch1yZXBnYW1lL3YxL21hdGNoX2NvbmZpZy5wcm90bxIKcmVwZ2FtZS52MSIk",
-            "CghUaWVySW5mbxIKCgJhdBgBIAEoBRIMCgRkZXNjGAIgASgJImsKCEJvbmRJ",
-            "bmZvEgsKA2tleRgBIAEoCRIMCgRuYW1lGAIgASgJEgwKBGRlc2MYAyABKAkS",
-            "IwoFdGllcnMYBCADKAsyFC5yZXBnYW1lLnYxLlRpZXJJbmZvEhEKCWxpbmVf",
-            "a2V5cxgFIAMoCSK3AQoITGluZUluZm8SCwoDa2V5GAEgASgJEgwKBG5hbWUY",
-            "AiABKAkSEgoKc3Rhcl9uYW1lcxgDIAMoCRIMCgRjb3N0GAQgASgFEg4KBnBv",
-            "aW50cxgFIAEoBRIRCgl0cmFkZV9rZXkYBiABKAkSEgoKb3JpZ2luX2tleRgH",
-            "IAEoCRITCgtsZWdlbmRfZGVzYxgIIAEoCRIiCgRraW5kGAkgASgOMhQucmVw",
-            "Z2FtZS52MS5DYXJkS2luZCKJAQoJUmVsaWNJbmZvEgsKA2tleRgBIAEoCRIM",
-            "CgRuYW1lGAIgASgJEg4KBnJhcml0eRgDIAEoBRIMCgRkZXNjGAQgASgJEhoK",
-            "Em5lZWRzX3RyYWRlX2Nob2ljZRgFIAEoCBIQCghjYXRlZ29yeRgGIAEoCRIV",
-            "Cg1jYXRlZ29yeV9uYW1lGAcgASgJIjYKClJhcml0eUluZm8SCwoDa2V5GAEg",
-            "ASgJEgwKBG5hbWUYAiABKAkSDQoFcHJpY2UYAyABKAUiNQoKRmFtaWx5SW5m",
-            "bxILCgNrZXkYASABKAkSDAoEbmFtZRgCIAEoCRIMCgRkZXNjGAMgASgJIroD",
-            "CgtNYXRjaENvbmZpZxIPCgdyb29tX2lkGAEgASgJEiMKBWxpbmVzGAIgAygL",
-            "MhQucmVwZ2FtZS52MS5MaW5lSW5mbxIkCgZ0cmFkZXMYAyADKAsyFC5yZXBn",
-            "YW1lLnYxLkJvbmRJbmZvEiUKB29yaWdpbnMYBCADKAsyFC5yZXBnYW1lLnYx",
-            "LkJvbmRJbmZvEiUKBnJlbGljcxgFIAMoCzIVLnJlcGdhbWUudjEuUmVsaWNJ",
-            "bmZvEigKCHJhcml0aWVzGAYgAygLMhYucmVwZ2FtZS52MS5SYXJpdHlJbmZv",
-            "EigKCGZhbWlsaWVzGAcgAygLMhYucmVwZ2FtZS52MS5GYW1pbHlJbmZvEhAK",
-            "CG1heF9zdGFyGAggASgFEhIKCmJlbmNoX3NpemUYCSABKAUSFAoMcmVmcmVz",
-            "aF9jb3N0GAogASgFEg8KB3hwX2Nvc3QYCyABKAUSEQoJbWF4X2xldmVsGAwg",
-            "ASgFEhAKCHN0YXJ0X2hwGA0gASgFEhYKDmJvbmRfdGllcl9tdWx0GA4gASgB",
-            "EiMKBW9tZW5zGA8gAygLMhQucmVwZ2FtZS52MS5PbWVuSW5mbyJSCghPbWVu",
-            "SW5mbxILCgNrZXkYASABKAkSDAoEbmFtZRgCIAEoCRIOCgZhc3BlY3QYAyAB",
-            "KAkSDAoEZGVzYxgEIAEoCRINCgVwb2ludBgFIAEoBSpRCglDYXJkQ29sb3IS",
-            "GgoWQ0FSRF9DT0xPUl9VTlNQRUNJRklFRBAAEhIKDkNBUkRfQ09MT1JfUkVE",
-            "EAESFAoQQ0FSRF9DT0xPUl9CTEFDSxACKk0KCENhcmRLaW5kEhkKFUNBUkRf",
-            "S0lORF9VTlNQRUNJRklFRBAAEhEKDUNBUkRfS0lORF9HT0QQARITCg9DQVJE",
-            "X0tJTkRfR0hPU1QQAkIxWhxHb1NlcnZlci90Y3BnYW1lc2VydmVyL3BiO3Bi",
-            "qgIQUmVwR2FtZS5Qcm90b2NvbGIGcHJvdG8z"));
+      byte[] descriptorData = global::System.Convert.FromBase64String(DescriptorBase64);
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::RepGame.Protocol.CardColor), typeof(global::RepGame.Protocol.CardKind), }, null, new pbr::GeneratedClrTypeInfo[] {

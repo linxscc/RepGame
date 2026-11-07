@@ -22,24 +22,7 @@ namespace RepGame.Protocol {
     private static pbr::FileDescriptor descriptor;
 
     static CommonReflection() {
-      byte[] descriptorData = global::System.Convert.FromBase64String(
-          string.Concat(
-            "ChdyZXBnYW1lL3YxL2NvbW1vbi5wcm90bxIKcmVwZ2FtZS52MSI9CgVFcnJv",
-            "chIjCgRjb2RlGAEgASgOMhUucmVwZ2FtZS52MS5FcnJvckNvZGUSDwoHbWVz",
-            "c2FnZRgCIAEoCSIeCgRQaW5nEhYKDmNsaWVudF90aW1lX21zGAEgASgDIjYK",
-            "BFBvbmcSFgoOY2xpZW50X3RpbWVfbXMYASABKAMSFgoOc2VydmVyX3RpbWVf",
-            "bXMYAiABKAMquAMKCUVycm9yQ29kZRIaChZFUlJPUl9DT0RFX1VOU1BFQ0lG",
-            "SUVEEAASHgoaRVJST1JfQ09ERV9JTlZBTElEX1JFUVVFU1QQARIgChxFUlJP",
-            "Ul9DT0RFX05PVF9BVVRIRU5USUNBVEVEEAISIgoeRVJST1JfQ09ERV9JTlZB",
-            "TElEX0NSRURFTlRJQUxTEAMSGgoWRVJST1JfQ09ERV9VU0VSX0VYSVNUUxAE",
-            "Eh4KGkVSUk9SX0NPREVfU0VTU0lPTl9FWFBJUkVEEAUSIQodRVJST1JfQ09E",
-            "RV9JTlZBTElEX0dBTUVfU1RBVEUQBhIcChhFUlJPUl9DT0RFX0lOVkFMSURf",
-            "Q0FSRFMQBxIXChNFUlJPUl9DT0RFX0lOVEVSTkFMEAgSHgoaRVJST1JfQ09E",
-            "RV9OT1RfRU5PVUdIX0dPTEQQCRIZChVFUlJPUl9DT0RFX0JFTkNIX0ZVTEwQ",
-            "ChIfChtFUlJPUl9DT0RFX1JFTElDX1NMT1RTX0ZVTEwQCxIYChRFUlJPUl9D",
-            "T0RFX01BWF9MRVZFTBAMEh0KGUVSUk9SX0NPREVfSU5WQUxJRF9DSE9JQ0UQ",
-            "DUIxWhxHb1NlcnZlci90Y3BnYW1lc2VydmVyL3BiO3BiqgIQUmVwR2FtZS5Q",
-            "cm90b2NvbGIGcHJvdG8z"));
+      byte[] descriptorData = global::System.Convert.FromBase64String(DescriptorBase64);
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::RepGame.Protocol.ErrorCode), }, null, new pbr::GeneratedClrTypeInfo[] {

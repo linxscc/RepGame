@@ -22,17 +22,7 @@ namespace RepGame.Protocol {
     private static pbr::FileDescriptor descriptor;
 
     static LobbyReflection() {
-      byte[] descriptorData = global::System.Convert.FromBase64String(
-          string.Concat(
-            "ChZyZXBnYW1lL3YxL2xvYmJ5LnByb3RvEgpyZXBnYW1lLnYxIg4KDFJlYWR5",
-            "UmVxdWVzdCIUChJDYW5jZWxNYXRjaFJlcXVlc3QiJQoQTWF0Y2htYWtpbmdT",
-            "dGF0ZRIRCglzZWFyY2hpbmcYASABKAgibwoOUGxheWVyUHJlc2VuY2USEAoI",
-            "dXNlcm5hbWUYASABKAkSDwoHcm9vbV9pZBgCIAEoCRIqCgZzdGF0dXMYAyAB",
-            "KA4yGi5yZXBnYW1lLnYxLlByZXNlbmNlU3RhdHVzEg4KBnJlYXNvbhgEIAEo",
-            "CSp0Cg5QcmVzZW5jZVN0YXR1cxIfChtQUkVTRU5DRV9TVEFUVVNfVU5TUEVD",
-            "SUZJRUQQABIgChxQUkVTRU5DRV9TVEFUVVNfRElTQ09OTkVDVEVEEAESHwob",
-            "UFJFU0VOQ0VfU1RBVFVTX1JFQ09OTkVDVEVEEAJCMVocR29TZXJ2ZXIvdGNw",
-            "Z2FtZXNlcnZlci9wYjtwYqoCEFJlcEdhbWUuUHJvdG9jb2xiBnByb3RvMw=="));
+      byte[] descriptorData = global::System.Convert.FromBase64String(DescriptorBase64);
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::RepGame.Protocol.PresenceStatus), }, null, new pbr::GeneratedClrTypeInfo[] {
