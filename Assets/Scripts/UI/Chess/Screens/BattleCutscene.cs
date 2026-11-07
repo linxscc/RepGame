@@ -305,6 +305,7 @@ namespace RepGame.UI.Chess
             {
                 public string CardUid, Label, Source, Change;
                 public int Phase;
+                public StepOrigin Origin;
                 public double Points, Mult;
             }
 
@@ -374,24 +375,34 @@ namespace RepGame.UI.Chess
                     int j = i;
                     double add = 0, times = 1;
                     while (j < steps.Count && steps[j].Source == s.Source && steps[j].Kind == s.Kind && steps[j].CardUid == s.CardUid
-                        && steps[j].Trigger == s.Trigger)
+                        && steps[j].Trigger == s.Trigger && steps[j].Origin == s.Origin)
                     {
                         if (steps[j].Kind == ScoreStepKind.TimesMult) times *= steps[j].Value; else add += steps[j].Value;
                         j++;
                     }
                     var last = steps[j - 1];
-                    var change = s.Kind == ScoreStepKind.Points ? $"战力 +{Fmt.Num(add)}"
-                        : s.Kind == ScoreStepKind.AddMult ? $"气势 +{Fmt.Num(add)}" : $"气势 ×{Fmt.Num(times)}";
+                    var change = SignedChange(s.Kind, add, times);
                     // 重复触发时标出是第几次，让玩家看懂为什么同一来源又结算了一遍
                     if (s.Triggers > 1) change += $"（触发 {s.Trigger}/{s.Triggers}）";
                     Events.Add(new Event
                     {
-                        CardUid = s.CardUid, Label = $"{s.Source} {change}", Source = s.Source, Change = change, Phase = s.Phase,
+                        CardUid = s.CardUid, Label = $"{OriginPrefix(s.Origin)}{s.Source} {change}", Source = s.Source, Change = change, Phase = s.Phase,
+                        Origin = s.Origin,
                         Points = last.Points, Mult = last.Mult,
                     });
                     i = j;
                 }
             }
+
+            /// <summary>步骤的变化文字：战力 +12 / 战力 −8（全角减号）/ 气势 +3 / 气势 ×1.5。</summary>
+            public static string SignedChange(ScoreStepKind kind, double add, double times)
+            {
+                if (kind == ScoreStepKind.TimesMult) return $"气势 ×{Fmt.Num(times)}";
+                var name = kind == ScoreStepKind.Points ? "战力" : "气势";
+                return add < 0 ? $"{name} −{Fmt.Num(-add)}" : $"{name} +{Fmt.Num(add)}";
+            }
+
+            private static string OriginPrefix(StepOrigin o) => o == StepOrigin.FoeRelic ? "对手法宝·" : o == StepOrigin.Omen ? "天象·" : "";
 
             private static RectTransform Back(RectTransform holder)
             {
@@ -433,7 +444,7 @@ namespace RepGame.UI.Chess
                     }
                     seq.AppendCallback(() =>
                     {
-                        if (ev.Phase == PhaseBond || ev.Phase == PhaseRelic)
+                        if (ev.Phase == PhaseBond || ev.Phase == PhaseRelic || ev.Origin != StepOrigin.Own)
                         {
                             ShowBonus(ev);
                             ticker.text = "";
@@ -460,8 +471,11 @@ namespace RepGame.UI.Chess
             /// <summary>在积分外侧显示正在结算的羁绊 / 法宝：首次滑入，之后每步轻弹一下。</summary>
             private void ShowBonus(Event ev)
             {
-                bonusKind.text = ev.Phase == PhaseBond ? "羁 绊" : "法 宝";
+                bonusKind.text = ev.Origin == StepOrigin.FoeRelic ? "对手法宝" : ev.Origin == StepOrigin.Omen ? "天 象"
+                    : ev.Phase == PhaseBond ? "羁 绊" : "法 宝";
                 bonusName.text = ev.Source;
+                // 外来 / 负面效果：金字朱砂红描边
+                bonusName.outlineColor = ev.Origin != StepOrigin.Own ? Theme.Red : Theme.Ink;
                 bonusValue.text = ev.Change;
                 DOTween.Kill(bonusBox);
                 if (!bonusShown)
