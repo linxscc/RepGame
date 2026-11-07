@@ -547,7 +547,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) MatchmakingStateTag.Searching: {
             Searching = input.ReadBool();
             break;
           }
@@ -570,7 +570,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) MatchmakingStateTag.Searching: {
             Searching = input.ReadBool();
             break;
           }
@@ -835,19 +835,19 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) PlayerPresenceTag.Username: {
             Username = input.ReadString();
             break;
           }
-          case 18: {
+          case (uint) PlayerPresenceTag.RoomId: {
             RoomId = input.ReadString();
             break;
           }
-          case 24: {
+          case (uint) PlayerPresenceTag.Status: {
             Status = (global::RepGame.Protocol.PresenceStatus) input.ReadEnum();
             break;
           }
-          case 34: {
+          case (uint) PlayerPresenceTag.Reason: {
             Reason = input.ReadString();
             break;
           }
@@ -870,19 +870,19 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) PlayerPresenceTag.Username: {
             Username = input.ReadString();
             break;
           }
-          case 18: {
+          case (uint) PlayerPresenceTag.RoomId: {
             RoomId = input.ReadString();
             break;
           }
-          case 24: {
+          case (uint) PlayerPresenceTag.Status: {
             Status = (global::RepGame.Protocol.PresenceStatus) input.ReadEnum();
             break;
           }
-          case 34: {
+          case (uint) PlayerPresenceTag.Reason: {
             Reason = input.ReadString();
             break;
           }

@@ -511,11 +511,11 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) ClientMessageTag.Seq: {
             Seq = input.ReadUInt32();
             break;
           }
-          case 82: {
+          case (uint) ClientMessageTag.Login: {
             global::RepGame.Protocol.LoginRequest subBuilder = new global::RepGame.Protocol.LoginRequest();
             if (bodyCase_ == BodyOneofCase.Login) {
               subBuilder.MergeFrom(Login);
@@ -524,7 +524,7 @@ namespace RepGame.Protocol {
             Login = subBuilder;
             break;
           }
-          case 90: {
+          case (uint) ClientMessageTag.Register: {
             global::RepGame.Protocol.RegisterRequest subBuilder = new global::RepGame.Protocol.RegisterRequest();
             if (bodyCase_ == BodyOneofCase.Register) {
               subBuilder.MergeFrom(Register);
@@ -533,7 +533,7 @@ namespace RepGame.Protocol {
             Register = subBuilder;
             break;
           }
-          case 98: {
+          case (uint) ClientMessageTag.ResumeSession: {
             global::RepGame.Protocol.ResumeSessionRequest subBuilder = new global::RepGame.Protocol.ResumeSessionRequest();
             if (bodyCase_ == BodyOneofCase.ResumeSession) {
               subBuilder.MergeFrom(ResumeSession);
@@ -542,7 +542,7 @@ namespace RepGame.Protocol {
             ResumeSession = subBuilder;
             break;
           }
-          case 106: {
+          case (uint) ClientMessageTag.Ready: {
             global::RepGame.Protocol.ReadyRequest subBuilder = new global::RepGame.Protocol.ReadyRequest();
             if (bodyCase_ == BodyOneofCase.Ready) {
               subBuilder.MergeFrom(Ready);
@@ -551,7 +551,7 @@ namespace RepGame.Protocol {
             Ready = subBuilder;
             break;
           }
-          case 138: {
+          case (uint) ClientMessageTag.Ping: {
             global::RepGame.Protocol.Ping subBuilder = new global::RepGame.Protocol.Ping();
             if (bodyCase_ == BodyOneofCase.Ping) {
               subBuilder.MergeFrom(Ping);
@@ -560,7 +560,7 @@ namespace RepGame.Protocol {
             Ping = subBuilder;
             break;
           }
-          case 146: {
+          case (uint) ClientMessageTag.GameAction: {
             global::RepGame.Protocol.GameAction subBuilder = new global::RepGame.Protocol.GameAction();
             if (bodyCase_ == BodyOneofCase.GameAction) {
               subBuilder.MergeFrom(GameAction);
@@ -569,7 +569,7 @@ namespace RepGame.Protocol {
             GameAction = subBuilder;
             break;
           }
-          case 154: {
+          case (uint) ClientMessageTag.CancelMatch: {
             global::RepGame.Protocol.CancelMatchRequest subBuilder = new global::RepGame.Protocol.CancelMatchRequest();
             if (bodyCase_ == BodyOneofCase.CancelMatch) {
               subBuilder.MergeFrom(CancelMatch);
@@ -597,11 +597,11 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) ClientMessageTag.Seq: {
             Seq = input.ReadUInt32();
             break;
           }
-          case 82: {
+          case (uint) ClientMessageTag.Login: {
             global::RepGame.Protocol.LoginRequest subBuilder = new global::RepGame.Protocol.LoginRequest();
             if (bodyCase_ == BodyOneofCase.Login) {
               subBuilder.MergeFrom(Login);
@@ -610,7 +610,7 @@ namespace RepGame.Protocol {
             Login = subBuilder;
             break;
           }
-          case 90: {
+          case (uint) ClientMessageTag.Register: {
             global::RepGame.Protocol.RegisterRequest subBuilder = new global::RepGame.Protocol.RegisterRequest();
             if (bodyCase_ == BodyOneofCase.Register) {
               subBuilder.MergeFrom(Register);
@@ -619,7 +619,7 @@ namespace RepGame.Protocol {
             Register = subBuilder;
             break;
           }
-          case 98: {
+          case (uint) ClientMessageTag.ResumeSession: {
             global::RepGame.Protocol.ResumeSessionRequest subBuilder = new global::RepGame.Protocol.ResumeSessionRequest();
             if (bodyCase_ == BodyOneofCase.ResumeSession) {
               subBuilder.MergeFrom(ResumeSession);
@@ -628,7 +628,7 @@ namespace RepGame.Protocol {
             ResumeSession = subBuilder;
             break;
           }
-          case 106: {
+          case (uint) ClientMessageTag.Ready: {
             global::RepGame.Protocol.ReadyRequest subBuilder = new global::RepGame.Protocol.ReadyRequest();
             if (bodyCase_ == BodyOneofCase.Ready) {
               subBuilder.MergeFrom(Ready);
@@ -637,7 +637,7 @@ namespace RepGame.Protocol {
             Ready = subBuilder;
             break;
           }
-          case 138: {
+          case (uint) ClientMessageTag.Ping: {
             global::RepGame.Protocol.Ping subBuilder = new global::RepGame.Protocol.Ping();
             if (bodyCase_ == BodyOneofCase.Ping) {
               subBuilder.MergeFrom(Ping);
@@ -646,7 +646,7 @@ namespace RepGame.Protocol {
             Ping = subBuilder;
             break;
           }
-          case 146: {
+          case (uint) ClientMessageTag.GameAction: {
             global::RepGame.Protocol.GameAction subBuilder = new global::RepGame.Protocol.GameAction();
             if (bodyCase_ == BodyOneofCase.GameAction) {
               subBuilder.MergeFrom(GameAction);
@@ -655,7 +655,7 @@ namespace RepGame.Protocol {
             GameAction = subBuilder;
             break;
           }
-          case 154: {
+          case (uint) ClientMessageTag.CancelMatch: {
             global::RepGame.Protocol.CancelMatchRequest subBuilder = new global::RepGame.Protocol.CancelMatchRequest();
             if (bodyCase_ == BodyOneofCase.CancelMatch) {
               subBuilder.MergeFrom(CancelMatch);
@@ -1268,11 +1268,11 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) ServerMessageTag.ReplyTo: {
             ReplyTo = input.ReadUInt32();
             break;
           }
-          case 18: {
+          case (uint) ServerMessageTag.Error: {
             global::RepGame.Protocol.Error subBuilder = new global::RepGame.Protocol.Error();
             if (bodyCase_ == BodyOneofCase.Error) {
               subBuilder.MergeFrom(Error);
@@ -1281,7 +1281,7 @@ namespace RepGame.Protocol {
             Error = subBuilder;
             break;
           }
-          case 82: {
+          case (uint) ServerMessageTag.Welcome: {
             global::RepGame.Protocol.Welcome subBuilder = new global::RepGame.Protocol.Welcome();
             if (bodyCase_ == BodyOneofCase.Welcome) {
               subBuilder.MergeFrom(Welcome);
@@ -1290,7 +1290,7 @@ namespace RepGame.Protocol {
             Welcome = subBuilder;
             break;
           }
-          case 90: {
+          case (uint) ServerMessageTag.AuthResult: {
             global::RepGame.Protocol.AuthResult subBuilder = new global::RepGame.Protocol.AuthResult();
             if (bodyCase_ == BodyOneofCase.AuthResult) {
               subBuilder.MergeFrom(AuthResult);
@@ -1299,7 +1299,7 @@ namespace RepGame.Protocol {
             AuthResult = subBuilder;
             break;
           }
-          case 98: {
+          case (uint) ServerMessageTag.RegisterResult: {
             global::RepGame.Protocol.RegisterResult subBuilder = new global::RepGame.Protocol.RegisterResult();
             if (bodyCase_ == BodyOneofCase.RegisterResult) {
               subBuilder.MergeFrom(RegisterResult);
@@ -1308,7 +1308,7 @@ namespace RepGame.Protocol {
             RegisterResult = subBuilder;
             break;
           }
-          case 122: {
+          case (uint) ServerMessageTag.PlayerPresence: {
             global::RepGame.Protocol.PlayerPresence subBuilder = new global::RepGame.Protocol.PlayerPresence();
             if (bodyCase_ == BodyOneofCase.PlayerPresence) {
               subBuilder.MergeFrom(PlayerPresence);
@@ -1317,7 +1317,7 @@ namespace RepGame.Protocol {
             PlayerPresence = subBuilder;
             break;
           }
-          case 130: {
+          case (uint) ServerMessageTag.Pong: {
             global::RepGame.Protocol.Pong subBuilder = new global::RepGame.Protocol.Pong();
             if (bodyCase_ == BodyOneofCase.Pong) {
               subBuilder.MergeFrom(Pong);
@@ -1326,7 +1326,7 @@ namespace RepGame.Protocol {
             Pong = subBuilder;
             break;
           }
-          case 138: {
+          case (uint) ServerMessageTag.MatchConfig: {
             global::RepGame.Protocol.MatchConfig subBuilder = new global::RepGame.Protocol.MatchConfig();
             if (bodyCase_ == BodyOneofCase.MatchConfig) {
               subBuilder.MergeFrom(MatchConfig);
@@ -1335,7 +1335,7 @@ namespace RepGame.Protocol {
             MatchConfig = subBuilder;
             break;
           }
-          case 146: {
+          case (uint) ServerMessageTag.MatchState: {
             global::RepGame.Protocol.MatchState subBuilder = new global::RepGame.Protocol.MatchState();
             if (bodyCase_ == BodyOneofCase.MatchState) {
               subBuilder.MergeFrom(MatchState);
@@ -1344,7 +1344,7 @@ namespace RepGame.Protocol {
             MatchState = subBuilder;
             break;
           }
-          case 154: {
+          case (uint) ServerMessageTag.RoundResult: {
             global::RepGame.Protocol.RoundResult subBuilder = new global::RepGame.Protocol.RoundResult();
             if (bodyCase_ == BodyOneofCase.RoundResult) {
               subBuilder.MergeFrom(RoundResult);
@@ -1353,7 +1353,7 @@ namespace RepGame.Protocol {
             RoundResult = subBuilder;
             break;
           }
-          case 162: {
+          case (uint) ServerMessageTag.MatchOver: {
             global::RepGame.Protocol.MatchOver subBuilder = new global::RepGame.Protocol.MatchOver();
             if (bodyCase_ == BodyOneofCase.MatchOver) {
               subBuilder.MergeFrom(MatchOver);
@@ -1362,7 +1362,7 @@ namespace RepGame.Protocol {
             MatchOver = subBuilder;
             break;
           }
-          case 170: {
+          case (uint) ServerMessageTag.Matchmaking: {
             global::RepGame.Protocol.MatchmakingState subBuilder = new global::RepGame.Protocol.MatchmakingState();
             if (bodyCase_ == BodyOneofCase.Matchmaking) {
               subBuilder.MergeFrom(Matchmaking);
@@ -1390,11 +1390,11 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) ServerMessageTag.ReplyTo: {
             ReplyTo = input.ReadUInt32();
             break;
           }
-          case 18: {
+          case (uint) ServerMessageTag.Error: {
             global::RepGame.Protocol.Error subBuilder = new global::RepGame.Protocol.Error();
             if (bodyCase_ == BodyOneofCase.Error) {
               subBuilder.MergeFrom(Error);
@@ -1403,7 +1403,7 @@ namespace RepGame.Protocol {
             Error = subBuilder;
             break;
           }
-          case 82: {
+          case (uint) ServerMessageTag.Welcome: {
             global::RepGame.Protocol.Welcome subBuilder = new global::RepGame.Protocol.Welcome();
             if (bodyCase_ == BodyOneofCase.Welcome) {
               subBuilder.MergeFrom(Welcome);
@@ -1412,7 +1412,7 @@ namespace RepGame.Protocol {
             Welcome = subBuilder;
             break;
           }
-          case 90: {
+          case (uint) ServerMessageTag.AuthResult: {
             global::RepGame.Protocol.AuthResult subBuilder = new global::RepGame.Protocol.AuthResult();
             if (bodyCase_ == BodyOneofCase.AuthResult) {
               subBuilder.MergeFrom(AuthResult);
@@ -1421,7 +1421,7 @@ namespace RepGame.Protocol {
             AuthResult = subBuilder;
             break;
           }
-          case 98: {
+          case (uint) ServerMessageTag.RegisterResult: {
             global::RepGame.Protocol.RegisterResult subBuilder = new global::RepGame.Protocol.RegisterResult();
             if (bodyCase_ == BodyOneofCase.RegisterResult) {
               subBuilder.MergeFrom(RegisterResult);
@@ -1430,7 +1430,7 @@ namespace RepGame.Protocol {
             RegisterResult = subBuilder;
             break;
           }
-          case 122: {
+          case (uint) ServerMessageTag.PlayerPresence: {
             global::RepGame.Protocol.PlayerPresence subBuilder = new global::RepGame.Protocol.PlayerPresence();
             if (bodyCase_ == BodyOneofCase.PlayerPresence) {
               subBuilder.MergeFrom(PlayerPresence);
@@ -1439,7 +1439,7 @@ namespace RepGame.Protocol {
             PlayerPresence = subBuilder;
             break;
           }
-          case 130: {
+          case (uint) ServerMessageTag.Pong: {
             global::RepGame.Protocol.Pong subBuilder = new global::RepGame.Protocol.Pong();
             if (bodyCase_ == BodyOneofCase.Pong) {
               subBuilder.MergeFrom(Pong);
@@ -1448,7 +1448,7 @@ namespace RepGame.Protocol {
             Pong = subBuilder;
             break;
           }
-          case 138: {
+          case (uint) ServerMessageTag.MatchConfig: {
             global::RepGame.Protocol.MatchConfig subBuilder = new global::RepGame.Protocol.MatchConfig();
             if (bodyCase_ == BodyOneofCase.MatchConfig) {
               subBuilder.MergeFrom(MatchConfig);
@@ -1457,7 +1457,7 @@ namespace RepGame.Protocol {
             MatchConfig = subBuilder;
             break;
           }
-          case 146: {
+          case (uint) ServerMessageTag.MatchState: {
             global::RepGame.Protocol.MatchState subBuilder = new global::RepGame.Protocol.MatchState();
             if (bodyCase_ == BodyOneofCase.MatchState) {
               subBuilder.MergeFrom(MatchState);
@@ -1466,7 +1466,7 @@ namespace RepGame.Protocol {
             MatchState = subBuilder;
             break;
           }
-          case 154: {
+          case (uint) ServerMessageTag.RoundResult: {
             global::RepGame.Protocol.RoundResult subBuilder = new global::RepGame.Protocol.RoundResult();
             if (bodyCase_ == BodyOneofCase.RoundResult) {
               subBuilder.MergeFrom(RoundResult);
@@ -1475,7 +1475,7 @@ namespace RepGame.Protocol {
             RoundResult = subBuilder;
             break;
           }
-          case 162: {
+          case (uint) ServerMessageTag.MatchOver: {
             global::RepGame.Protocol.MatchOver subBuilder = new global::RepGame.Protocol.MatchOver();
             if (bodyCase_ == BodyOneofCase.MatchOver) {
               subBuilder.MergeFrom(MatchOver);
@@ -1484,7 +1484,7 @@ namespace RepGame.Protocol {
             MatchOver = subBuilder;
             break;
           }
-          case 170: {
+          case (uint) ServerMessageTag.Matchmaking: {
             global::RepGame.Protocol.MatchmakingState subBuilder = new global::RepGame.Protocol.MatchmakingState();
             if (bodyCase_ == BodyOneofCase.Matchmaking) {
               subBuilder.MergeFrom(Matchmaking);

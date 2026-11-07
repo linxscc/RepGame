@@ -307,11 +307,11 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) ErrorTag.Code: {
             Code = (global::RepGame.Protocol.ErrorCode) input.ReadEnum();
             break;
           }
-          case 18: {
+          case (uint) ErrorTag.Message: {
             Message = input.ReadString();
             break;
           }
@@ -334,11 +334,11 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) ErrorTag.Code: {
             Code = (global::RepGame.Protocol.ErrorCode) input.ReadEnum();
             break;
           }
-          case 18: {
+          case (uint) ErrorTag.Message: {
             Message = input.ReadString();
             break;
           }
@@ -513,7 +513,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) PingTag.ClientTimeMs: {
             ClientTimeMs = input.ReadInt64();
             break;
           }
@@ -536,7 +536,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) PingTag.ClientTimeMs: {
             ClientTimeMs = input.ReadInt64();
             break;
           }
@@ -743,11 +743,11 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) PongTag.ClientTimeMs: {
             ClientTimeMs = input.ReadInt64();
             break;
           }
-          case 16: {
+          case (uint) PongTag.ServerTimeMs: {
             ServerTimeMs = input.ReadInt64();
             break;
           }
@@ -770,11 +770,11 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) PongTag.ClientTimeMs: {
             ClientTimeMs = input.ReadInt64();
             break;
           }
-          case 16: {
+          case (uint) PongTag.ServerTimeMs: {
             ServerTimeMs = input.ReadInt64();
             break;
           }

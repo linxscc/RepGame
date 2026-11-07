@@ -544,35 +544,35 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) ChessCardTag.Uid: {
             Uid = input.ReadString();
             break;
           }
-          case 18: {
+          case (uint) ChessCardTag.LineKey: {
             LineKey = input.ReadString();
             break;
           }
-          case 24: {
+          case (uint) ChessCardTag.Star: {
             Star = input.ReadInt32();
             break;
           }
-          case 34: {
+          case (uint) ChessCardTag.Name: {
             Name = input.ReadString();
             break;
           }
-          case 40: {
+          case (uint) ChessCardTag.Points: {
             Points = input.ReadInt32();
             break;
           }
-          case 48: {
+          case (uint) ChessCardTag.Bonus: {
             Bonus = input.ReadInt32();
             break;
           }
-          case 56: {
+          case (uint) ChessCardTag.SellPrice: {
             SellPrice = input.ReadInt32();
             break;
           }
-          case 64: {
+          case (uint) ChessCardTag.Color: {
             Color = (global::RepGame.Protocol.CardColor) input.ReadEnum();
             break;
           }
@@ -595,35 +595,35 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) ChessCardTag.Uid: {
             Uid = input.ReadString();
             break;
           }
-          case 18: {
+          case (uint) ChessCardTag.LineKey: {
             LineKey = input.ReadString();
             break;
           }
-          case 24: {
+          case (uint) ChessCardTag.Star: {
             Star = input.ReadInt32();
             break;
           }
-          case 34: {
+          case (uint) ChessCardTag.Name: {
             Name = input.ReadString();
             break;
           }
-          case 40: {
+          case (uint) ChessCardTag.Points: {
             Points = input.ReadInt32();
             break;
           }
-          case 48: {
+          case (uint) ChessCardTag.Bonus: {
             Bonus = input.ReadInt32();
             break;
           }
-          case 56: {
+          case (uint) ChessCardTag.SellPrice: {
             SellPrice = input.ReadInt32();
             break;
           }
-          case 64: {
+          case (uint) ChessCardTag.Color: {
             Color = (global::RepGame.Protocol.CardColor) input.ReadEnum();
             break;
           }
@@ -891,19 +891,19 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) RelicSlotTag.RelicKey: {
             RelicKey = input.ReadString();
             break;
           }
-          case 17: {
+          case (uint) RelicSlotTag.Value: {
             Value = input.ReadDouble();
             break;
           }
-          case 24: {
+          case (uint) RelicSlotTag.TradeChoice: {
             TradeChoice = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) RelicSlotTag.SellPrice: {
             SellPrice = input.ReadInt32();
             break;
           }
@@ -926,19 +926,19 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) RelicSlotTag.RelicKey: {
             RelicKey = input.ReadString();
             break;
           }
-          case 17: {
+          case (uint) RelicSlotTag.Value: {
             Value = input.ReadDouble();
             break;
           }
-          case 24: {
+          case (uint) RelicSlotTag.TradeChoice: {
             TradeChoice = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) RelicSlotTag.SellPrice: {
             SellPrice = input.ReadInt32();
             break;
           }
@@ -1209,19 +1209,19 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) ShopSlotTag.LineKey: {
             LineKey = input.ReadString();
             break;
           }
-          case 16: {
+          case (uint) ShopSlotTag.Cost: {
             Cost = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) ShopSlotTag.Owned: {
             Owned = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) ShopSlotTag.Color: {
             Color = (global::RepGame.Protocol.CardColor) input.ReadEnum();
             break;
           }
@@ -1244,19 +1244,19 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) ShopSlotTag.LineKey: {
             LineKey = input.ReadString();
             break;
           }
-          case 16: {
+          case (uint) ShopSlotTag.Cost: {
             Cost = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) ShopSlotTag.Owned: {
             Owned = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) ShopSlotTag.Color: {
             Color = (global::RepGame.Protocol.CardColor) input.ReadEnum();
             break;
           }
@@ -1524,19 +1524,19 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) BondCountTag.Key: {
             Key = input.ReadString();
             break;
           }
-          case 16: {
+          case (uint) BondCountTag.Count: {
             Count = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) BondCountTag.Tier: {
             Tier = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) BondCountTag.AtDelta: {
             AtDelta = input.ReadInt32();
             break;
           }
@@ -1559,19 +1559,19 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) BondCountTag.Key: {
             Key = input.ReadString();
             break;
           }
-          case 16: {
+          case (uint) BondCountTag.Count: {
             Count = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) BondCountTag.Tier: {
             Tier = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) BondCountTag.AtDelta: {
             AtDelta = input.ReadInt32();
             break;
           }
@@ -2057,47 +2057,47 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) ScoreStepTag.Phase: {
             Phase = input.ReadInt32();
             break;
           }
-          case 18: {
+          case (uint) ScoreStepTag.Source: {
             Source = input.ReadString();
             break;
           }
-          case 26: {
+          case (uint) ScoreStepTag.CardUid: {
             CardUid = input.ReadString();
             break;
           }
-          case 32: {
+          case (uint) ScoreStepTag.RelicSlot: {
             RelicSlot = input.ReadInt32();
             break;
           }
-          case 40: {
+          case (uint) ScoreStepTag.Kind: {
             Kind = (global::RepGame.Protocol.ScoreStepKind) input.ReadEnum();
             break;
           }
-          case 49: {
+          case (uint) ScoreStepTag.Value: {
             Value = input.ReadDouble();
             break;
           }
-          case 57: {
+          case (uint) ScoreStepTag.Points: {
             Points = input.ReadDouble();
             break;
           }
-          case 65: {
+          case (uint) ScoreStepTag.Mult: {
             Mult = input.ReadDouble();
             break;
           }
-          case 72: {
+          case (uint) ScoreStepTag.Trigger: {
             Trigger = input.ReadInt32();
             break;
           }
-          case 80: {
+          case (uint) ScoreStepTag.Triggers: {
             Triggers = input.ReadInt32();
             break;
           }
-          case 88: {
+          case (uint) ScoreStepTag.Origin: {
             Origin = (global::RepGame.Protocol.StepOrigin) input.ReadEnum();
             break;
           }
@@ -2120,47 +2120,47 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) ScoreStepTag.Phase: {
             Phase = input.ReadInt32();
             break;
           }
-          case 18: {
+          case (uint) ScoreStepTag.Source: {
             Source = input.ReadString();
             break;
           }
-          case 26: {
+          case (uint) ScoreStepTag.CardUid: {
             CardUid = input.ReadString();
             break;
           }
-          case 32: {
+          case (uint) ScoreStepTag.RelicSlot: {
             RelicSlot = input.ReadInt32();
             break;
           }
-          case 40: {
+          case (uint) ScoreStepTag.Kind: {
             Kind = (global::RepGame.Protocol.ScoreStepKind) input.ReadEnum();
             break;
           }
-          case 49: {
+          case (uint) ScoreStepTag.Value: {
             Value = input.ReadDouble();
             break;
           }
-          case 57: {
+          case (uint) ScoreStepTag.Points: {
             Points = input.ReadDouble();
             break;
           }
-          case 65: {
+          case (uint) ScoreStepTag.Mult: {
             Mult = input.ReadDouble();
             break;
           }
-          case 72: {
+          case (uint) ScoreStepTag.Trigger: {
             Trigger = input.ReadInt32();
             break;
           }
-          case 80: {
+          case (uint) ScoreStepTag.Triggers: {
             Triggers = input.ReadInt32();
             break;
           }
-          case 88: {
+          case (uint) ScoreStepTag.Origin: {
             Origin = (global::RepGame.Protocol.StepOrigin) input.ReadEnum();
             break;
           }
@@ -2411,19 +2411,19 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 9: {
+          case (uint) ScoreBreakdownTag.Points: {
             Points = input.ReadDouble();
             break;
           }
-          case 17: {
+          case (uint) ScoreBreakdownTag.Mult: {
             Mult = input.ReadDouble();
             break;
           }
-          case 25: {
+          case (uint) ScoreBreakdownTag.Score: {
             Score = input.ReadDouble();
             break;
           }
-          case 34: {
+          case (uint) ScoreBreakdownTag.Steps: {
             steps_.AddEntriesFrom(input, _repeated_steps_codec);
             break;
           }
@@ -2446,19 +2446,19 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 9: {
+          case (uint) ScoreBreakdownTag.Points: {
             Points = input.ReadDouble();
             break;
           }
-          case 17: {
+          case (uint) ScoreBreakdownTag.Mult: {
             Mult = input.ReadDouble();
             break;
           }
-          case 25: {
+          case (uint) ScoreBreakdownTag.Score: {
             Score = input.ReadDouble();
             break;
           }
-          case 34: {
+          case (uint) ScoreBreakdownTag.Steps: {
             steps_.AddEntriesFrom(ref input, _repeated_steps_codec);
             break;
           }
@@ -3258,102 +3258,102 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) SelfViewTag.Hp: {
             Hp = input.ReadInt32();
             break;
           }
-          case 16: {
+          case (uint) SelfViewTag.Gold: {
             Gold = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) SelfViewTag.Level: {
             Level = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) SelfViewTag.Xp: {
             Xp = input.ReadInt32();
             break;
           }
-          case 40: {
+          case (uint) SelfViewTag.XpToNext: {
             XpToNext = input.ReadInt32();
             break;
           }
-          case 48: {
+          case (uint) SelfViewTag.Slots: {
             Slots = input.ReadInt32();
             break;
           }
-          case 56: {
+          case (uint) SelfViewTag.RelicSlots: {
             RelicSlots = input.ReadInt32();
             break;
           }
-          case 66: {
+          case (uint) SelfViewTag.Board: {
             board_.AddEntriesFrom(input, _repeated_board_codec);
             break;
           }
-          case 74: {
+          case (uint) SelfViewTag.Bench: {
             bench_.AddEntriesFrom(input, _repeated_bench_codec);
             break;
           }
-          case 82: {
+          case (uint) SelfViewTag.Relics: {
             relics_.AddEntriesFrom(input, _repeated_relics_codec);
             break;
           }
-          case 90: {
+          case (uint) SelfViewTag.Shop: {
             shop_.AddEntriesFrom(input, _repeated_shop_codec);
             break;
           }
-          case 98: {
+          case (uint) SelfViewTag.ShopRelicKey: {
             ShopRelicKey = input.ReadString();
             break;
           }
-          case 104: {
+          case (uint) SelfViewTag.ShopLocked: {
             ShopLocked = input.ReadBool();
             break;
           }
-          case 112: {
+          case (uint) SelfViewTag.FreeRefreshes: {
             FreeRefreshes = input.ReadInt32();
             break;
           }
-          case 120: {
+          case (uint) SelfViewTag.Interest: {
             Interest = input.ReadInt32();
             break;
           }
-          case 128: {
+          case (uint) SelfViewTag.Family: {
             Family = input.ReadInt32();
             break;
           }
-          case 136: {
+          case (uint) SelfViewTag.WinStreak: {
             WinStreak = input.ReadInt32();
             break;
           }
-          case 144: {
+          case (uint) SelfViewTag.LossStreak: {
             LossStreak = input.ReadInt32();
             break;
           }
-          case 152: {
+          case (uint) SelfViewTag.Ready: {
             Ready = input.ReadBool();
             break;
           }
-          case 162: {
+          case (uint) SelfViewTag.TradeBonds: {
             tradeBonds_.AddEntriesFrom(input, _repeated_tradeBonds_codec);
             break;
           }
-          case 170: {
+          case (uint) SelfViewTag.OriginBonds: {
             originBonds_.AddEntriesFrom(input, _repeated_originBonds_codec);
             break;
           }
-          case 178: {
+          case (uint) SelfViewTag.Preview: {
             if (preview_ == null) {
               Preview = new global::RepGame.Protocol.ScoreBreakdown();
             }
             input.ReadMessage(Preview);
             break;
           }
-          case 184: {
+          case (uint) SelfViewTag.BenchSize: {
             BenchSize = input.ReadInt32();
             break;
           }
-          case 192: {
+          case (uint) SelfViewTag.RefreshCost: {
             RefreshCost = input.ReadInt32();
             break;
           }
@@ -3376,102 +3376,102 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) SelfViewTag.Hp: {
             Hp = input.ReadInt32();
             break;
           }
-          case 16: {
+          case (uint) SelfViewTag.Gold: {
             Gold = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) SelfViewTag.Level: {
             Level = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) SelfViewTag.Xp: {
             Xp = input.ReadInt32();
             break;
           }
-          case 40: {
+          case (uint) SelfViewTag.XpToNext: {
             XpToNext = input.ReadInt32();
             break;
           }
-          case 48: {
+          case (uint) SelfViewTag.Slots: {
             Slots = input.ReadInt32();
             break;
           }
-          case 56: {
+          case (uint) SelfViewTag.RelicSlots: {
             RelicSlots = input.ReadInt32();
             break;
           }
-          case 66: {
+          case (uint) SelfViewTag.Board: {
             board_.AddEntriesFrom(ref input, _repeated_board_codec);
             break;
           }
-          case 74: {
+          case (uint) SelfViewTag.Bench: {
             bench_.AddEntriesFrom(ref input, _repeated_bench_codec);
             break;
           }
-          case 82: {
+          case (uint) SelfViewTag.Relics: {
             relics_.AddEntriesFrom(ref input, _repeated_relics_codec);
             break;
           }
-          case 90: {
+          case (uint) SelfViewTag.Shop: {
             shop_.AddEntriesFrom(ref input, _repeated_shop_codec);
             break;
           }
-          case 98: {
+          case (uint) SelfViewTag.ShopRelicKey: {
             ShopRelicKey = input.ReadString();
             break;
           }
-          case 104: {
+          case (uint) SelfViewTag.ShopLocked: {
             ShopLocked = input.ReadBool();
             break;
           }
-          case 112: {
+          case (uint) SelfViewTag.FreeRefreshes: {
             FreeRefreshes = input.ReadInt32();
             break;
           }
-          case 120: {
+          case (uint) SelfViewTag.Interest: {
             Interest = input.ReadInt32();
             break;
           }
-          case 128: {
+          case (uint) SelfViewTag.Family: {
             Family = input.ReadInt32();
             break;
           }
-          case 136: {
+          case (uint) SelfViewTag.WinStreak: {
             WinStreak = input.ReadInt32();
             break;
           }
-          case 144: {
+          case (uint) SelfViewTag.LossStreak: {
             LossStreak = input.ReadInt32();
             break;
           }
-          case 152: {
+          case (uint) SelfViewTag.Ready: {
             Ready = input.ReadBool();
             break;
           }
-          case 162: {
+          case (uint) SelfViewTag.TradeBonds: {
             tradeBonds_.AddEntriesFrom(ref input, _repeated_tradeBonds_codec);
             break;
           }
-          case 170: {
+          case (uint) SelfViewTag.OriginBonds: {
             originBonds_.AddEntriesFrom(ref input, _repeated_originBonds_codec);
             break;
           }
-          case 178: {
+          case (uint) SelfViewTag.Preview: {
             if (preview_ == null) {
               Preview = new global::RepGame.Protocol.ScoreBreakdown();
             }
             input.ReadMessage(Preview);
             break;
           }
-          case 184: {
+          case (uint) SelfViewTag.BenchSize: {
             BenchSize = input.ReadInt32();
             break;
           }
-          case 192: {
+          case (uint) SelfViewTag.RefreshCost: {
             RefreshCost = input.ReadInt32();
             break;
           }
@@ -3920,47 +3920,47 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) OpponentViewTag.Username: {
             Username = input.ReadString();
             break;
           }
-          case 16: {
+          case (uint) OpponentViewTag.Hp: {
             Hp = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) OpponentViewTag.Level: {
             Level = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) OpponentViewTag.Gold: {
             Gold = input.ReadInt32();
             break;
           }
-          case 40: {
+          case (uint) OpponentViewTag.CardCount: {
             CardCount = input.ReadInt32();
             break;
           }
-          case 50: {
+          case (uint) OpponentViewTag.Relics: {
             relics_.AddEntriesFrom(input, _repeated_relics_codec);
             break;
           }
-          case 56: {
+          case (uint) OpponentViewTag.Family: {
             Family = input.ReadInt32();
             break;
           }
-          case 66: {
+          case (uint) OpponentViewTag.LastBoard: {
             lastBoard_.AddEntriesFrom(input, _repeated_lastBoard_codec);
             break;
           }
-          case 73: {
+          case (uint) OpponentViewTag.LastScore: {
             LastScore = input.ReadDouble();
             break;
           }
-          case 80: {
+          case (uint) OpponentViewTag.Ready: {
             Ready = input.ReadBool();
             break;
           }
-          case 88: {
+          case (uint) OpponentViewTag.Connected: {
             Connected = input.ReadBool();
             break;
           }
@@ -3983,47 +3983,47 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) OpponentViewTag.Username: {
             Username = input.ReadString();
             break;
           }
-          case 16: {
+          case (uint) OpponentViewTag.Hp: {
             Hp = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) OpponentViewTag.Level: {
             Level = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) OpponentViewTag.Gold: {
             Gold = input.ReadInt32();
             break;
           }
-          case 40: {
+          case (uint) OpponentViewTag.CardCount: {
             CardCount = input.ReadInt32();
             break;
           }
-          case 50: {
+          case (uint) OpponentViewTag.Relics: {
             relics_.AddEntriesFrom(ref input, _repeated_relics_codec);
             break;
           }
-          case 56: {
+          case (uint) OpponentViewTag.Family: {
             Family = input.ReadInt32();
             break;
           }
-          case 66: {
+          case (uint) OpponentViewTag.LastBoard: {
             lastBoard_.AddEntriesFrom(ref input, _repeated_lastBoard_codec);
             break;
           }
-          case 73: {
+          case (uint) OpponentViewTag.LastScore: {
             LastScore = input.ReadDouble();
             break;
           }
-          case 80: {
+          case (uint) OpponentViewTag.Ready: {
             Ready = input.ReadBool();
             break;
           }
-          case 88: {
+          case (uint) OpponentViewTag.Connected: {
             Connected = input.ReadBool();
             break;
           }
@@ -4482,54 +4482,54 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) MatchStateTag.RoomId: {
             RoomId = input.ReadString();
             break;
           }
-          case 16: {
+          case (uint) MatchStateTag.Phase: {
             Phase = (global::RepGame.Protocol.MatchPhase) input.ReadEnum();
             break;
           }
-          case 24: {
+          case (uint) MatchStateTag.Round: {
             Round = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) MatchStateTag.PhaseDeadlineMs: {
             PhaseDeadlineMs = input.ReadInt64();
             break;
           }
-          case 40: {
+          case (uint) MatchStateTag.StageDamage: {
             StageDamage = input.ReadInt32();
             break;
           }
-          case 50: {
+          case (uint) MatchStateTag.Self: {
             if (self_ == null) {
               Self = new global::RepGame.Protocol.SelfView();
             }
             input.ReadMessage(Self);
             break;
           }
-          case 58: {
+          case (uint) MatchStateTag.Opponent: {
             if (opponent_ == null) {
               Opponent = new global::RepGame.Protocol.OpponentView();
             }
             input.ReadMessage(Opponent);
             break;
           }
-          case 66:
-          case 64: {
+          case (uint) MatchStateTag.FamilyOffer:
+          case (uint) MatchStateTag.FamilyOfferUnpacked: {
             familyOffer_.AddEntriesFrom(input, _repeated_familyOffer_codec);
             break;
           }
-          case 74: {
+          case (uint) MatchStateTag.VaultOffer: {
             vaultOffer_.AddEntriesFrom(input, _repeated_vaultOffer_codec);
             break;
           }
-          case 82: {
+          case (uint) MatchStateTag.Omens: {
             omens_.AddEntriesFrom(input, _repeated_omens_codec);
             break;
           }
-          case 90: {
+          case (uint) MatchStateTag.OmenRoll: {
             if (omenRoll_ == null) {
               OmenRoll = new global::RepGame.Protocol.OmenRollView();
             }
@@ -4555,54 +4555,54 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) MatchStateTag.RoomId: {
             RoomId = input.ReadString();
             break;
           }
-          case 16: {
+          case (uint) MatchStateTag.Phase: {
             Phase = (global::RepGame.Protocol.MatchPhase) input.ReadEnum();
             break;
           }
-          case 24: {
+          case (uint) MatchStateTag.Round: {
             Round = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) MatchStateTag.PhaseDeadlineMs: {
             PhaseDeadlineMs = input.ReadInt64();
             break;
           }
-          case 40: {
+          case (uint) MatchStateTag.StageDamage: {
             StageDamage = input.ReadInt32();
             break;
           }
-          case 50: {
+          case (uint) MatchStateTag.Self: {
             if (self_ == null) {
               Self = new global::RepGame.Protocol.SelfView();
             }
             input.ReadMessage(Self);
             break;
           }
-          case 58: {
+          case (uint) MatchStateTag.Opponent: {
             if (opponent_ == null) {
               Opponent = new global::RepGame.Protocol.OpponentView();
             }
             input.ReadMessage(Opponent);
             break;
           }
-          case 66:
-          case 64: {
+          case (uint) MatchStateTag.FamilyOffer:
+          case (uint) MatchStateTag.FamilyOfferUnpacked: {
             familyOffer_.AddEntriesFrom(ref input, _repeated_familyOffer_codec);
             break;
           }
-          case 74: {
+          case (uint) MatchStateTag.VaultOffer: {
             vaultOffer_.AddEntriesFrom(ref input, _repeated_vaultOffer_codec);
             break;
           }
-          case 82: {
+          case (uint) MatchStateTag.Omens: {
             omens_.AddEntriesFrom(ref input, _repeated_omens_codec);
             break;
           }
-          case 90: {
+          case (uint) MatchStateTag.OmenRoll: {
             if (omenRoll_ == null) {
               OmenRoll = new global::RepGame.Protocol.OmenRollView();
             }
@@ -4844,15 +4844,15 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) ActiveOmenViewTag.Key: {
             Key = input.ReadString();
             break;
           }
-          case 16: {
+          case (uint) ActiveOmenViewTag.RoundsLeft: {
             RoundsLeft = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) ActiveOmenViewTag.FromRound: {
             FromRound = input.ReadInt32();
             break;
           }
@@ -4875,15 +4875,15 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) ActiveOmenViewTag.Key: {
             Key = input.ReadString();
             break;
           }
-          case 16: {
+          case (uint) ActiveOmenViewTag.RoundsLeft: {
             RoundsLeft = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) ActiveOmenViewTag.FromRound: {
             FromRound = input.ReadInt32();
             break;
           }
@@ -5341,43 +5341,43 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) OmenRollViewTag.Round: {
             Round = input.ReadInt32();
             break;
           }
-          case 16: {
+          case (uint) OmenRollViewTag.SelfDie: {
             SelfDie = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) OmenRollViewTag.OpponentDie: {
             OpponentDie = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) OmenRollViewTag.Forced: {
             Forced = input.ReadBool();
             break;
           }
-          case 40: {
+          case (uint) OmenRollViewTag.Total: {
             Total = input.ReadInt32();
             break;
           }
-          case 50: {
+          case (uint) OmenRollViewTag.OmenKey: {
             OmenKey = input.ReadString();
             break;
           }
-          case 56: {
+          case (uint) OmenRollViewTag.Shifted: {
             Shifted = input.ReadBool();
             break;
           }
-          case 64: {
+          case (uint) OmenRollViewTag.SelfChosen: {
             SelfChosen = input.ReadBool();
             break;
           }
-          case 72: {
+          case (uint) OmenRollViewTag.OpponentChosen: {
             OpponentChosen = input.ReadBool();
             break;
           }
-          case 80: {
+          case (uint) OmenRollViewTag.Point: {
             Point = input.ReadInt32();
             break;
           }
@@ -5400,43 +5400,43 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) OmenRollViewTag.Round: {
             Round = input.ReadInt32();
             break;
           }
-          case 16: {
+          case (uint) OmenRollViewTag.SelfDie: {
             SelfDie = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) OmenRollViewTag.OpponentDie: {
             OpponentDie = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) OmenRollViewTag.Forced: {
             Forced = input.ReadBool();
             break;
           }
-          case 40: {
+          case (uint) OmenRollViewTag.Total: {
             Total = input.ReadInt32();
             break;
           }
-          case 50: {
+          case (uint) OmenRollViewTag.OmenKey: {
             OmenKey = input.ReadString();
             break;
           }
-          case 56: {
+          case (uint) OmenRollViewTag.Shifted: {
             Shifted = input.ReadBool();
             break;
           }
-          case 64: {
+          case (uint) OmenRollViewTag.SelfChosen: {
             SelfChosen = input.ReadBool();
             break;
           }
-          case 72: {
+          case (uint) OmenRollViewTag.OpponentChosen: {
             OpponentChosen = input.ReadBool();
             break;
           }
-          case 80: {
+          case (uint) OmenRollViewTag.Point: {
             Point = input.ReadInt32();
             break;
           }
@@ -5737,30 +5737,30 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) SideResultTag.Username: {
             Username = input.ReadString();
             break;
           }
-          case 18: {
+          case (uint) SideResultTag.Board: {
             board_.AddEntriesFrom(input, _repeated_board_codec);
             break;
           }
-          case 26: {
+          case (uint) SideResultTag.Relics: {
             relics_.AddEntriesFrom(input, _repeated_relics_codec);
             break;
           }
-          case 34: {
+          case (uint) SideResultTag.Score: {
             if (score_ == null) {
               Score = new global::RepGame.Protocol.ScoreBreakdown();
             }
             input.ReadMessage(Score);
             break;
           }
-          case 40: {
+          case (uint) SideResultTag.DamageTaken: {
             DamageTaken = input.ReadInt32();
             break;
           }
-          case 48: {
+          case (uint) SideResultTag.HpAfter: {
             HpAfter = input.ReadInt32();
             break;
           }
@@ -5783,30 +5783,30 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) SideResultTag.Username: {
             Username = input.ReadString();
             break;
           }
-          case 18: {
+          case (uint) SideResultTag.Board: {
             board_.AddEntriesFrom(ref input, _repeated_board_codec);
             break;
           }
-          case 26: {
+          case (uint) SideResultTag.Relics: {
             relics_.AddEntriesFrom(ref input, _repeated_relics_codec);
             break;
           }
-          case 34: {
+          case (uint) SideResultTag.Score: {
             if (score_ == null) {
               Score = new global::RepGame.Protocol.ScoreBreakdown();
             }
             input.ReadMessage(Score);
             break;
           }
-          case 40: {
+          case (uint) SideResultTag.DamageTaken: {
             DamageTaken = input.ReadInt32();
             break;
           }
-          case 48: {
+          case (uint) SideResultTag.HpAfter: {
             HpAfter = input.ReadInt32();
             break;
           }
@@ -6196,41 +6196,41 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) RoundResultTag.RoomId: {
             RoomId = input.ReadString();
             break;
           }
-          case 16: {
+          case (uint) RoundResultTag.Round: {
             Round = input.ReadInt32();
             break;
           }
-          case 26: {
+          case (uint) RoundResultTag.Self: {
             if (self_ == null) {
               Self = new global::RepGame.Protocol.SideResult();
             }
             input.ReadMessage(Self);
             break;
           }
-          case 34: {
+          case (uint) RoundResultTag.Opponent: {
             if (opponent_ == null) {
               Opponent = new global::RepGame.Protocol.SideResult();
             }
             input.ReadMessage(Opponent);
             break;
           }
-          case 40: {
+          case (uint) RoundResultTag.Winner: {
             Winner = input.ReadInt32();
             break;
           }
-          case 48: {
+          case (uint) RoundResultTag.MatchOver: {
             MatchOver = input.ReadBool();
             break;
           }
-          case 56: {
+          case (uint) RoundResultTag.VaultNext: {
             VaultNext = input.ReadBool();
             break;
           }
-          case 64: {
+          case (uint) RoundResultTag.NextPhaseAtMs: {
             NextPhaseAtMs = input.ReadInt64();
             break;
           }
@@ -6253,41 +6253,41 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) RoundResultTag.RoomId: {
             RoomId = input.ReadString();
             break;
           }
-          case 16: {
+          case (uint) RoundResultTag.Round: {
             Round = input.ReadInt32();
             break;
           }
-          case 26: {
+          case (uint) RoundResultTag.Self: {
             if (self_ == null) {
               Self = new global::RepGame.Protocol.SideResult();
             }
             input.ReadMessage(Self);
             break;
           }
-          case 34: {
+          case (uint) RoundResultTag.Opponent: {
             if (opponent_ == null) {
               Opponent = new global::RepGame.Protocol.SideResult();
             }
             input.ReadMessage(Opponent);
             break;
           }
-          case 40: {
+          case (uint) RoundResultTag.Winner: {
             Winner = input.ReadInt32();
             break;
           }
-          case 48: {
+          case (uint) RoundResultTag.MatchOver: {
             MatchOver = input.ReadBool();
             break;
           }
-          case 56: {
+          case (uint) RoundResultTag.VaultNext: {
             VaultNext = input.ReadBool();
             break;
           }
-          case 64: {
+          case (uint) RoundResultTag.NextPhaseAtMs: {
             NextPhaseAtMs = input.ReadInt64();
             break;
           }
@@ -6613,27 +6613,27 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) MatchOverTag.RoomId: {
             RoomId = input.ReadString();
             break;
           }
-          case 16: {
+          case (uint) MatchOverTag.Result: {
             Result = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) MatchOverTag.Rounds: {
             Rounds = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) MatchOverTag.Hp: {
             Hp = input.ReadInt32();
             break;
           }
-          case 40: {
+          case (uint) MatchOverTag.OpponentHp: {
             OpponentHp = input.ReadInt32();
             break;
           }
-          case 48: {
+          case (uint) MatchOverTag.Surrendered: {
             Surrendered = input.ReadBool();
             break;
           }
@@ -6656,27 +6656,27 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) MatchOverTag.RoomId: {
             RoomId = input.ReadString();
             break;
           }
-          case 16: {
+          case (uint) MatchOverTag.Result: {
             Result = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) MatchOverTag.Rounds: {
             Rounds = input.ReadInt32();
             break;
           }
-          case 32: {
+          case (uint) MatchOverTag.Hp: {
             Hp = input.ReadInt32();
             break;
           }
-          case 40: {
+          case (uint) MatchOverTag.OpponentHp: {
             OpponentHp = input.ReadInt32();
             break;
           }
-          case 48: {
+          case (uint) MatchOverTag.Surrendered: {
             Surrendered = input.ReadBool();
             break;
           }

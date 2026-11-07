@@ -764,7 +764,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) GameActionTag.PickFamily: {
             global::RepGame.Protocol.PickFamily subBuilder = new global::RepGame.Protocol.PickFamily();
             if (actionCase_ == ActionOneofCase.PickFamily) {
               subBuilder.MergeFrom(PickFamily);
@@ -773,7 +773,7 @@ namespace RepGame.Protocol {
             PickFamily = subBuilder;
             break;
           }
-          case 18: {
+          case (uint) GameActionTag.BuyCard: {
             global::RepGame.Protocol.BuyCard subBuilder = new global::RepGame.Protocol.BuyCard();
             if (actionCase_ == ActionOneofCase.BuyCard) {
               subBuilder.MergeFrom(BuyCard);
@@ -782,7 +782,7 @@ namespace RepGame.Protocol {
             BuyCard = subBuilder;
             break;
           }
-          case 26: {
+          case (uint) GameActionTag.SellCard: {
             global::RepGame.Protocol.SellCard subBuilder = new global::RepGame.Protocol.SellCard();
             if (actionCase_ == ActionOneofCase.SellCard) {
               subBuilder.MergeFrom(SellCard);
@@ -791,7 +791,7 @@ namespace RepGame.Protocol {
             SellCard = subBuilder;
             break;
           }
-          case 34: {
+          case (uint) GameActionTag.RefreshShop: {
             global::RepGame.Protocol.RefreshShop subBuilder = new global::RepGame.Protocol.RefreshShop();
             if (actionCase_ == ActionOneofCase.RefreshShop) {
               subBuilder.MergeFrom(RefreshShop);
@@ -800,7 +800,7 @@ namespace RepGame.Protocol {
             RefreshShop = subBuilder;
             break;
           }
-          case 42: {
+          case (uint) GameActionTag.BuyXp: {
             global::RepGame.Protocol.BuyXp subBuilder = new global::RepGame.Protocol.BuyXp();
             if (actionCase_ == ActionOneofCase.BuyXp) {
               subBuilder.MergeFrom(BuyXp);
@@ -809,7 +809,7 @@ namespace RepGame.Protocol {
             BuyXp = subBuilder;
             break;
           }
-          case 50: {
+          case (uint) GameActionTag.BuyRelic: {
             global::RepGame.Protocol.BuyRelic subBuilder = new global::RepGame.Protocol.BuyRelic();
             if (actionCase_ == ActionOneofCase.BuyRelic) {
               subBuilder.MergeFrom(BuyRelic);
@@ -818,7 +818,7 @@ namespace RepGame.Protocol {
             BuyRelic = subBuilder;
             break;
           }
-          case 58: {
+          case (uint) GameActionTag.SellRelic: {
             global::RepGame.Protocol.SellRelic subBuilder = new global::RepGame.Protocol.SellRelic();
             if (actionCase_ == ActionOneofCase.SellRelic) {
               subBuilder.MergeFrom(SellRelic);
@@ -827,7 +827,7 @@ namespace RepGame.Protocol {
             SellRelic = subBuilder;
             break;
           }
-          case 66: {
+          case (uint) GameActionTag.Arrange: {
             global::RepGame.Protocol.ArrangeBoard subBuilder = new global::RepGame.Protocol.ArrangeBoard();
             if (actionCase_ == ActionOneofCase.Arrange) {
               subBuilder.MergeFrom(Arrange);
@@ -836,7 +836,7 @@ namespace RepGame.Protocol {
             Arrange = subBuilder;
             break;
           }
-          case 74: {
+          case (uint) GameActionTag.LockShop: {
             global::RepGame.Protocol.LockShop subBuilder = new global::RepGame.Protocol.LockShop();
             if (actionCase_ == ActionOneofCase.LockShop) {
               subBuilder.MergeFrom(LockShop);
@@ -845,7 +845,7 @@ namespace RepGame.Protocol {
             LockShop = subBuilder;
             break;
           }
-          case 82: {
+          case (uint) GameActionTag.SetReady: {
             global::RepGame.Protocol.SetReady subBuilder = new global::RepGame.Protocol.SetReady();
             if (actionCase_ == ActionOneofCase.SetReady) {
               subBuilder.MergeFrom(SetReady);
@@ -854,7 +854,7 @@ namespace RepGame.Protocol {
             SetReady = subBuilder;
             break;
           }
-          case 90: {
+          case (uint) GameActionTag.PickVault: {
             global::RepGame.Protocol.PickVault subBuilder = new global::RepGame.Protocol.PickVault();
             if (actionCase_ == ActionOneofCase.PickVault) {
               subBuilder.MergeFrom(PickVault);
@@ -863,7 +863,7 @@ namespace RepGame.Protocol {
             PickVault = subBuilder;
             break;
           }
-          case 98: {
+          case (uint) GameActionTag.SkipVault: {
             global::RepGame.Protocol.SkipVault subBuilder = new global::RepGame.Protocol.SkipVault();
             if (actionCase_ == ActionOneofCase.SkipVault) {
               subBuilder.MergeFrom(SkipVault);
@@ -872,7 +872,7 @@ namespace RepGame.Protocol {
             SkipVault = subBuilder;
             break;
           }
-          case 106: {
+          case (uint) GameActionTag.Surrender: {
             global::RepGame.Protocol.Surrender subBuilder = new global::RepGame.Protocol.Surrender();
             if (actionCase_ == ActionOneofCase.Surrender) {
               subBuilder.MergeFrom(Surrender);
@@ -881,7 +881,7 @@ namespace RepGame.Protocol {
             Surrender = subBuilder;
             break;
           }
-          case 114: {
+          case (uint) GameActionTag.SettleDone: {
             global::RepGame.Protocol.SettleDone subBuilder = new global::RepGame.Protocol.SettleDone();
             if (actionCase_ == ActionOneofCase.SettleDone) {
               subBuilder.MergeFrom(SettleDone);
@@ -890,7 +890,7 @@ namespace RepGame.Protocol {
             SettleDone = subBuilder;
             break;
           }
-          case 122: {
+          case (uint) GameActionTag.RollOmen: {
             global::RepGame.Protocol.RollOmen subBuilder = new global::RepGame.Protocol.RollOmen();
             if (actionCase_ == ActionOneofCase.RollOmen) {
               subBuilder.MergeFrom(RollOmen);
@@ -918,7 +918,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) GameActionTag.PickFamily: {
             global::RepGame.Protocol.PickFamily subBuilder = new global::RepGame.Protocol.PickFamily();
             if (actionCase_ == ActionOneofCase.PickFamily) {
               subBuilder.MergeFrom(PickFamily);
@@ -927,7 +927,7 @@ namespace RepGame.Protocol {
             PickFamily = subBuilder;
             break;
           }
-          case 18: {
+          case (uint) GameActionTag.BuyCard: {
             global::RepGame.Protocol.BuyCard subBuilder = new global::RepGame.Protocol.BuyCard();
             if (actionCase_ == ActionOneofCase.BuyCard) {
               subBuilder.MergeFrom(BuyCard);
@@ -936,7 +936,7 @@ namespace RepGame.Protocol {
             BuyCard = subBuilder;
             break;
           }
-          case 26: {
+          case (uint) GameActionTag.SellCard: {
             global::RepGame.Protocol.SellCard subBuilder = new global::RepGame.Protocol.SellCard();
             if (actionCase_ == ActionOneofCase.SellCard) {
               subBuilder.MergeFrom(SellCard);
@@ -945,7 +945,7 @@ namespace RepGame.Protocol {
             SellCard = subBuilder;
             break;
           }
-          case 34: {
+          case (uint) GameActionTag.RefreshShop: {
             global::RepGame.Protocol.RefreshShop subBuilder = new global::RepGame.Protocol.RefreshShop();
             if (actionCase_ == ActionOneofCase.RefreshShop) {
               subBuilder.MergeFrom(RefreshShop);
@@ -954,7 +954,7 @@ namespace RepGame.Protocol {
             RefreshShop = subBuilder;
             break;
           }
-          case 42: {
+          case (uint) GameActionTag.BuyXp: {
             global::RepGame.Protocol.BuyXp subBuilder = new global::RepGame.Protocol.BuyXp();
             if (actionCase_ == ActionOneofCase.BuyXp) {
               subBuilder.MergeFrom(BuyXp);
@@ -963,7 +963,7 @@ namespace RepGame.Protocol {
             BuyXp = subBuilder;
             break;
           }
-          case 50: {
+          case (uint) GameActionTag.BuyRelic: {
             global::RepGame.Protocol.BuyRelic subBuilder = new global::RepGame.Protocol.BuyRelic();
             if (actionCase_ == ActionOneofCase.BuyRelic) {
               subBuilder.MergeFrom(BuyRelic);
@@ -972,7 +972,7 @@ namespace RepGame.Protocol {
             BuyRelic = subBuilder;
             break;
           }
-          case 58: {
+          case (uint) GameActionTag.SellRelic: {
             global::RepGame.Protocol.SellRelic subBuilder = new global::RepGame.Protocol.SellRelic();
             if (actionCase_ == ActionOneofCase.SellRelic) {
               subBuilder.MergeFrom(SellRelic);
@@ -981,7 +981,7 @@ namespace RepGame.Protocol {
             SellRelic = subBuilder;
             break;
           }
-          case 66: {
+          case (uint) GameActionTag.Arrange: {
             global::RepGame.Protocol.ArrangeBoard subBuilder = new global::RepGame.Protocol.ArrangeBoard();
             if (actionCase_ == ActionOneofCase.Arrange) {
               subBuilder.MergeFrom(Arrange);
@@ -990,7 +990,7 @@ namespace RepGame.Protocol {
             Arrange = subBuilder;
             break;
           }
-          case 74: {
+          case (uint) GameActionTag.LockShop: {
             global::RepGame.Protocol.LockShop subBuilder = new global::RepGame.Protocol.LockShop();
             if (actionCase_ == ActionOneofCase.LockShop) {
               subBuilder.MergeFrom(LockShop);
@@ -999,7 +999,7 @@ namespace RepGame.Protocol {
             LockShop = subBuilder;
             break;
           }
-          case 82: {
+          case (uint) GameActionTag.SetReady: {
             global::RepGame.Protocol.SetReady subBuilder = new global::RepGame.Protocol.SetReady();
             if (actionCase_ == ActionOneofCase.SetReady) {
               subBuilder.MergeFrom(SetReady);
@@ -1008,7 +1008,7 @@ namespace RepGame.Protocol {
             SetReady = subBuilder;
             break;
           }
-          case 90: {
+          case (uint) GameActionTag.PickVault: {
             global::RepGame.Protocol.PickVault subBuilder = new global::RepGame.Protocol.PickVault();
             if (actionCase_ == ActionOneofCase.PickVault) {
               subBuilder.MergeFrom(PickVault);
@@ -1017,7 +1017,7 @@ namespace RepGame.Protocol {
             PickVault = subBuilder;
             break;
           }
-          case 98: {
+          case (uint) GameActionTag.SkipVault: {
             global::RepGame.Protocol.SkipVault subBuilder = new global::RepGame.Protocol.SkipVault();
             if (actionCase_ == ActionOneofCase.SkipVault) {
               subBuilder.MergeFrom(SkipVault);
@@ -1026,7 +1026,7 @@ namespace RepGame.Protocol {
             SkipVault = subBuilder;
             break;
           }
-          case 106: {
+          case (uint) GameActionTag.Surrender: {
             global::RepGame.Protocol.Surrender subBuilder = new global::RepGame.Protocol.Surrender();
             if (actionCase_ == ActionOneofCase.Surrender) {
               subBuilder.MergeFrom(Surrender);
@@ -1035,7 +1035,7 @@ namespace RepGame.Protocol {
             Surrender = subBuilder;
             break;
           }
-          case 114: {
+          case (uint) GameActionTag.SettleDone: {
             global::RepGame.Protocol.SettleDone subBuilder = new global::RepGame.Protocol.SettleDone();
             if (actionCase_ == ActionOneofCase.SettleDone) {
               subBuilder.MergeFrom(SettleDone);
@@ -1044,7 +1044,7 @@ namespace RepGame.Protocol {
             SettleDone = subBuilder;
             break;
           }
-          case 122: {
+          case (uint) GameActionTag.RollOmen: {
             global::RepGame.Protocol.RollOmen subBuilder = new global::RepGame.Protocol.RollOmen();
             if (actionCase_ == ActionOneofCase.RollOmen) {
               subBuilder.MergeFrom(RollOmen);
@@ -1227,7 +1227,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) RollOmenTag.Roll: {
             Roll = input.ReadBool();
             break;
           }
@@ -1250,7 +1250,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) RollOmenTag.Roll: {
             Roll = input.ReadBool();
             break;
           }
@@ -1589,7 +1589,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) PickFamilyTag.OfferIndex: {
             OfferIndex = input.ReadInt32();
             break;
           }
@@ -1612,7 +1612,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) PickFamilyTag.OfferIndex: {
             OfferIndex = input.ReadInt32();
             break;
           }
@@ -1787,7 +1787,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) BuyCardTag.ShopSlot: {
             ShopSlot = input.ReadInt32();
             break;
           }
@@ -1810,7 +1810,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) BuyCardTag.ShopSlot: {
             ShopSlot = input.ReadInt32();
             break;
           }
@@ -1985,7 +1985,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) SellCardTag.CardUid: {
             CardUid = input.ReadString();
             break;
           }
@@ -2008,7 +2008,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) SellCardTag.CardUid: {
             CardUid = input.ReadString();
             break;
           }
@@ -2505,7 +2505,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) BuyRelicTag.TradeChoice: {
             TradeChoice = input.ReadInt32();
             break;
           }
@@ -2528,7 +2528,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) BuyRelicTag.TradeChoice: {
             TradeChoice = input.ReadInt32();
             break;
           }
@@ -2703,7 +2703,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) SellRelicTag.RelicSlot: {
             RelicSlot = input.ReadInt32();
             break;
           }
@@ -2726,7 +2726,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) SellRelicTag.RelicSlot: {
             RelicSlot = input.ReadInt32();
             break;
           }
@@ -2911,12 +2911,12 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) ArrangeBoardTag.BoardUids: {
             boardUids_.AddEntriesFrom(input, _repeated_boardUids_codec);
             break;
           }
-          case 18:
-          case 16: {
+          case (uint) ArrangeBoardTag.RelicOrder:
+          case (uint) ArrangeBoardTag.RelicOrderUnpacked: {
             relicOrder_.AddEntriesFrom(input, _repeated_relicOrder_codec);
             break;
           }
@@ -2939,12 +2939,12 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) ArrangeBoardTag.BoardUids: {
             boardUids_.AddEntriesFrom(ref input, _repeated_boardUids_codec);
             break;
           }
-          case 18:
-          case 16: {
+          case (uint) ArrangeBoardTag.RelicOrder:
+          case (uint) ArrangeBoardTag.RelicOrderUnpacked: {
             relicOrder_.AddEntriesFrom(ref input, _repeated_relicOrder_codec);
             break;
           }
@@ -3119,7 +3119,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) LockShopTag.Locked: {
             Locked = input.ReadBool();
             break;
           }
@@ -3142,7 +3142,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) LockShopTag.Locked: {
             Locked = input.ReadBool();
             break;
           }
@@ -3317,7 +3317,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) SetReadyTag.Ready: {
             Ready = input.ReadBool();
             break;
           }
@@ -3340,7 +3340,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) SetReadyTag.Ready: {
             Ready = input.ReadBool();
             break;
           }
@@ -3576,15 +3576,15 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) PickVaultTag.OfferIndex: {
             OfferIndex = input.ReadInt32();
             break;
           }
-          case 16: {
+          case (uint) PickVaultTag.SellRelicSlot: {
             SellRelicSlot = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) PickVaultTag.TradeChoice: {
             TradeChoice = input.ReadInt32();
             break;
           }
@@ -3607,15 +3607,15 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) PickVaultTag.OfferIndex: {
             OfferIndex = input.ReadInt32();
             break;
           }
-          case 16: {
+          case (uint) PickVaultTag.SellRelicSlot: {
             SellRelicSlot = input.ReadInt32();
             break;
           }
-          case 24: {
+          case (uint) PickVaultTag.TradeChoice: {
             TradeChoice = input.ReadInt32();
             break;
           }

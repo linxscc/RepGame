@@ -242,11 +242,11 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 8: {
+          case (uint) WelcomeTag.ServerTimeMs: {
             ServerTimeMs = input.ReadInt64();
             break;
           }
-          case 16: {
+          case (uint) WelcomeTag.ProtocolVersion: {
             ProtocolVersion = input.ReadUInt32();
             break;
           }
@@ -269,11 +269,11 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 8: {
+          case (uint) WelcomeTag.ServerTimeMs: {
             ServerTimeMs = input.ReadInt64();
             break;
           }
-          case 16: {
+          case (uint) WelcomeTag.ProtocolVersion: {
             ProtocolVersion = input.ReadUInt32();
             break;
           }
@@ -480,11 +480,11 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) LoginRequestTag.Username: {
             Username = input.ReadString();
             break;
           }
-          case 18: {
+          case (uint) LoginRequestTag.Password: {
             Password = input.ReadString();
             break;
           }
@@ -507,11 +507,11 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) LoginRequestTag.Username: {
             Username = input.ReadString();
             break;
           }
-          case 18: {
+          case (uint) LoginRequestTag.Password: {
             Password = input.ReadString();
             break;
           }
@@ -715,11 +715,11 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) RegisterRequestTag.Username: {
             Username = input.ReadString();
             break;
           }
-          case 18: {
+          case (uint) RegisterRequestTag.Password: {
             Password = input.ReadString();
             break;
           }
@@ -742,11 +742,11 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) RegisterRequestTag.Username: {
             Username = input.ReadString();
             break;
           }
-          case 18: {
+          case (uint) RegisterRequestTag.Password: {
             Password = input.ReadString();
             break;
           }
@@ -924,7 +924,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) ResumeSessionRequestTag.SessionToken: {
             SessionToken = input.ReadString();
             break;
           }
@@ -947,7 +947,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) ResumeSessionRequestTag.SessionToken: {
             SessionToken = input.ReadString();
             break;
           }
@@ -1183,15 +1183,15 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) AuthResultTag.Username: {
             Username = input.ReadString();
             break;
           }
-          case 18: {
+          case (uint) AuthResultTag.SessionToken: {
             SessionToken = input.ReadString();
             break;
           }
-          case 24: {
+          case (uint) AuthResultTag.SessionExpiresAtMs: {
             SessionExpiresAtMs = input.ReadInt64();
             break;
           }
@@ -1214,15 +1214,15 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) AuthResultTag.Username: {
             Username = input.ReadString();
             break;
           }
-          case 18: {
+          case (uint) AuthResultTag.SessionToken: {
             SessionToken = input.ReadString();
             break;
           }
-          case 24: {
+          case (uint) AuthResultTag.SessionExpiresAtMs: {
             SessionExpiresAtMs = input.ReadInt64();
             break;
           }
@@ -1397,7 +1397,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case (uint) RegisterResultTag.Username: {
             Username = input.ReadString();
             break;
           }
@@ -1420,7 +1420,7 @@ namespace RepGame.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
-          case 10: {
+          case (uint) RegisterResultTag.Username: {
             Username = input.ReadString();
             break;
           }
