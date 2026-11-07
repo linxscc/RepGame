@@ -7,7 +7,9 @@
 3. `xcodebuild` 自动签名编译；
 4. `xcrun devicectl` 安装到配对的 iPhone 并启动。
 
-相关文件：`.github/workflows/ios-device.yml`、`scripts/ci/build-ios.sh`、`Assets/Editor/CiBuild.cs`。
+相关文件：`.github/workflows/ios-device.yml`、`scripts/ci/build-ios.sh`、`Assets/Editor/CiBuild.cs`、`Assets/Editor/EnvBundler.cs`。
+
+**服务器配置 `.env` 自动打包**：任何方式打包（Unity 菜单 Build、命令行、流水线）都会在打包前自动把 `.env` 打进包里（流水线用 `REPGAME_CLIENT_ENV_FILE` 指定的文件，手动打包用项目根目录的 `.env`），不需要再手动复制到 Xcode 工程。
 日志：每次运行的 Unity / Xcode 日志在 Actions 页面的 `ios-build-logs` 附件里，Mac mini 上在 `Builds/logs/`。
 
 ## 一次性准备（都在 Mac mini 上做）

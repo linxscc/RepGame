@@ -15,7 +15,7 @@ namespace RepGame.EditorTools
     ///   IOS_BUNDLE_ID   包名（免费 Apple ID 也必须是全局唯一的，例如 com.yourname.repgame）
     ///   IOS_TEAM_ID     苹果开发者团队 ID（免费账号的 Personal Team 也有，在 Xcode → Settings → Accounts 里看）
     ///   BUILD_NUMBER    构建号（流水线传 run 编号）
-    ///   ENV_FILE        要打进包里的服务器配置（.env），拷成 StreamingAssets/server.env
+    ///   ENV_FILE        要打进包里的服务器配置（.env）；由 EnvBundler 处理，不设置时用项目根目录的 .env
     ///   BUILD_OUTPUT    Xcode 工程输出目录，默认 Builds/iOS
     /// Addressables 已设置为随 Player 一起构建，不需要单独步骤。
     /// </summary>
@@ -24,7 +24,6 @@ namespace RepGame.EditorTools
         public static void BuildIOS()
         {
             int code = 1;
-            string bundledEnv = Path.Combine(Application.streamingAssetsPath, "server.env");
             try
             {
                 var bundleId = Env("IOS_BUNDLE_ID");
@@ -38,14 +37,7 @@ namespace RepGame.EditorTools
                 var buildNumber = Env("BUILD_NUMBER");
                 if (!string.IsNullOrEmpty(buildNumber)) PlayerSettings.iOS.buildNumber = buildNumber;
 
-                var envFile = Env("ENV_FILE");
-                if (!string.IsNullOrEmpty(envFile))
-                {
-                    if (!File.Exists(envFile)) throw new Exception($"找不到 ENV_FILE：{envFile}");
-                    Directory.CreateDirectory(Application.streamingAssetsPath);
-                    File.Copy(envFile, bundledEnv, true);
-                    AssetDatabase.Refresh();
-                }
+                // 服务器配置 .env 由 EnvBundler 在打包前自动打进包（读 ENV_FILE，否则项目根目录 .env）
 
                 var output = Env("BUILD_OUTPUT");
                 if (string.IsNullOrEmpty(output)) output = "Builds/iOS";
@@ -64,14 +56,6 @@ namespace RepGame.EditorTools
             {
                 Debug.LogError($"[CiBuild] 构建失败：{e}");
                 code = 1;
-            }
-            finally
-            {
-                if (File.Exists(bundledEnv))
-                {
-                    File.Delete(bundledEnv);
-                    if (File.Exists(bundledEnv + ".meta")) File.Delete(bundledEnv + ".meta");
-                }
             }
             EditorApplication.Exit(code);
         }
