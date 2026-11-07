@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace RepGame.Chess.UI
 {
     /// <summary>
-    /// 右下角：金币按钮（即商店入口，也是出售区）与就绪按钮；商店抽屉从底部弹出。
+    /// 右下角：金币按钮（即商店入口，也是出售区）与就绪按钮；商店抽屉从顶部落下（不挡手牌）。
     /// </summary>
     public sealed class ShopView
     {
@@ -15,6 +15,7 @@ namespace RepGame.Chess.UI
         private const float DrawerW = 1067, DrawerX = (1920 - DrawerW) / 2, DrawerH = 340;
         private const float CardW = 150, CardH = 196, CardStep = 162;
         private const float ButtonW = 180;
+        private const float Pad = 20; // 抽屉上沿藏在屏幕外的部分，内容整体下移这么多
 
         private readonly RectTransform goldButton;
         private readonly TextMeshProUGUI goldText;
@@ -64,27 +65,27 @@ namespace RepGame.Chess.UI
             var panel = UIKit.Panel(popupLayer, "ShopDrawer", Theme.Paper, Theme.Ink, 2.5f);
             panel.raycastTarget = true;
             drawer = panel.rectTransform;
-            UIKit.Place(drawer, DrawerX, 1080 - DrawerH, DrawerW, DrawerH + 20);
+            UIKit.Place(drawer, DrawerX, -Pad, DrawerW, DrawerH + Pad);
             drag.AddZone(drawer, p => p.CardUid != null || p.RelicSlot >= 0, (p, _) => Sell(p), () => open && state?.Phase == MatchPhase.Prep);
 
             var title = UIKit.Text(drawer, "Title", Fmt.T("chess.shop.title", "商店"), 26, Theme.Ink, TextAlignmentOptions.TopLeft, true);
-            UIKit.Place(title.rectTransform, 28, 20, 200, 40);
+            UIKit.Place(title.rectTransform, 28, Pad + 20, 200, 40);
             drawerInfo = UIKit.Text(drawer, "Info", "", 14, Theme.InkSoft, TextAlignmentOptions.Left);
-            UIKit.Place(drawerInfo.rectTransform, 120, 26, 700, 24);
+            UIKit.Place(drawerInfo.rectTransform, 120, Pad + 26, 700, 24);
             var close = UIKit.Button(drawer, "Close", Theme.Paper, Theme.Ink, "×", 22, Theme.Ink, () => SetOpen(false));
-            UIKit.Place((RectTransform)close.transform, DrawerW - 72, 16, 44, 44);
+            UIKit.Place((RectTransform)close.transform, DrawerW - 72, Pad + 16, 44, 44);
 
             cardsRow = UIKit.Rect(drawer, "Cards");
-            UIKit.Place(cardsRow, 28, 80, CardStep * 5, CardH + 30);
+            UIKit.Place(cardsRow, 28, Pad + 80, CardStep * 5, CardH + 30);
 
             var refresh = UIKit.Button(drawer, "Refresh", Theme.Red, Theme.Ink, "", 18, Theme.Paper, ChessActions.Refresh);
-            UIKit.Place((RectTransform)refresh.transform, DrawerW - ButtonW - 28, 86, ButtonW, 56);
+            UIKit.Place((RectTransform)refresh.transform, DrawerW - ButtonW - 28, Pad + 86, ButtonW, 56);
             refreshLabel = UIKit.Text(refresh.transform, "Label", "", 18, Theme.Paper, bold: true);
             var xp = UIKit.Button(drawer, "Xp", Theme.Paper, Theme.Ink, "", 18, Theme.Ink, ChessActions.BuyXp);
-            UIKit.Place((RectTransform)xp.transform, DrawerW - ButtonW - 28, 154, ButtonW, 56);
+            UIKit.Place((RectTransform)xp.transform, DrawerW - ButtonW - 28, Pad + 154, ButtonW, 56);
             xpLabel = UIKit.Text(xp.transform, "Label", "", 18, Theme.Ink, bold: true);
             var lockB = UIKit.Button(drawer, "Lock", Theme.Cyan, Theme.Ink, "", 18, Theme.Ink, () => ChessActions.Lock(!(state?.Self.ShopLocked ?? false)));
-            UIKit.Place((RectTransform)lockB.transform, DrawerW - ButtonW - 28, 222, ButtonW, 56);
+            UIKit.Place((RectTransform)lockB.transform, DrawerW - ButtonW - 28, Pad + 222, ButtonW, 56);
             lockLabel = UIKit.Text(lockB.transform, "Label", "", 18, Theme.Ink, bold: true);
 
             dim.gameObject.SetActive(false);
@@ -103,6 +104,8 @@ namespace RepGame.Chess.UI
             if (state.Phase == MatchPhase.Prep) ChessActions.Ready(!state.Self.Ready);
         }
 
+        private const float Hidden = DrawerH + Pad + 20; // 收起时整个抽屉在屏幕上沿之外
+
         public void SetOpen(bool value)
         {
             if (value && state?.Phase != MatchPhase.Prep) value = false;
@@ -114,13 +117,13 @@ namespace RepGame.Chess.UI
             {
                 UIFx.In(dim.gameObject, UIFx.Style.Fade);
                 drawer.gameObject.SetActive(true);
-                drawer.anchoredPosition = new Vector2(DrawerX, -1080);
-                drawer.DOAnchorPos(new Vector2(DrawerX, -(1080 - DrawerH)), 0.25f).SetEase(Ease.OutCubic).SetTarget(drawer);
+                drawer.anchoredPosition = new Vector2(DrawerX, Hidden);
+                drawer.DOAnchorPos(new Vector2(DrawerX, Pad), 0.25f).SetEase(Ease.OutCubic).SetTarget(drawer);
             }
             else
             {
                 UIFx.Out(dim.gameObject, UIFx.Style.Fade);
-                drawer.DOAnchorPos(new Vector2(DrawerX, -1080), 0.2f).SetEase(Ease.InCubic).SetTarget(drawer)
+                drawer.DOAnchorPos(new Vector2(DrawerX, Hidden), 0.2f).SetEase(Ease.InCubic).SetTarget(drawer)
                     .OnComplete(() => drawer.gameObject.SetActive(false));
             }
         }
@@ -172,7 +175,7 @@ namespace RepGame.Chess.UI
                     UIKit.Hover(rt.gameObject, () =>
                     {
                         var text = CardView.Describe(preview, out var head, out var sub);
-                        tooltip.Show(preview, px, 1080 - DrawerH - 150, 280, head, sub, text);
+                        tooltip.Show(preview, px, DrawerH + 12, 280, head, sub, text); // 抽屉下方
                     }, () => tooltip.Hide(preview));
                 }
                 UIKit.Place(rt, x, 0, CardW, CardH);
