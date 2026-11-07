@@ -7,7 +7,7 @@
 #   UNITY_PATH      Unity 可执行文件，默认 /Applications/Unity/Hub/Editor/6000.3.26f1/Unity.app/Contents/MacOS/Unity
 #   IOS_BUNDLE_ID   包名（全局唯一）
 #   IOS_TEAM_ID     开发者团队 ID（免费 Apple ID 的 Personal Team 也可以）
-#   IOS_DEVICE_ID   目标 iPhone 的标识（xcrun devicectl list devices 里的 Identifier）；为空则只打包不安装
+#   IOS_DEVICE_ID   目标设备标识（UDID 或 xcrun devicectl list devices 里的 Identifier），多台用逗号分隔；为空则只打包不安装
 #   ENV_FILE        打进包里的服务器配置（.env），默认使用项目根目录的 .env；都没有时用 SERVER_HOST/SERVER_PORT/SERVER_CERT_SHA256 生成
 #   BUILD_NUMBER    构建号，默认当前时间
 set -euo pipefail
@@ -69,7 +69,20 @@ if [ -z "${IOS_DEVICE_ID:-}" ]; then
   exit 0
 fi
 
-echo "== 3/3 安装到 iPhone $IOS_DEVICE_ID"
-xcrun devicectl device install app --device "$IOS_DEVICE_ID" "$APP_PATH"
-xcrun devicectl device process launch --device "$IOS_DEVICE_ID" "$IOS_BUNDLE_ID" || echo "已安装；自动启动失败（手机可能锁屏），请手动打开"
-echo "完成"
+echo "== 3/3 安装到设备：$IOS_DEVICE_ID"
+ok=0; fail=0
+IFS=',' read -r -a DEVICES <<< "$IOS_DEVICE_ID"
+for dev in "${DEVICES[@]}"; do
+  dev="$(echo "$dev" | xargs)"
+  [ -z "$dev" ] && continue
+  echo "-- 安装到 $dev"
+  if xcrun devicectl device install app --device "$dev" "$APP_PATH"; then
+    ok=$((ok+1))
+    xcrun devicectl device process launch --device "$dev" "$IOS_BUNDLE_ID" || echo "已安装；自动启动失败（设备可能锁屏），请手动打开"
+  else
+    fail=$((fail+1))
+    echo "!! $dev 安装失败（设备不在线/未配对/锁屏？），继续下一台"
+  fi
+done
+echo "安装完成：成功 $ok 台，失败 $fail 台"
+[ "$ok" -gt 0 ] || exit 1
