@@ -396,12 +396,12 @@ namespace RepGame.UI.Chess
                 }
             }
 
-            /// <summary>步骤的变化文字：战力 +12 / 战力 −8（全角减号）/ 气势 +3 / 气势 ×1.5。</summary>
+            /// <summary>步骤的变化文字：战力 +12 / 战力 -8/ 气势 +3 / 气势 ×1.5。</summary>
             public static string SignedChange(ScoreStepKind kind, double add, double times)
             {
                 if (kind == ScoreStepKind.TimesMult) return $"气势 ×{Fmt.Num(times)}";
                 var name = kind == ScoreStepKind.Points ? "战力" : "气势";
-                return add < 0 ? $"{name} −{Fmt.Num(-add)}" : $"{name} +{Fmt.Num(add)}";
+                return add < 0 ? $"{name} -{Fmt.Num(-add)}" : $"{name} +{Fmt.Num(add)}";
             }
 
             // FoeRelic = 另一方的法宝作用在本侧：本方行是对手的法宝，对手行则是我方自己的法宝
