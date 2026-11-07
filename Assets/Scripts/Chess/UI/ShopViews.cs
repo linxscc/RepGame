@@ -161,7 +161,7 @@ namespace RepGame.Chess.UI
                 else
                 {
                     var line = ChessSession.Instance.Line(slot.LineKey);
-                    var preview = new ChessCard { Name = line.StarNames[0], LineKey = slot.LineKey, Star = 1, Points = line.Points, SellPrice = slot.Cost };
+                    var preview = new ChessCard { Name = line.StarNames[0], LineKey = slot.LineKey, Star = 1, Points = line.Points, SellPrice = slot.Cost, Color = slot.Color };
                     rt = CardView.Build(cardsRow, preview, CardW, CardH, true, slot.Cost); // 价格在卡面左上角
                     if (slot.Owned > 0)
                     {

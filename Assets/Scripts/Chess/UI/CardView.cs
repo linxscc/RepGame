@@ -87,6 +87,21 @@ namespace RepGame.Chess.UI
                 UIKit.Text(badge.transform, "Points", card.Points.ToString(), Mathf.Max(12, w * 0.12f), Theme.Ink, TextAlignmentOptions.Center, true);
             }
 
+            // 花色：战力徽章上方一个字（神/鬼），红/黑
+            var suitGlyph = SuitGlyph(card);
+            if (suitGlyph != "")
+            {
+                var suitColor = card.Color == CardColor.Red ? Theme.Red : Theme.Ink;
+                var disc = UIKit.Circle(frame.transform, "SuitBadge", Theme.WithAlpha(Theme.Paper, 0.9f), suitColor, 1.2f);
+                var dt = disc.rectTransform;
+                dt.anchorMin = dt.anchorMax = new Vector2(0, 0);
+                dt.pivot = new Vector2(0, 0);
+                var d = w * 0.22f;
+                dt.sizeDelta = new Vector2(d, d);
+                dt.anchoredPosition = new Vector2(4 + w * 0.02f, h * 0.2f + 2 + w * 0.26f + 3);
+                UIKit.Text(disc.transform, "Suit", suitGlyph, Mathf.Max(11, w * 0.15f), suitColor, TextAlignmentOptions.Center, true);
+            }
+
             // 名牌底色带：费用档颜色
             var plate = UIKit.Image(frame.transform, "NamePlate", Theme.WithAlpha(tier, 0.22f));
             var prt = plate.rectTransform;
@@ -103,6 +118,22 @@ namespace RepGame.Chess.UI
             name.textWrappingMode = TextWrappingModes.NoWrap;
             name.overflowMode = TextOverflowModes.Ellipsis;
             return rt;
+        }
+
+        static string SuitGlyph(ChessCard c)
+        {
+            if (c.Color == CardColor.Unspecified) return "";
+            var line = ChessSession.Instance.Line(c.LineKey);
+            if (line == null) return "";
+            return line.Kind == CardKind.God ? "神" : line.Kind == CardKind.Ghost ? "鬼" : "";
+        }
+
+        /// <summary>花色名：红神 / 黑神 / 红鬼 / 黑鬼；未知返回空串。</summary>
+        public static string SuitName(ChessCard c)
+        {
+            var g = SuitGlyph(c);
+            if (g == "") return "";
+            return (c.Color == CardColor.Red ? "红" : "黑") + g;
         }
 
         /// <summary>空的出阵格 / 备战格。</summary>
@@ -122,6 +153,8 @@ namespace RepGame.Chess.UI
             var line = s.Line(card.LineKey);
             heading = card.Name + "  " + new string('★', card.Star);
             sub = line != null ? line.Name + "系" : "";
+            var suit = SuitName(card);
+            if (suit != "") sub += " · " + suit;
             var text = $"战力 <b>{card.Points}</b>";
             if (card.Bonus != 0) text += $"（含永久加成 {card.Bonus:+#;-#;0}）";
             var maxStar = s.Config?.MaxStar ?? 3;

@@ -87,97 +87,103 @@ namespace RepGame.Protocol {
             "ASgFIgsKCVNraXBWYXVsdCILCglTdXJyZW5kZXIiJAoIVGllckluZm8SCgoC",
             "YXQYASABKAUSDAoEZGVzYxgCIAEoCSJrCghCb25kSW5mbxILCgNrZXkYASAB",
             "KAkSDAoEbmFtZRgCIAEoCRIMCgRkZXNjGAMgASgJEiMKBXRpZXJzGAQgAygL",
-            "MhQucmVwZ2FtZS52MS5UaWVySW5mbxIRCglsaW5lX2tleXMYBSADKAkikwEK",
+            "MhQucmVwZ2FtZS52MS5UaWVySW5mbxIRCglsaW5lX2tleXMYBSADKAkitwEK",
             "CExpbmVJbmZvEgsKA2tleRgBIAEoCRIMCgRuYW1lGAIgASgJEhIKCnN0YXJf",
             "bmFtZXMYAyADKAkSDAoEY29zdBgEIAEoBRIOCgZwb2ludHMYBSABKAUSEQoJ",
             "dHJhZGVfa2V5GAYgASgJEhIKCm9yaWdpbl9rZXkYByABKAkSEwoLbGVnZW5k",
-            "X2Rlc2MYCCABKAkiYAoJUmVsaWNJbmZvEgsKA2tleRgBIAEoCRIMCgRuYW1l",
-            "GAIgASgJEg4KBnJhcml0eRgDIAEoBRIMCgRkZXNjGAQgASgJEhoKEm5lZWRz",
-            "X3RyYWRlX2Nob2ljZRgFIAEoCCI2CgpSYXJpdHlJbmZvEgsKA2tleRgBIAEo",
-            "CRIMCgRuYW1lGAIgASgJEg0KBXByaWNlGAMgASgFIjUKCkZhbWlseUluZm8S",
-            "CwoDa2V5GAEgASgJEgwKBG5hbWUYAiABKAkSDAoEZGVzYxgDIAEoCSKVAwoL",
-            "TWF0Y2hDb25maWcSDwoHcm9vbV9pZBgBIAEoCRIjCgVsaW5lcxgCIAMoCzIU",
-            "LnJlcGdhbWUudjEuTGluZUluZm8SJAoGdHJhZGVzGAMgAygLMhQucmVwZ2Ft",
-            "ZS52MS5Cb25kSW5mbxIlCgdvcmlnaW5zGAQgAygLMhQucmVwZ2FtZS52MS5C",
-            "b25kSW5mbxIlCgZyZWxpY3MYBSADKAsyFS5yZXBnYW1lLnYxLlJlbGljSW5m",
-            "bxIoCghyYXJpdGllcxgGIAMoCzIWLnJlcGdhbWUudjEuUmFyaXR5SW5mbxIo",
-            "CghmYW1pbGllcxgHIAMoCzIWLnJlcGdhbWUudjEuRmFtaWx5SW5mbxIQCght",
-            "YXhfc3RhchgIIAEoBRISCgpiZW5jaF9zaXplGAkgASgFEhQKDHJlZnJlc2hf",
-            "Y29zdBgKIAEoBRIPCgd4cF9jb3N0GAsgASgFEhEKCW1heF9sZXZlbBgMIAEo",
-            "BRIQCghzdGFydF9ocBgNIAEoBRIWCg5ib25kX3RpZXJfbXVsdBgOIAEoASJ5",
-            "CglDaGVzc0NhcmQSCwoDdWlkGAEgASgJEhAKCGxpbmVfa2V5GAIgASgJEgwK",
-            "BHN0YXIYAyABKAUSDAoEbmFtZRgEIAEoCRIOCgZwb2ludHMYBSABKAUSDQoF",
-            "Ym9udXMYBiABKAUSEgoKc2VsbF9wcmljZRgHIAEoBSJXCglSZWxpY1Nsb3QS",
-            "EQoJcmVsaWNfa2V5GAEgASgJEg0KBXZhbHVlGAIgASgBEhQKDHRyYWRlX2No",
-            "b2ljZRgDIAEoBRISCgpzZWxsX3ByaWNlGAQgASgFIjkKCFNob3BTbG90EhAK",
-            "CGxpbmVfa2V5GAEgASgJEgwKBGNvc3QYAiABKAUSDQoFb3duZWQYAyABKAUi",
-            "NQoJQm9uZENvdW50EgsKA2tleRgBIAEoCRINCgVjb3VudBgCIAEoBRIMCgR0",
-            "aWVyGAMgASgFIskBCglTY29yZVN0ZXASDQoFcGhhc2UYASABKAUSDgoGc291",
-            "cmNlGAIgASgJEhAKCGNhcmRfdWlkGAMgASgJEhIKCnJlbGljX3Nsb3QYBCAB",
-            "KAUSJwoEa2luZBgFIAEoDjIZLnJlcGdhbWUudjEuU2NvcmVTdGVwS2luZBIN",
-            "CgV2YWx1ZRgGIAEoARIOCgZwb2ludHMYByABKAESDAoEbXVsdBgIIAEoARIP",
-            "Cgd0cmlnZ2VyGAkgASgFEhAKCHRyaWdnZXJzGAogASgFImMKDlNjb3JlQnJl",
-            "YWtkb3duEg4KBnBvaW50cxgBIAEoARIMCgRtdWx0GAIgASgBEg0KBXNjb3Jl",
-            "GAMgASgBEiQKBXN0ZXBzGAQgAygLMhUucmVwZ2FtZS52MS5TY29yZVN0ZXAi",
-            "swQKCFNlbGZWaWV3EgoKAmhwGAEgASgFEgwKBGdvbGQYAiABKAUSDQoFbGV2",
-            "ZWwYAyABKAUSCgoCeHAYBCABKAUSEgoKeHBfdG9fbmV4dBgFIAEoBRINCgVz",
-            "bG90cxgGIAEoBRITCgtyZWxpY19zbG90cxgHIAEoBRIkCgVib2FyZBgIIAMo",
-            "CzIVLnJlcGdhbWUudjEuQ2hlc3NDYXJkEiQKBWJlbmNoGAkgAygLMhUucmVw",
-            "Z2FtZS52MS5DaGVzc0NhcmQSJQoGcmVsaWNzGAogAygLMhUucmVwZ2FtZS52",
-            "MS5SZWxpY1Nsb3QSIgoEc2hvcBgLIAMoCzIULnJlcGdhbWUudjEuU2hvcFNs",
-            "b3QSFgoOc2hvcF9yZWxpY19rZXkYDCABKAkSEwoLc2hvcF9sb2NrZWQYDSAB",
-            "KAgSFgoOZnJlZV9yZWZyZXNoZXMYDiABKAUSEAoIaW50ZXJlc3QYDyABKAUS",
-            "DgoGZmFtaWx5GBAgASgFEhIKCndpbl9zdHJlYWsYESABKAUSEwoLbG9zc19z",
-            "dHJlYWsYEiABKAUSDQoFcmVhZHkYEyABKAgSKgoLdHJhZGVfYm9uZHMYFCAD",
-            "KAsyFS5yZXBnYW1lLnYxLkJvbmRDb3VudBIrCgxvcmlnaW5fYm9uZHMYFSAD",
-            "KAsyFS5yZXBnYW1lLnYxLkJvbmRDb3VudBIrCgdwcmV2aWV3GBYgASgLMhou",
-            "cmVwZ2FtZS52MS5TY29yZUJyZWFrZG93biL1AQoMT3Bwb25lbnRWaWV3EhAK",
-            "CHVzZXJuYW1lGAEgASgJEgoKAmhwGAIgASgFEg0KBWxldmVsGAMgASgFEgwK",
-            "BGdvbGQYBCABKAUSEgoKY2FyZF9jb3VudBgFIAEoBRIlCgZyZWxpY3MYBiAD",
-            "KAsyFS5yZXBnYW1lLnYxLlJlbGljU2xvdBIOCgZmYW1pbHkYByABKAUSKQoK",
-            "bGFzdF9ib2FyZBgIIAMoCzIVLnJlcGdhbWUudjEuQ2hlc3NDYXJkEhIKCmxh",
-            "c3Rfc2NvcmUYCSABKAESDQoFcmVhZHkYCiABKAgSEQoJY29ubmVjdGVkGAsg",
-            "ASgIIv8BCgpNYXRjaFN0YXRlEg8KB3Jvb21faWQYASABKAkSJQoFcGhhc2UY",
-            "AiABKA4yFi5yZXBnYW1lLnYxLk1hdGNoUGhhc2USDQoFcm91bmQYAyABKAUS",
-            "GQoRcGhhc2VfZGVhZGxpbmVfbXMYBCABKAMSFAoMc3RhZ2VfZGFtYWdlGAUg",
-            "ASgFEiIKBHNlbGYYBiABKAsyFC5yZXBnYW1lLnYxLlNlbGZWaWV3EioKCG9w",
-            "cG9uZW50GAcgASgLMhgucmVwZ2FtZS52MS5PcHBvbmVudFZpZXcSFAoMZmFt",
-            "aWx5X29mZmVyGAggAygFEhMKC3ZhdWx0X29mZmVyGAkgAygJIr4BCgpTaWRl",
-            "UmVzdWx0EhAKCHVzZXJuYW1lGAEgASgJEiQKBWJvYXJkGAIgAygLMhUucmVw",
-            "Z2FtZS52MS5DaGVzc0NhcmQSJQoGcmVsaWNzGAMgAygLMhUucmVwZ2FtZS52",
-            "MS5SZWxpY1Nsb3QSKQoFc2NvcmUYBCABKAsyGi5yZXBnYW1lLnYxLlNjb3Jl",
-            "QnJlYWtkb3duEhQKDGRhbWFnZV90YWtlbhgFIAEoBRIQCghocF9hZnRlchgG",
-            "IAEoBSLPAQoLUm91bmRSZXN1bHQSDwoHcm9vbV9pZBgBIAEoCRINCgVyb3Vu",
-            "ZBgCIAEoBRIkCgRzZWxmGAMgASgLMhYucmVwZ2FtZS52MS5TaWRlUmVzdWx0",
-            "EigKCG9wcG9uZW50GAQgASgLMhYucmVwZ2FtZS52MS5TaWRlUmVzdWx0Eg4K",
-            "Bndpbm5lchgFIAEoBRISCgptYXRjaF9vdmVyGAYgASgIEhIKCnZhdWx0X25l",
-            "eHQYByABKAgSGAoQbmV4dF9waGFzZV9hdF9tcxgIIAEoAyJyCglNYXRjaE92",
-            "ZXISDwoHcm9vbV9pZBgBIAEoCRIOCgZyZXN1bHQYAiABKAUSDgoGcm91bmRz",
-            "GAMgASgFEgoKAmhwGAQgASgFEhMKC29wcG9uZW50X2hwGAUgASgFEhMKC3N1",
-            "cnJlbmRlcmVkGAYgASgIKrgDCglFcnJvckNvZGUSGgoWRVJST1JfQ09ERV9V",
-            "TlNQRUNJRklFRBAAEh4KGkVSUk9SX0NPREVfSU5WQUxJRF9SRVFVRVNUEAES",
-            "IAocRVJST1JfQ09ERV9OT1RfQVVUSEVOVElDQVRFRBACEiIKHkVSUk9SX0NP",
-            "REVfSU5WQUxJRF9DUkVERU5USUFMUxADEhoKFkVSUk9SX0NPREVfVVNFUl9F",
-            "WElTVFMQBBIeChpFUlJPUl9DT0RFX1NFU1NJT05fRVhQSVJFRBAFEiEKHUVS",
-            "Uk9SX0NPREVfSU5WQUxJRF9HQU1FX1NUQVRFEAYSHAoYRVJST1JfQ09ERV9J",
-            "TlZBTElEX0NBUkRTEAcSFwoTRVJST1JfQ09ERV9JTlRFUk5BTBAIEh4KGkVS",
-            "Uk9SX0NPREVfTk9UX0VOT1VHSF9HT0xEEAkSGQoVRVJST1JfQ09ERV9CRU5D",
-            "SF9GVUxMEAoSHwobRVJST1JfQ09ERV9SRUxJQ19TTE9UU19GVUxMEAsSGAoU",
-            "RVJST1JfQ09ERV9NQVhfTEVWRUwQDBIdChlFUlJPUl9DT0RFX0lOVkFMSURf",
-            "Q0hPSUNFEA0qdAoOUHJlc2VuY2VTdGF0dXMSHwobUFJFU0VOQ0VfU1RBVFVT",
-            "X1VOU1BFQ0lGSUVEEAASIAocUFJFU0VOQ0VfU1RBVFVTX0RJU0NPTk5FQ1RF",
-            "RBABEh8KG1BSRVNFTkNFX1NUQVRVU19SRUNPTk5FQ1RFRBACKpwBCgpNYXRj",
-            "aFBoYXNlEhsKF01BVENIX1BIQVNFX1VOU1BFQ0lGSUVEEAASFgoSTUFUQ0hf",
-            "UEhBU0VfRkFNSUxZEAESFAoQTUFUQ0hfUEhBU0VfUFJFUBACEhYKEk1BVENI",
-            "X1BIQVNFX1NFVFRMRRADEhUKEU1BVENIX1BIQVNFX1ZBVUxUEAQSFAoQTUFU",
-            "Q0hfUEhBU0VfT1ZFUhAFKooBCg1TY29yZVN0ZXBLaW5kEh8KG1NDT1JFX1NU",
-            "RVBfS0lORF9VTlNQRUNJRklFRBAAEhoKFlNDT1JFX1NURVBfS0lORF9QT0lO",
-            "VFMQARIcChhTQ09SRV9TVEVQX0tJTkRfQUREX01VTFQQAhIeChpTQ09SRV9T",
-            "VEVQX0tJTkRfVElNRVNfTVVMVBADQjFaHEdvU2VydmVyL3RjcGdhbWVzZXJ2",
-            "ZXIvcGI7cGKqAhBSZXBHYW1lLlByb3RvY29sYgZwcm90bzM="));
+            "X2Rlc2MYCCABKAkSIgoEa2luZBgJIAEoDjIULnJlcGdhbWUudjEuQ2FyZEtp",
+            "bmQiYAoJUmVsaWNJbmZvEgsKA2tleRgBIAEoCRIMCgRuYW1lGAIgASgJEg4K",
+            "BnJhcml0eRgDIAEoBRIMCgRkZXNjGAQgASgJEhoKEm5lZWRzX3RyYWRlX2No",
+            "b2ljZRgFIAEoCCI2CgpSYXJpdHlJbmZvEgsKA2tleRgBIAEoCRIMCgRuYW1l",
+            "GAIgASgJEg0KBXByaWNlGAMgASgFIjUKCkZhbWlseUluZm8SCwoDa2V5GAEg",
+            "ASgJEgwKBG5hbWUYAiABKAkSDAoEZGVzYxgDIAEoCSKVAwoLTWF0Y2hDb25m",
+            "aWcSDwoHcm9vbV9pZBgBIAEoCRIjCgVsaW5lcxgCIAMoCzIULnJlcGdhbWUu",
+            "djEuTGluZUluZm8SJAoGdHJhZGVzGAMgAygLMhQucmVwZ2FtZS52MS5Cb25k",
+            "SW5mbxIlCgdvcmlnaW5zGAQgAygLMhQucmVwZ2FtZS52MS5Cb25kSW5mbxIl",
+            "CgZyZWxpY3MYBSADKAsyFS5yZXBnYW1lLnYxLlJlbGljSW5mbxIoCghyYXJp",
+            "dGllcxgGIAMoCzIWLnJlcGdhbWUudjEuUmFyaXR5SW5mbxIoCghmYW1pbGll",
+            "cxgHIAMoCzIWLnJlcGdhbWUudjEuRmFtaWx5SW5mbxIQCghtYXhfc3RhchgI",
+            "IAEoBRISCgpiZW5jaF9zaXplGAkgASgFEhQKDHJlZnJlc2hfY29zdBgKIAEo",
+            "BRIPCgd4cF9jb3N0GAsgASgFEhEKCW1heF9sZXZlbBgMIAEoBRIQCghzdGFy",
+            "dF9ocBgNIAEoBRIWCg5ib25kX3RpZXJfbXVsdBgOIAEoASKfAQoJQ2hlc3ND",
+            "YXJkEgsKA3VpZBgBIAEoCRIQCghsaW5lX2tleRgCIAEoCRIMCgRzdGFyGAMg",
+            "ASgFEgwKBG5hbWUYBCABKAkSDgoGcG9pbnRzGAUgASgFEg0KBWJvbnVzGAYg",
+            "ASgFEhIKCnNlbGxfcHJpY2UYByABKAUSJAoFY29sb3IYCCABKA4yFS5yZXBn",
+            "YW1lLnYxLkNhcmRDb2xvciJXCglSZWxpY1Nsb3QSEQoJcmVsaWNfa2V5GAEg",
+            "ASgJEg0KBXZhbHVlGAIgASgBEhQKDHRyYWRlX2Nob2ljZRgDIAEoBRISCgpz",
+            "ZWxsX3ByaWNlGAQgASgFIl8KCFNob3BTbG90EhAKCGxpbmVfa2V5GAEgASgJ",
+            "EgwKBGNvc3QYAiABKAUSDQoFb3duZWQYAyABKAUSJAoFY29sb3IYBCABKA4y",
+            "FS5yZXBnYW1lLnYxLkNhcmRDb2xvciI1CglCb25kQ291bnQSCwoDa2V5GAEg",
+            "ASgJEg0KBWNvdW50GAIgASgFEgwKBHRpZXIYAyABKAUiyQEKCVNjb3JlU3Rl",
+            "cBINCgVwaGFzZRgBIAEoBRIOCgZzb3VyY2UYAiABKAkSEAoIY2FyZF91aWQY",
+            "AyABKAkSEgoKcmVsaWNfc2xvdBgEIAEoBRInCgRraW5kGAUgASgOMhkucmVw",
+            "Z2FtZS52MS5TY29yZVN0ZXBLaW5kEg0KBXZhbHVlGAYgASgBEg4KBnBvaW50",
+            "cxgHIAEoARIMCgRtdWx0GAggASgBEg8KB3RyaWdnZXIYCSABKAUSEAoIdHJp",
+            "Z2dlcnMYCiABKAUiYwoOU2NvcmVCcmVha2Rvd24SDgoGcG9pbnRzGAEgASgB",
+            "EgwKBG11bHQYAiABKAESDQoFc2NvcmUYAyABKAESJAoFc3RlcHMYBCADKAsy",
+            "FS5yZXBnYW1lLnYxLlNjb3JlU3RlcCKzBAoIU2VsZlZpZXcSCgoCaHAYASAB",
+            "KAUSDAoEZ29sZBgCIAEoBRINCgVsZXZlbBgDIAEoBRIKCgJ4cBgEIAEoBRIS",
+            "Cgp4cF90b19uZXh0GAUgASgFEg0KBXNsb3RzGAYgASgFEhMKC3JlbGljX3Ns",
+            "b3RzGAcgASgFEiQKBWJvYXJkGAggAygLMhUucmVwZ2FtZS52MS5DaGVzc0Nh",
+            "cmQSJAoFYmVuY2gYCSADKAsyFS5yZXBnYW1lLnYxLkNoZXNzQ2FyZBIlCgZy",
+            "ZWxpY3MYCiADKAsyFS5yZXBnYW1lLnYxLlJlbGljU2xvdBIiCgRzaG9wGAsg",
+            "AygLMhQucmVwZ2FtZS52MS5TaG9wU2xvdBIWCg5zaG9wX3JlbGljX2tleRgM",
+            "IAEoCRITCgtzaG9wX2xvY2tlZBgNIAEoCBIWCg5mcmVlX3JlZnJlc2hlcxgO",
+            "IAEoBRIQCghpbnRlcmVzdBgPIAEoBRIOCgZmYW1pbHkYECABKAUSEgoKd2lu",
+            "X3N0cmVhaxgRIAEoBRITCgtsb3NzX3N0cmVhaxgSIAEoBRINCgVyZWFkeRgT",
+            "IAEoCBIqCgt0cmFkZV9ib25kcxgUIAMoCzIVLnJlcGdhbWUudjEuQm9uZENv",
+            "dW50EisKDG9yaWdpbl9ib25kcxgVIAMoCzIVLnJlcGdhbWUudjEuQm9uZENv",
+            "dW50EisKB3ByZXZpZXcYFiABKAsyGi5yZXBnYW1lLnYxLlNjb3JlQnJlYWtk",
+            "b3duIvUBCgxPcHBvbmVudFZpZXcSEAoIdXNlcm5hbWUYASABKAkSCgoCaHAY",
+            "AiABKAUSDQoFbGV2ZWwYAyABKAUSDAoEZ29sZBgEIAEoBRISCgpjYXJkX2Nv",
+            "dW50GAUgASgFEiUKBnJlbGljcxgGIAMoCzIVLnJlcGdhbWUudjEuUmVsaWNT",
+            "bG90Eg4KBmZhbWlseRgHIAEoBRIpCgpsYXN0X2JvYXJkGAggAygLMhUucmVw",
+            "Z2FtZS52MS5DaGVzc0NhcmQSEgoKbGFzdF9zY29yZRgJIAEoARINCgVyZWFk",
+            "eRgKIAEoCBIRCgljb25uZWN0ZWQYCyABKAgi/wEKCk1hdGNoU3RhdGUSDwoH",
+            "cm9vbV9pZBgBIAEoCRIlCgVwaGFzZRgCIAEoDjIWLnJlcGdhbWUudjEuTWF0",
+            "Y2hQaGFzZRINCgVyb3VuZBgDIAEoBRIZChFwaGFzZV9kZWFkbGluZV9tcxgE",
+            "IAEoAxIUCgxzdGFnZV9kYW1hZ2UYBSABKAUSIgoEc2VsZhgGIAEoCzIULnJl",
+            "cGdhbWUudjEuU2VsZlZpZXcSKgoIb3Bwb25lbnQYByABKAsyGC5yZXBnYW1l",
+            "LnYxLk9wcG9uZW50VmlldxIUCgxmYW1pbHlfb2ZmZXIYCCADKAUSEwoLdmF1",
+            "bHRfb2ZmZXIYCSADKAkivgEKClNpZGVSZXN1bHQSEAoIdXNlcm5hbWUYASAB",
+            "KAkSJAoFYm9hcmQYAiADKAsyFS5yZXBnYW1lLnYxLkNoZXNzQ2FyZBIlCgZy",
+            "ZWxpY3MYAyADKAsyFS5yZXBnYW1lLnYxLlJlbGljU2xvdBIpCgVzY29yZRgE",
+            "IAEoCzIaLnJlcGdhbWUudjEuU2NvcmVCcmVha2Rvd24SFAoMZGFtYWdlX3Rh",
+            "a2VuGAUgASgFEhAKCGhwX2FmdGVyGAYgASgFIs8BCgtSb3VuZFJlc3VsdBIP",
+            "Cgdyb29tX2lkGAEgASgJEg0KBXJvdW5kGAIgASgFEiQKBHNlbGYYAyABKAsy",
+            "Fi5yZXBnYW1lLnYxLlNpZGVSZXN1bHQSKAoIb3Bwb25lbnQYBCABKAsyFi5y",
+            "ZXBnYW1lLnYxLlNpZGVSZXN1bHQSDgoGd2lubmVyGAUgASgFEhIKCm1hdGNo",
+            "X292ZXIYBiABKAgSEgoKdmF1bHRfbmV4dBgHIAEoCBIYChBuZXh0X3BoYXNl",
+            "X2F0X21zGAggASgDInIKCU1hdGNoT3ZlchIPCgdyb29tX2lkGAEgASgJEg4K",
+            "BnJlc3VsdBgCIAEoBRIOCgZyb3VuZHMYAyABKAUSCgoCaHAYBCABKAUSEwoL",
+            "b3Bwb25lbnRfaHAYBSABKAUSEwoLc3VycmVuZGVyZWQYBiABKAgquAMKCUVy",
+            "cm9yQ29kZRIaChZFUlJPUl9DT0RFX1VOU1BFQ0lGSUVEEAASHgoaRVJST1Jf",
+            "Q09ERV9JTlZBTElEX1JFUVVFU1QQARIgChxFUlJPUl9DT0RFX05PVF9BVVRI",
+            "RU5USUNBVEVEEAISIgoeRVJST1JfQ09ERV9JTlZBTElEX0NSRURFTlRJQUxT",
+            "EAMSGgoWRVJST1JfQ09ERV9VU0VSX0VYSVNUUxAEEh4KGkVSUk9SX0NPREVf",
+            "U0VTU0lPTl9FWFBJUkVEEAUSIQodRVJST1JfQ09ERV9JTlZBTElEX0dBTUVf",
+            "U1RBVEUQBhIcChhFUlJPUl9DT0RFX0lOVkFMSURfQ0FSRFMQBxIXChNFUlJP",
+            "Ul9DT0RFX0lOVEVSTkFMEAgSHgoaRVJST1JfQ09ERV9OT1RfRU5PVUdIX0dP",
+            "TEQQCRIZChVFUlJPUl9DT0RFX0JFTkNIX0ZVTEwQChIfChtFUlJPUl9DT0RF",
+            "X1JFTElDX1NMT1RTX0ZVTEwQCxIYChRFUlJPUl9DT0RFX01BWF9MRVZFTBAM",
+            "Eh0KGUVSUk9SX0NPREVfSU5WQUxJRF9DSE9JQ0UQDSp0Cg5QcmVzZW5jZVN0",
+            "YXR1cxIfChtQUkVTRU5DRV9TVEFUVVNfVU5TUEVDSUZJRUQQABIgChxQUkVT",
+            "RU5DRV9TVEFUVVNfRElTQ09OTkVDVEVEEAESHwobUFJFU0VOQ0VfU1RBVFVT",
+            "X1JFQ09OTkVDVEVEEAIqUQoJQ2FyZENvbG9yEhoKFkNBUkRfQ09MT1JfVU5T",
+            "UEVDSUZJRUQQABISCg5DQVJEX0NPTE9SX1JFRBABEhQKEENBUkRfQ09MT1Jf",
+            "QkxBQ0sQAipNCghDYXJkS2luZBIZChVDQVJEX0tJTkRfVU5TUEVDSUZJRUQQ",
+            "ABIRCg1DQVJEX0tJTkRfR09EEAESEwoPQ0FSRF9LSU5EX0dIT1NUEAIqnAEK",
+            "Ck1hdGNoUGhhc2USGwoXTUFUQ0hfUEhBU0VfVU5TUEVDSUZJRUQQABIWChJN",
+            "QVRDSF9QSEFTRV9GQU1JTFkQARIUChBNQVRDSF9QSEFTRV9QUkVQEAISFgoS",
+            "TUFUQ0hfUEhBU0VfU0VUVExFEAMSFQoRTUFUQ0hfUEhBU0VfVkFVTFQQBBIU",
+            "ChBNQVRDSF9QSEFTRV9PVkVSEAUqigEKDVNjb3JlU3RlcEtpbmQSHwobU0NP",
+            "UkVfU1RFUF9LSU5EX1VOU1BFQ0lGSUVEEAASGgoWU0NPUkVfU1RFUF9LSU5E",
+            "X1BPSU5UUxABEhwKGFNDT1JFX1NURVBfS0lORF9BRERfTVVMVBACEh4KGlND",
+            "T1JFX1NURVBfS0lORF9USU1FU19NVUxUEANCMVocR29TZXJ2ZXIvdGNwZ2Ft",
+            "ZXNlcnZlci9wYjtwYqoCEFJlcEdhbWUuUHJvdG9jb2xiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::RepGame.Protocol.ErrorCode), typeof(global::RepGame.Protocol.PresenceStatus), typeof(global::RepGame.Protocol.MatchPhase), typeof(global::RepGame.Protocol.ScoreStepKind), }, null, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::RepGame.Protocol.ErrorCode), typeof(global::RepGame.Protocol.PresenceStatus), typeof(global::RepGame.Protocol.CardColor), typeof(global::RepGame.Protocol.CardKind), typeof(global::RepGame.Protocol.MatchPhase), typeof(global::RepGame.Protocol.ScoreStepKind), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.ClientMessage), global::RepGame.Protocol.ClientMessage.Parser, new[]{ "Seq", "Login", "Register", "ResumeSession", "Ready", "Ping", "GameAction", "CancelMatch" }, new[]{ "Body" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.ServerMessage), global::RepGame.Protocol.ServerMessage.Parser, new[]{ "ReplyTo", "Error", "Welcome", "AuthResult", "RegisterResult", "PlayerPresence", "Pong", "MatchConfig", "MatchState", "RoundResult", "MatchOver", "Matchmaking" }, new[]{ "Body" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.Error), global::RepGame.Protocol.Error.Parser, new[]{ "Code", "Message" }, null, null, null, null),
@@ -210,14 +216,14 @@ namespace RepGame.Protocol {
             new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.Surrender), global::RepGame.Protocol.Surrender.Parser, null, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.TierInfo), global::RepGame.Protocol.TierInfo.Parser, new[]{ "At", "Desc" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.BondInfo), global::RepGame.Protocol.BondInfo.Parser, new[]{ "Key", "Name", "Desc", "Tiers", "LineKeys" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.LineInfo), global::RepGame.Protocol.LineInfo.Parser, new[]{ "Key", "Name", "StarNames", "Cost", "Points", "TradeKey", "OriginKey", "LegendDesc" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.LineInfo), global::RepGame.Protocol.LineInfo.Parser, new[]{ "Key", "Name", "StarNames", "Cost", "Points", "TradeKey", "OriginKey", "LegendDesc", "Kind" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.RelicInfo), global::RepGame.Protocol.RelicInfo.Parser, new[]{ "Key", "Name", "Rarity", "Desc", "NeedsTradeChoice" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.RarityInfo), global::RepGame.Protocol.RarityInfo.Parser, new[]{ "Key", "Name", "Price" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.FamilyInfo), global::RepGame.Protocol.FamilyInfo.Parser, new[]{ "Key", "Name", "Desc" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.MatchConfig), global::RepGame.Protocol.MatchConfig.Parser, new[]{ "RoomId", "Lines", "Trades", "Origins", "Relics", "Rarities", "Families", "MaxStar", "BenchSize", "RefreshCost", "XpCost", "MaxLevel", "StartHp", "BondTierMult" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.ChessCard), global::RepGame.Protocol.ChessCard.Parser, new[]{ "Uid", "LineKey", "Star", "Name", "Points", "Bonus", "SellPrice" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.ChessCard), global::RepGame.Protocol.ChessCard.Parser, new[]{ "Uid", "LineKey", "Star", "Name", "Points", "Bonus", "SellPrice", "Color" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.RelicSlot), global::RepGame.Protocol.RelicSlot.Parser, new[]{ "RelicKey", "Value", "TradeChoice", "SellPrice" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.ShopSlot), global::RepGame.Protocol.ShopSlot.Parser, new[]{ "LineKey", "Cost", "Owned" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.ShopSlot), global::RepGame.Protocol.ShopSlot.Parser, new[]{ "LineKey", "Cost", "Owned", "Color" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.BondCount), global::RepGame.Protocol.BondCount.Parser, new[]{ "Key", "Count", "Tier" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.ScoreStep), global::RepGame.Protocol.ScoreStep.Parser, new[]{ "Phase", "Source", "CardUid", "RelicSlot", "Kind", "Value", "Points", "Mult", "Trigger", "Triggers" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::RepGame.Protocol.ScoreBreakdown), global::RepGame.Protocol.ScoreBreakdown.Parser, new[]{ "Points", "Mult", "Score", "Steps" }, null, null, null, null),
@@ -296,6 +302,18 @@ namespace RepGame.Protocol {
     /// </summary>
     [pbr::OriginalName("PRESENCE_STATUS_DISCONNECTED")] Disconnected = 1,
     [pbr::OriginalName("PRESENCE_STATUS_RECONNECTED")] Reconnected = 2,
+  }
+
+  public enum CardColor {
+    [pbr::OriginalName("CARD_COLOR_UNSPECIFIED")] Unspecified = 0,
+    [pbr::OriginalName("CARD_COLOR_RED")] Red = 1,
+    [pbr::OriginalName("CARD_COLOR_BLACK")] Black = 2,
+  }
+
+  public enum CardKind {
+    [pbr::OriginalName("CARD_KIND_UNSPECIFIED")] Unspecified = 0,
+    [pbr::OriginalName("CARD_KIND_GOD")] God = 1,
+    [pbr::OriginalName("CARD_KIND_GHOST")] Ghost = 2,
   }
 
   public enum MatchPhase {
@@ -8876,6 +8894,7 @@ namespace RepGame.Protocol {
       tradeKey_ = other.tradeKey_;
       originKey_ = other.originKey_;
       legendDesc_ = other.legendDesc_;
+      kind_ = other.kind_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -8980,6 +8999,18 @@ namespace RepGame.Protocol {
       }
     }
 
+    /// <summary>Field number for the "kind" field.</summary>
+    public const int KindFieldNumber = 9;
+    private global::RepGame.Protocol.CardKind kind_ = global::RepGame.Protocol.CardKind.Unspecified;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::RepGame.Protocol.CardKind Kind {
+      get { return kind_; }
+      set {
+        kind_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -9003,6 +9034,7 @@ namespace RepGame.Protocol {
       if (TradeKey != other.TradeKey) return false;
       if (OriginKey != other.OriginKey) return false;
       if (LegendDesc != other.LegendDesc) return false;
+      if (Kind != other.Kind) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -9018,6 +9050,7 @@ namespace RepGame.Protocol {
       if (TradeKey.Length != 0) hash ^= TradeKey.GetHashCode();
       if (OriginKey.Length != 0) hash ^= OriginKey.GetHashCode();
       if (LegendDesc.Length != 0) hash ^= LegendDesc.GetHashCode();
+      if (Kind != global::RepGame.Protocol.CardKind.Unspecified) hash ^= Kind.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -9065,6 +9098,10 @@ namespace RepGame.Protocol {
         output.WriteRawTag(66);
         output.WriteString(LegendDesc);
       }
+      if (Kind != global::RepGame.Protocol.CardKind.Unspecified) {
+        output.WriteRawTag(72);
+        output.WriteEnum((int) Kind);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -9104,6 +9141,10 @@ namespace RepGame.Protocol {
         output.WriteRawTag(66);
         output.WriteString(LegendDesc);
       }
+      if (Kind != global::RepGame.Protocol.CardKind.Unspecified) {
+        output.WriteRawTag(72);
+        output.WriteEnum((int) Kind);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -9135,6 +9176,9 @@ namespace RepGame.Protocol {
       }
       if (LegendDesc.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(LegendDesc);
+      }
+      if (Kind != global::RepGame.Protocol.CardKind.Unspecified) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Kind);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -9169,6 +9213,9 @@ namespace RepGame.Protocol {
       }
       if (other.LegendDesc.Length != 0) {
         LegendDesc = other.LegendDesc;
+      }
+      if (other.Kind != global::RepGame.Protocol.CardKind.Unspecified) {
+        Kind = other.Kind;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -9221,6 +9268,10 @@ namespace RepGame.Protocol {
             LegendDesc = input.ReadString();
             break;
           }
+          case 72: {
+            Kind = (global::RepGame.Protocol.CardKind) input.ReadEnum();
+            break;
+          }
         }
       }
     #endif
@@ -9270,6 +9321,10 @@ namespace RepGame.Protocol {
           }
           case 66: {
             LegendDesc = input.ReadString();
+            break;
+          }
+          case 72: {
+            Kind = (global::RepGame.Protocol.CardKind) input.ReadEnum();
             break;
           }
         }
@@ -10833,6 +10888,7 @@ namespace RepGame.Protocol {
       points_ = other.points_;
       bonus_ = other.bonus_;
       sellPrice_ = other.sellPrice_;
+      color_ = other.color_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -10932,6 +10988,18 @@ namespace RepGame.Protocol {
       }
     }
 
+    /// <summary>Field number for the "color" field.</summary>
+    public const int ColorFieldNumber = 8;
+    private global::RepGame.Protocol.CardColor color_ = global::RepGame.Protocol.CardColor.Unspecified;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::RepGame.Protocol.CardColor Color {
+      get { return color_; }
+      set {
+        color_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -10954,6 +11022,7 @@ namespace RepGame.Protocol {
       if (Points != other.Points) return false;
       if (Bonus != other.Bonus) return false;
       if (SellPrice != other.SellPrice) return false;
+      if (Color != other.Color) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -10968,6 +11037,7 @@ namespace RepGame.Protocol {
       if (Points != 0) hash ^= Points.GetHashCode();
       if (Bonus != 0) hash ^= Bonus.GetHashCode();
       if (SellPrice != 0) hash ^= SellPrice.GetHashCode();
+      if (Color != global::RepGame.Protocol.CardColor.Unspecified) hash ^= Color.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -11014,6 +11084,10 @@ namespace RepGame.Protocol {
         output.WriteRawTag(56);
         output.WriteInt32(SellPrice);
       }
+      if (Color != global::RepGame.Protocol.CardColor.Unspecified) {
+        output.WriteRawTag(64);
+        output.WriteEnum((int) Color);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -11052,6 +11126,10 @@ namespace RepGame.Protocol {
         output.WriteRawTag(56);
         output.WriteInt32(SellPrice);
       }
+      if (Color != global::RepGame.Protocol.CardColor.Unspecified) {
+        output.WriteRawTag(64);
+        output.WriteEnum((int) Color);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -11082,6 +11160,9 @@ namespace RepGame.Protocol {
       }
       if (SellPrice != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(SellPrice);
+      }
+      if (Color != global::RepGame.Protocol.CardColor.Unspecified) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Color);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -11115,6 +11196,9 @@ namespace RepGame.Protocol {
       }
       if (other.SellPrice != 0) {
         SellPrice = other.SellPrice;
+      }
+      if (other.Color != global::RepGame.Protocol.CardColor.Unspecified) {
+        Color = other.Color;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -11163,6 +11247,10 @@ namespace RepGame.Protocol {
             SellPrice = input.ReadInt32();
             break;
           }
+          case 64: {
+            Color = (global::RepGame.Protocol.CardColor) input.ReadEnum();
+            break;
+          }
         }
       }
     #endif
@@ -11208,6 +11296,10 @@ namespace RepGame.Protocol {
           }
           case 56: {
             SellPrice = input.ReadInt32();
+            break;
+          }
+          case 64: {
+            Color = (global::RepGame.Protocol.CardColor) input.ReadEnum();
             break;
           }
         }
@@ -11570,6 +11662,7 @@ namespace RepGame.Protocol {
       lineKey_ = other.lineKey_;
       cost_ = other.cost_;
       owned_ = other.owned_;
+      color_ = other.color_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -11621,6 +11714,21 @@ namespace RepGame.Protocol {
       }
     }
 
+    /// <summary>Field number for the "color" field.</summary>
+    public const int ColorFieldNumber = 4;
+    private global::RepGame.Protocol.CardColor color_ = global::RepGame.Protocol.CardColor.Unspecified;
+    /// <summary>
+    /// 空格为 UNSPECIFIED
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::RepGame.Protocol.CardColor Color {
+      get { return color_; }
+      set {
+        color_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -11639,6 +11747,7 @@ namespace RepGame.Protocol {
       if (LineKey != other.LineKey) return false;
       if (Cost != other.Cost) return false;
       if (Owned != other.Owned) return false;
+      if (Color != other.Color) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -11649,6 +11758,7 @@ namespace RepGame.Protocol {
       if (LineKey.Length != 0) hash ^= LineKey.GetHashCode();
       if (Cost != 0) hash ^= Cost.GetHashCode();
       if (Owned != 0) hash ^= Owned.GetHashCode();
+      if (Color != global::RepGame.Protocol.CardColor.Unspecified) hash ^= Color.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -11679,6 +11789,10 @@ namespace RepGame.Protocol {
         output.WriteRawTag(24);
         output.WriteInt32(Owned);
       }
+      if (Color != global::RepGame.Protocol.CardColor.Unspecified) {
+        output.WriteRawTag(32);
+        output.WriteEnum((int) Color);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -11701,6 +11815,10 @@ namespace RepGame.Protocol {
         output.WriteRawTag(24);
         output.WriteInt32(Owned);
       }
+      if (Color != global::RepGame.Protocol.CardColor.Unspecified) {
+        output.WriteRawTag(32);
+        output.WriteEnum((int) Color);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -11719,6 +11837,9 @@ namespace RepGame.Protocol {
       }
       if (Owned != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Owned);
+      }
+      if (Color != global::RepGame.Protocol.CardColor.Unspecified) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Color);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -11740,6 +11861,9 @@ namespace RepGame.Protocol {
       }
       if (other.Owned != 0) {
         Owned = other.Owned;
+      }
+      if (other.Color != global::RepGame.Protocol.CardColor.Unspecified) {
+        Color = other.Color;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -11772,6 +11896,10 @@ namespace RepGame.Protocol {
             Owned = input.ReadInt32();
             break;
           }
+          case 32: {
+            Color = (global::RepGame.Protocol.CardColor) input.ReadEnum();
+            break;
+          }
         }
       }
     #endif
@@ -11801,6 +11929,10 @@ namespace RepGame.Protocol {
           }
           case 24: {
             Owned = input.ReadInt32();
+            break;
+          }
+          case 32: {
+            Color = (global::RepGame.Protocol.CardColor) input.ReadEnum();
             break;
           }
         }
