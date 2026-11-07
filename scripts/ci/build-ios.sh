@@ -48,6 +48,8 @@ export IOS_BUNDLE_ID IOS_TEAM_ID ENV_FILE BUILD_NUMBER BUILD_OUTPUT
   -logFile "$LOG_DIR/unity.log" || { tail -n 80 "$LOG_DIR/unity.log"; exit 1; }
 
 echo "== 2/3 Xcode 编译并签名"
+# 注意：不要在命令行覆盖 PRODUCT_BUNDLE_IDENTIFIER，它会作用到所有 target（包括 UnityFramework），
+# 导致框架和 App 同一个包名、设备拒绝安装。包名已由 Unity 导出时写进工程（CiBuild 设置）。
 # xcode-select 指向命令行工具时 xcodebuild 不可用：直接用 Xcode.app 里的开发者目录（不需要 sudo xcode-select -s）
 if ! xcodebuild -version >/dev/null 2>&1; then
   XCODE_APP="${XCODE_APP:-$(ls -d /Applications/Xcode*.app 2>/dev/null | head -n 1)}"
@@ -75,7 +77,7 @@ xcodebuild \
   -allowProvisioningUpdates \
   DEVELOPMENT_TEAM="$IOS_TEAM_ID" \
   CODE_SIGN_STYLE=Automatic \
-  PRODUCT_BUNDLE_IDENTIFIER="$IOS_BUNDLE_ID" \
+\
   build > "$LOG_DIR/xcodebuild.log" 2>&1 || { tail -n 80 "$LOG_DIR/xcodebuild.log"; exit 1; }
 
 APP_PATH="$(find "$DERIVED/Build/Products/Release-iphoneos" -maxdepth 1 -name '*.app' | head -n 1)"
