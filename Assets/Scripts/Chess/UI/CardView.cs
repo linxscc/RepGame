@@ -48,17 +48,10 @@ namespace RepGame.Chess.UI
                 UIKit.Text(coin.transform, "Gold", cost.ToString(), w * 0.13f, tier, TextAlignmentOptions.Center, true);
             }
 
-            // 右上角：星级，下面竖排羁绊标签
-            float starH = Mathf.Max(14, w * 0.13f);
-            var stars = UIKit.Text(frame.transform, "Stars", new string('★', card.Star), Mathf.Max(11, w * 0.11f), Theme.Red,
-                TextAlignmentOptions.TopRight, true);
-            stars.rectTransform.offsetMin = new Vector2(0, 0);
-            stars.rectTransform.offsetMax = new Vector2(-6, -4);
-
-            // 右上角：本卡的两个羁绊（行当、出身），竖排小标签
+            // 右上角：本卡的两个羁绊（行当、出身），竖排小标签。星级不在卡面显示，靠卡面底色区分
             if (line != null)
             {
-                float tagW = Mathf.Max(16, w * 0.17f), tagH = Mathf.Max(30, w * 0.34f), y = 6 + starH;
+                float tagW = Mathf.Max(16, w * 0.17f), tagH = Mathf.Max(30, w * 0.34f), y = 6f;
                 foreach (var key in new[] { line.TradeKey, line.OriginKey })
                 {
                     var bond = ChessSession.Instance.Bond(key);
@@ -172,9 +165,12 @@ namespace RepGame.Chess.UI
             var text = $"战力 <b>{card.Points}</b>";
             if (card.Bonus != 0) text += $"（含永久加成 {card.Bonus:+#;-#;0}）";
             var maxStar = s.Config?.MaxStar ?? 3;
-            if (card.Star >= maxStar && line != null && !string.IsNullOrEmpty(line.LegendDesc))
+            if (line != null && !string.IsNullOrEmpty(line.LegendDesc))
             {
-                text += $"\n技能：{line.LegendDesc}";
+                // 未到 3★ 时也提示技能（灰色），让玩家知道合成目标
+                text += card.Star >= maxStar
+                    ? $"\n<color=#C9A24A>{maxStar}★ 技能</color>：{line.LegendDesc}"
+                    : $"\n<color=#8A9290>{maxStar}★ 解锁：{line.LegendDesc}</color>";
             }
             text += $"\n出售可得 {card.SellPrice} 金";
             return text;
