@@ -36,7 +36,8 @@ namespace RepGame.UI.Chess
         public static readonly Color Cost3 = Hex("#7D3C98");
         public static Color CostColor(int cost) => cost >= CardRank.CostHigh ? Cost3 : cost == CardRank.CostMid ? Cost2 : Cost1;
 
-        /// <summary>卡面底色：1★ 宣纸、2★ 浅青、3★ 金纸</summary>
-        public static Color StarPaper(int star) => star >= CardRank.StarThree ? GoldPaper : star == CardRank.StarTwo ? Cyan : Paper;
+        /// <summary>星级用卡名字色区分（卡面底色不变）：1★ 墨黑、2★ 石青、3★ 金</summary>
+        public static readonly Color StarBlue = Hex("#2E6FA8");
+        public static Color StarText(int star) => star >= CardRank.StarThree ? Gold : star == CardRank.StarTwo ? StarBlue : Ink;
     }
 }

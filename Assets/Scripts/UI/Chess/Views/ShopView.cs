@@ -1,4 +1,5 @@
 ﻿using DG.Tweening;
+using System.Linq;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine;
@@ -26,7 +27,6 @@ namespace RepGame.UI.Chess
         private readonly RectTransform dim;
         private readonly RectTransform drawer;
         private readonly RectTransform cardsRow;
-        private readonly TextMeshProUGUI drawerInfo;
         private readonly TextMeshProUGUI refreshLabel;
         private readonly TextMeshProUGUI lockLabel;
         private readonly TextMeshProUGUI xpLabel;
@@ -71,8 +71,6 @@ namespace RepGame.UI.Chess
 
             var title = UIKit.Text(drawer, "Title", Fmt.T("chess.shop.title", "商店"), 26, Theme.Ink, TextAlignmentOptions.TopLeft, true);
             UIKit.Place(title.rectTransform, 28, Pad + 20, 200, 40);
-            drawerInfo = UIKit.Text(drawer, "Info", "", 14, Theme.WithAlpha(Theme.InkSoft, 0.6f), TextAlignmentOptions.Left);
-            UIKit.Place(drawerInfo.rectTransform, 120, Pad + 26, 700, 24);
             var close = UIKit.Button(drawer, "Close", Theme.Paper, Theme.Ink, "×", 22, Theme.Ink, () => SetOpen(false));
             UIKit.Place((RectTransform)close.transform, DrawerW - 72, Pad + 16, 44, 44);
 
@@ -148,7 +146,6 @@ namespace RepGame.UI.Chess
             if (!prep) SetOpen(false);
             UpdateReady();
 
-            drawerInfo.text = Fmt.T("chess.shop.sellHint", "拖到此处出售");
             refreshLabel.text = self.FreeRefreshes > 0 ? $"刷新 · 免费 ×{self.FreeRefreshes}" : $"刷新 · {(self.RefreshCost > 0 ? self.RefreshCost : cfg?.RefreshCost ?? 2)} 金";
             xpLabel.text = self.XpToNext == 0 ? "已满级" : $"经验 · {cfg?.XpCost ?? 4} 金";
             lockLabel.text = self.ShopLocked ? "已锁定" : "锁定";
@@ -169,9 +166,17 @@ namespace RepGame.UI.Chess
                     var line = ChessSession.Instance.Line(slot.LineKey);
                     var preview = new ChessCard { Name = line.StarNames[0], LineKey = slot.LineKey, Star = 1, Points = line.Points, SellPrice = slot.Cost, Color = slot.Color };
                     rt = CardView.Build(cardsRow, preview, CardW, CardH, true, slot.Cost); // 价格在卡面左上角
-                    if (slot.Owned >= 2) // 已有 2 张同系 1★：买下会合成
+                    // 已有 2 张同系 1★：买下会合成 → 金色高亮「可合成」；否则手里有这张卡（任意星级）→「已拥有」
+                    if (slot.Owned >= 2)
                     {
-                        var own = UIKit.Text(cardsRow, "Mergeable", Fmt.T("chess.shop.mergeable", "可合成"), 15, Theme.GoldText, TextAlignmentOptions.Center, true);
+                        var tag = UIKit.Panel(cardsRow, "Mergeable", Theme.GoldPaper, Theme.Gold, 2f);
+                        UIKit.Place(tag.rectTransform, x + CardW / 2 - 50, CardH + 4, 100, 26);
+                        var mt = UIKit.Text(tag.transform, "Text", Fmt.T("chess.shop.mergeable", "可合成"), 16, Theme.GoldText, TextAlignmentOptions.Center, true);
+                        mt.gameObject.AddComponent<ShimmerText>();
+                    }
+                    else if (self.Board.Any(c => c.LineKey == slot.LineKey) || self.Bench.Any(c => c.LineKey == slot.LineKey))
+                    {
+                        var own = UIKit.Text(cardsRow, "Owned", Fmt.T("chess.shop.owned", "已拥有"), 15, Theme.InkSoft, TextAlignmentOptions.Center);
                         UIKit.Place(own.rectTransform, x, CardH + 4, CardW, 24);
                     }
                     var btn = rt.gameObject.AddComponent<Button>();

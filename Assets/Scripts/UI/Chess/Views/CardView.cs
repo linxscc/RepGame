@@ -17,21 +17,31 @@ namespace RepGame.UI.Chess
         {
             var skin = ChessUISkin.Instance;
             var line = ChessSession.Instance.Line(card.LineKey);
-            // 卡框颜色 = 费用档（一眼区分 1/2/3 费）；底色仍随星级变化
+            // 卡框颜色 = 费用档（一眼区分 1/2/3 费）；星级看卡名字色（底色统一宣纸色，便于辨认卡图）
             var tier = Theme.CostColor(line?.Cost ?? cost);
-            var frame = UIKit.Panel(parent, "Card_" + card.Name, Theme.StarPaper(card.Star), tier, 4f);
+            var frame = UIKit.Panel(parent, "Card_" + card.Name, Theme.Paper, tier, 4f);
             frame.raycastTarget = true;
             var rt = frame.rectTransform;
             rt.sizeDelta = new Vector2(w, h);
 
             var art = skin.Card(card.Name);
-            var artImg = UIKit.Image(frame.transform, "Art", art != null ? Color.white : Theme.Water, art != null ? art : skin.Rounded);
+            // 卡图区域：按原图比例铺满并裁掉多余部分（不拉伸），任何卡牌尺寸下都不变形
+            var artArea = UIKit.Rect(frame.transform, "ArtArea");
+            artArea.anchorMin = new Vector2(0, 0);
+            artArea.anchorMax = new Vector2(1, 1);
+            artArea.offsetMin = new Vector2(5, h * 0.2f);
+            artArea.offsetMax = new Vector2(-5, -5);
+            artArea.gameObject.AddComponent<RectMask2D>();
+            var artImg = UIKit.Image(artArea, "Art", art != null ? Color.white : Theme.Water, art != null ? art : skin.Rounded);
             artImg.preserveAspect = false;
             var art_rt = artImg.rectTransform;
-            art_rt.anchorMin = new Vector2(0, 0);
-            art_rt.anchorMax = new Vector2(1, 1);
-            art_rt.offsetMin = new Vector2(5, h * 0.2f);
-            art_rt.offsetMax = new Vector2(-5, -5);
+            UIKit.Fill(art_rt);
+            if (art != null && art.rect.height > 0)
+            {
+                var fit = artImg.gameObject.AddComponent<AspectRatioFitter>();
+                fit.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                fit.aspectRatio = art.rect.width / art.rect.height;
+            }
             if (art == null)
             {
                 UIKit.Text(artImg.transform, "Placeholder", card.Name, Mathf.Max(13, w * 0.14f), Theme.InkSoft);
@@ -119,7 +129,7 @@ namespace RepGame.UI.Chess
             prt.offsetMin = new Vector2(4, 4);
             prt.offsetMax = new Vector2(-4, h * 0.2f - 4);
 
-            var name = UIKit.Text(frame.transform, "Name", card.Name, Mathf.Max(12, w * 0.135f), Theme.Ink,
+            var name = UIKit.Text(frame.transform, "Name", card.Name, Mathf.Max(12, w * 0.135f), Theme.StarText(card.Star),
                 TextAlignmentOptions.Bottom, true);
             name.rectTransform.offsetMin = new Vector2(4, 4);
             name.rectTransform.offsetMax = new Vector2(-4, 0);

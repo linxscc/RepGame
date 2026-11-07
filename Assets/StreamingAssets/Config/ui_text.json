@@ -65,7 +65,7 @@
     { "key": "chess.score.title", "text": "预计得分", "comment": "分数悬停提示标题" },
     { "key": "chess.score.formula", "text": "战力 {0} × 气势 {1}", "comment": "分数悬停提示，{0}=战力，{1}=气势" },
     { "key": "chess.shop.mergeable", "text": "可合成", "comment": "商店卡牌：购买后将合成升星" },
-    { "key": "chess.shop.sellHint", "text": "拖到此处出售", "comment": "商店抽屉提示" },
+    { "key": "chess.shop.owned", "text": "已拥有", "comment": "商店卡牌下方：手里已有这张卡" },
     { "key": "chess.bond.more", "text": "其余羁绊", "comment": "羁绊栏放不下时的「+N」提示标题" },
     { "key": "lobby.quit.confirm", "text": "确定退出游戏吗？", "comment": "大厅退出二次确认" },
     { "key": "lobby.quit", "text": "退出", "comment": "大厅退出确认按钮" }
