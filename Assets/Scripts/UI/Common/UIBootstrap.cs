@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
+using RepGame.Service;
 using RepGame.Data;
 using RepGame.UI.Chess;
 
@@ -28,15 +30,21 @@ namespace RepGame.UI
             // 登录态也可能在任意界面下变化（会话过期、被顶号），同样挂在常驻对象上
             accountSession = new AccountSessionPresenter();
 
+            StartCoroutine(Boot());
+        }
+
+        /// <summary>先通过 Addressables 预加载界面资源（ChessUISkin 等），再构建依赖它们的界面。</summary>
+        private IEnumerator Boot()
+        {
+            yield return AssetLoader.Preload();
+
             // 新版对局界面：代码构建，收到 MatchConfig 后自动显示
             ChessBattleScreen.Create();
             MatchmakingBar.Create();
-        }
 
-        void Start()
-        {
-            // 延迟一帧显示默认面板，确保所有面板都已注册
-            Invoke("ShowDefaultPanel", ConfigTables.Settings.ui.defaultPanelDelay);
+            // 延迟显示默认面板，确保所有面板都已注册
+            yield return new WaitForSeconds(ConfigTables.Settings.ui.defaultPanelDelay);
+            ShowDefaultPanel();
         }
 
         private void OnDestroy()

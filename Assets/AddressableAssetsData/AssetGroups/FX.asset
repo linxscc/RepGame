@@ -10,14 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Empty
+  m_Name: FX
   m_EditorClassIdentifier: 
-  m_GroupName: Empty
-  m_GUID: c01e166e8433abe4ead837d42c73c975
-  m_SerializeEntries: []
+  m_GroupName: FX
+  m_GUID: da44414815504608a10f153348136568
+  m_SerializeEntries:
+  - m_GUID: c5a2149122934d218204b1fb66842104
+    m_Address: Assets/Art/FX
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: af51ef998262afc4fab5bf280b59926a, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: f4d4e98aa1051de4d9934e170bde4bd0, type: 2}
-    - {fileID: 11400000, guid: 9753a185feb56a04d8082d88ce39544e, type: 2}
+    - {fileID: 11400000, guid: 6b9f2bde4ccd408892577a79e08af0d2, type: 2}
+    - {fileID: 11400000, guid: 8e0dcb37f22b40be8f4974d73b6d12f1, type: 2}

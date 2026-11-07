@@ -10,14 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Cards_Init
+  m_Name: Suits
   m_EditorClassIdentifier: 
-  m_GroupName: Cards_Init
-  m_GUID: 075305be592afe648b2aea301601bca1
-  m_SerializeEntries: []
+  m_GroupName: Suits
+  m_GUID: 0b2102d339604997ae71d9b78be261b1
+  m_SerializeEntries:
+  - m_GUID: 33198f49788e48598ca4ee9682174b94
+    m_Address: Assets/Art/Suits
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: af51ef998262afc4fab5bf280b59926a, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: c246b9b2426606f408411ae53da76ddb, type: 2}
-    - {fileID: 11400000, guid: caa0cd860200db445abd66c4b594681a, type: 2}
+    - {fileID: 11400000, guid: 69684ab09bcd46eeb2e26e83afa402aa, type: 2}
+    - {fileID: 11400000, guid: a0f3457739c84d38b26b08eccefde996, type: 2}

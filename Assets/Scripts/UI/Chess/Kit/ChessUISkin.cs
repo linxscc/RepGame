@@ -3,11 +3,13 @@ using System;
 using TMPro;
 using UnityEngine.TextCore.LowLevel;
 using UnityEngine;
+using RepGame.Service;
 
 namespace RepGame.UI.Chess
 {
     /// <summary>
-    /// 对局界面用到的美术资源（Resources/ChessUISkin.asset）。
+    /// 对局界面用到的美术资源（Assets/GameRes/UI/ChessUISkin.asset，Addressables 地址 "ChessUISkin"，
+    /// 启动时由 AssetLoader 预加载）。
     /// 卡图按卡名查找；找不到时界面会显示带卡名的占位框。
     /// </summary>
     [CreateAssetMenu(menuName = "RepGame/Chess UI Skin")]
@@ -75,6 +77,9 @@ namespace RepGame.UI.Chess
         private Dictionary<string, Sprite> relicIndex;
         private Dictionary<string, Sprite> suitIndex;
 
+        /// <summary>Addressables 地址。</summary>
+        public const string Address = "ChessUISkin";
+
         private static ChessUISkin instance;
 
         public static ChessUISkin Instance
@@ -83,10 +88,10 @@ namespace RepGame.UI.Chess
             {
                 if (instance == null)
                 {
-                    instance = Resources.Load<ChessUISkin>("ChessUISkin");
+                    instance = AssetLoader.Get<ChessUISkin>(Address);
                     if (instance == null)
                     {
-                        Debug.LogError("缺少 Resources/ChessUISkin.asset");
+                        Debug.LogError($"缺少 Addressables 资源 {Address}（Assets/GameRes/UI/ChessUISkin.asset）");
                         instance = CreateInstance<ChessUISkin>();
                     }
                 }
