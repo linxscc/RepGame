@@ -169,7 +169,9 @@ namespace RepGame.Network
                     : "";
                 Debug.LogError($"连接服务器失败: {error?.Message}{hint}");
                 conn.Dispose();
-                EventManager.TriggerEvent(NetEvents.ConnectionFailed, ConfigTables.Text(UiText.ConnectionFailed));
+                // 把具体原因一起显示出来，手机上没有控制台也能看到是哪一步失败
+                var detail = error is System.Net.Sockets.SocketException se ? $"{se.SocketErrorCode}: {se.Message}" : error?.Message;
+                EventManager.TriggerEvent(NetEvents.ConnectionFailed, $"{ConfigTables.Text(UiText.ConnectionFailed)}\n{detail}");
                 ScheduleReconnect();
                 return;
             }

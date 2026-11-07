@@ -64,9 +64,13 @@ namespace RepGame.Network
             // 默认构造的 TcpClient 在部分平台（iOS IL2CPP）是 IPv6 双栈 socket，连局域网 IPv4 地址可能一直超时。
             var address = await ResolveAsync(settings.Host);
             tcp = new TcpClient(address.AddressFamily) { NoDelay = true, SendTimeout = (int)settings.ConnectTimeout.TotalMilliseconds * 2 };
-            var connectTask = tcp.ConnectAsync(address, settings.Port);
+            // 用阻塞式 Connect 放在后台线程里，而不是 TcpClient.ConnectAsync：
+            // iOS（IL2CPP）上异步连接在部分系统版本会一直挂起直到超时，阻塞连接走的是最直接的 BSD connect
+            var client = tcp;
+            var endpoint = new IPEndPoint(address, settings.Port);
+            var connectTask = Task.Run(() => client.Connect(endpoint));
             if (await Task.WhenAny(connectTask, Task.Delay(settings.ConnectTimeout)) != connectTask)
-                throw new TimeoutException($"connect to {settings.Host}:{settings.Port} timed out");
+                throw new TimeoutException($"connect to {address}:{settings.Port} timed out ({address.AddressFamily})");
             await connectTask; // 传播连接异常
 
             Stream netStream = tcp.GetStream();
