@@ -52,3 +52,8 @@ config/*
 # Local environment config (template: .env.example)
 .env
 !.env.example
+
+# CI 打包时临时拷入的服务器配置
+Assets/StreamingAssets/server.env
+Assets/StreamingAssets/server.env.meta
+Builds/

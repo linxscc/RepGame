@@ -13,6 +13,7 @@ namespace RepGame.Data
     public static class EnvConfig
     {
         private const string EnvFileName = ".env";
+        public const string BundledEnvFileName = "server.env";
         private static Dictionary<string, string> _values;
 
         private static Dictionary<string, string> Values
@@ -24,8 +25,20 @@ namespace RepGame.Data
             }
         }
 
-        public static string EnvFilePath =>
-            Path.Combine(Path.GetDirectoryName(Application.dataPath) ?? ".", EnvFileName);
+        /// <summary>
+        /// 编辑器 / PC：项目根目录（或可执行文件旁）的 .env。
+        /// 手机包：找不到时读 StreamingAssets/server.env（CI 打包时把 Mac mini 上的 .env 拷进去；Unity 不会打包以点开头的文件，所以换个名字；不提交到 git）。
+        /// </summary>
+        public static string EnvFilePath
+        {
+            get
+            {
+                var beside = Path.Combine(Path.GetDirectoryName(Application.dataPath) ?? ".", EnvFileName);
+                if (File.Exists(beside)) return beside;
+                var streaming = Path.Combine(Application.streamingAssetsPath, BundledEnvFileName);
+                return File.Exists(streaming) ? streaming : beside;
+            }
+        }
 
         /// <summary>重新读取 .env 文件。</summary>
         public static void Load()

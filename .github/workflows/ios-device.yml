@@ -1,0 +1,53 @@
+name: iOS build to iPhone
+
+# 推送到 main 后，在 Mac mini（自托管 runner）上打 iOS 包并装到配对的 iPhone。
+# 一次性准备见 Docs/iOS打包流水线.md。
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: repgame-ios-mac-mini
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ios:
+    name: Build and install on iPhone
+    runs-on: [self-hosted, macOS]
+    timeout-minutes: 90
+
+    env:
+      UNITY_PATH: ${{ vars.UNITY_PATH }}
+      IOS_BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID }}
+      IOS_TEAM_ID: ${{ vars.IOS_TEAM_ID }}
+      IOS_DEVICE_ID: ${{ vars.IOS_DEVICE_ID }}
+      ENV_FILE: ${{ vars.REPGAME_CLIENT_ENV_FILE }}
+      BUILD_NUMBER: ${{ github.run_number }}
+
+    steps:
+      - name: Check out (keep Library cache)
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          clean: false            # 保留 Library 等忽略目录，避免每次全量导入资源
+          persist-credentials: false
+
+      - name: Build and install
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x scripts/ci/build-ios.sh
+          scripts/ci/build-ios.sh
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build-logs
+          path: Builds/logs
+          if-no-files-found: ignore

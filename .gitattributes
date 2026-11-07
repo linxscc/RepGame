@@ -13,3 +13,6 @@
 *.wav  filter=lfs diff=lfs merge=lfs -text
 *.mp3  filter=lfs diff=lfs merge=lfs -text
 *.ogg  filter=lfs diff=lfs merge=lfs -text
+
+# shell 脚本在 Mac mini 上执行，必须是 LF
+*.sh text eol=lf
